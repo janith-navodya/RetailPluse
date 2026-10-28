@@ -132,3 +132,4 @@ class FactPurchaseOrderSchema(BaseModel):
     status: Literal["PLACED", "IN_TRANSIT", "DELIVERED", "CANCELLED"]
     batch_id: str
     ingested_at: datetime
+

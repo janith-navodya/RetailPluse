@@ -1,24 +1,36 @@
 """Integration tests verifying dead-letter quarantine routing and violation taxonomy."""
 import json
-import sqlite3
+import pyodbc
 import pytest
 from config.settings import settings
 
 
-def test_quarantine_records_structure_and_categories():
+@pytest.fixture(scope="module")
+def db_conn():
+    conn_str = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        "SERVER=localhost;"
+        f"DATABASE={settings.DB_NAME};"
+        "Trusted_Connection=yes;"
+        "TrustServerCertificate=yes;"
+    )
+    conn = pyodbc.connect(conn_str, autocommit=True)
+    yield conn
+    conn.close()
+
+
+def test_quarantine_records_structure_and_categories(db_conn):
     """Verifies that corrupted records are captured with correct taxonomy and intact payloads."""
-    conn = sqlite3.connect(settings.DB_PATH)
-    cursor = conn.cursor()
+    cursor = db_conn.cursor()
 
     # Query all quarantined records
     cursor.execute(
         """
         SELECT quarantine_id, source_feed, raw_payload_json, violation_category, violation_details, batch_id
-        FROM quarantine_invalid_records
+        FROM dbo.quarantine_records
         """
     )
     records = cursor.fetchall()
-    conn.close()
 
     assert len(records) > 0, "Quarantine table should contain records from the controlled test feed"
 
@@ -41,28 +53,30 @@ def test_quarantine_records_structure_and_categories():
 
         # If orphan key, verify the payload actually had an orphaned key
         if cat == "ORPHAN_KEY":
-            assert parsed.get("product_id") == "PRD999" or parsed.get("store_id") == "STR999"
+            assert (
+                parsed.get("product_id") == "PRD999"
+                or parsed.get("store_id") == "STR999"
+                or parsed.get("supplier_id") == "SUP999"
+                or parsed.get("date_key") == 99999999
+            ), f"Expected orphan key in payload: {parsed}"
 
         # If schema error for negative sales, verify gross_sales_amount < 0
         if "gross_sales_amount" in details or "net_sales_amount" in details:
             assert parsed.get("gross_sales_amount", 0) < 0 or parsed.get("net_sales_amount", 0) < 0
 
 
-def test_etl_batch_log_reconciliation():
+def test_etl_batch_log_reconciliation(db_conn):
     """Verifies that the etl_batch_log matches the sum of loaded and quarantined records."""
-    conn = sqlite3.connect(settings.DB_PATH)
-    cursor = conn.cursor()
+    cursor = db_conn.cursor()
 
     cursor.execute(
         """
-        SELECT batch_id, status, records_processed, records_loaded, records_quarantined 
-        FROM etl_batch_log 
-        ORDER BY started_at DESC 
-        LIMIT 1
+        SELECT TOP 1 batch_id, status, records_processed, records_loaded, records_quarantined 
+        FROM dbo.etl_batch_log 
+        ORDER BY started_at DESC
         """
     )
     batch = cursor.fetchone()
-    conn.close()
 
     assert batch is not None, "Batch log must contain at least one run"
     batch_id, status, processed, loaded, quarantined = batch
@@ -71,7 +85,7 @@ def test_etl_batch_log_reconciliation():
     assert processed == loaded + quarantined, (
         f"Record count mismatch in batch {batch_id}: Processed ({processed}) != Loaded ({loaded}) + Quarantined ({quarantined})"
     )
-    assert quarantined == 45, f"Expected exactly 45 injected corruptions, got {quarantined}"
+    assert quarantined == 60, f"Expected exactly 60 injected corruptions (45 sales + 15 inv), got {quarantined}"
 
 
 if __name__ == "__main__":

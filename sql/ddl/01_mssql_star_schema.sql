@@ -169,3 +169,4 @@ GO
 IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = N'IX_fact_po_status')
     CREATE NONCLUSTERED INDEX IX_fact_po_status ON dbo.fact_purchase_orders (status, supplier_id) INCLUDE (order_qty, received_qty);
 GO
+

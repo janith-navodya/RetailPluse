@@ -8,7 +8,7 @@ def test_mssql_star_schema_tables():
     conn_str = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
         "SERVER=localhost;"
-        "DATABASE=RetailPulseDI;"
+        f"DATABASE={settings.DB_NAME};"
         "Trusted_Connection=yes;"
         "TrustServerCertificate=yes;"
     )
@@ -16,10 +16,10 @@ def test_mssql_star_schema_tables():
     cursor = conn.cursor()
 
     cursor.execute(
-        """
+        f"""
         SELECT TABLE_NAME 
         FROM INFORMATION_SCHEMA.TABLES 
-        WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG = 'RetailPulseDI';
+        WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG = '{settings.DB_NAME}';
         """
     )
     tables = {row[0] for row in cursor.fetchall()}
@@ -32,7 +32,7 @@ def test_mssql_star_schema_tables():
         "fact_sales_daily",
         "fact_inventory_snapshot",
         "fact_purchase_orders",
-        "quarantine_invalid_records",
+        "quarantine_records",
         "etl_batch_log",
     }
 
@@ -44,3 +44,4 @@ def test_mssql_star_schema_tables():
 
 if __name__ == "__main__":
     test_mssql_star_schema_tables()
+

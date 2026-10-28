@@ -149,3 +149,4 @@ class DataValidator:
                 return f"Orphaned date_key: '{record['date_key']}' not found in dim_date"
 
         return None
+

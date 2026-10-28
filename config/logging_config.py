@@ -20,3 +20,4 @@ def setup_logger(name: str = "retailpulse", level: int = logging.INFO) -> loggin
 
 
 logger = setup_logger()
+

@@ -20,8 +20,9 @@ class Settings:
     # Database configuration: Defaults to local Microsoft SQL Server 2025 Developer instance
     # Authentication: Windows Integrated Authentication (-E) | Driver: ODBC Driver 18 for SQL Server
     DB_DIALECT: str = os.getenv("DB_DIALECT", "mssql")
+    DB_NAME: str = os.getenv("DB_NAME", "RetailPulseDB")
     MSSQL_DATABASE_URL: str = (
-        "mssql+pyodbc://@localhost/RetailPulseDI?"
+        f"mssql+pyodbc://@localhost/{DB_NAME}?"
         "driver=ODBC+Driver+18+for+SQL+Server&"
         "trusted_connection=yes&"
         "TrustServerCertificate=yes"
