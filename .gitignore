@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Data and SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+data/raw/
+data/processed/
+data/quarantine/
+
+# Power BI temp files
+*.pbit
+*.pbix.temp
+
+# Testing and reports
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
