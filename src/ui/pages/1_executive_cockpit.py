@@ -153,8 +153,8 @@ with tab_charts:
             },
             labels={"days_of_supply": "Days of Supply (Days)", "count": "SKU Count"},
         )
-        fig_dos.add_vline(x=14.0, line_dash="dash", line_color="#EF4444", annotation_text="Critical Runout (14D)")
-        fig_dos.add_vline(x=45.0, line_dash="dash", line_color="#3B82F6", annotation_text="Excess Buffer (45D)")
+        fig_dos.add_vline(x=14.0, line_dash="dash", line_color="#EF4444", annotation_text="Critical (14D)", annotation_position="top left")
+        fig_dos.add_vline(x=45.0, line_dash="dash", line_color="#3B82F6", annotation_text="Excess (45D)", annotation_position="top right")
         apply_plotly_dark_theme(fig_dos, title="Days of Supply (DoS) Fleet Profile", height=380)
         st.plotly_chart(fig_dos, width="stretch")
 
