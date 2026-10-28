@@ -163,3 +163,4 @@ class StochasticInventoryController:
             results.append(res)
 
         return results
+
