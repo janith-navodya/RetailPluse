@@ -136,3 +136,4 @@ Re-running an ETL pipeline often causes duplicated rows, corrupted aggregations,
    - For every prediction made at origin $T$, feature transforms (lags, rolling averages) utilize data strictly from $t \le T-1$.
    - The test fold only evaluates dates $t \in [T+1, T+H]$.
    - This guarantees 100% leak-free evaluation replicating actual operational production deployments.
+

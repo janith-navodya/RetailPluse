@@ -79,3 +79,4 @@ streamlit run app.py
 
 ## 🎯 Conclusion (Wrap-up Statement)
 > *"RetailPulse DI brings data engineering rigor, time-series machine learning, and operations research optimization together into an end-to-end local production system. All 63 automated tests are green, backed by full Kimball dimensional modeling and clean architecture."*
+
