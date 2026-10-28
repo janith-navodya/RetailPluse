@@ -135,3 +135,4 @@ class LightGBMQuantileForecaster:
             "P50": np.round(sorted_quantiles[:, 1], 2),
             "P90": np.round(sorted_quantiles[:, 2], 2),
         }
+

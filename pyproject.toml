@@ -44,6 +44,10 @@ python_functions = ["test_*"]
 filterwarnings = [
     "ignore::UserWarning"
 ]
+markers = [
+    "database: Integration tests requiring active database connection",
+    "slow: Tests that execute long simulations or model training"
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -147,3 +147,4 @@ def uncensor_retail_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """Convenience functional wrapper."""
     uncensorer = DemandUncensorer(lookback_days=28, min_samples=2)
     return uncensorer.uncensor_dataframe(df)
+

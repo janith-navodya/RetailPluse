@@ -133,3 +133,4 @@ def generate_forecasting_dataset(
     df_feat = pipeline.build_features(df)
     X, y = pipeline.get_feature_and_target_matrices(df_feat)
     return df_feat, X, y
+
