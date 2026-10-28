@@ -93,3 +93,4 @@ SELECT
 FROM overall_sales s
 CROSS JOIN overall_inv i;
 GO
+

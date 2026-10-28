@@ -87,3 +87,4 @@ GROUP BY
     p.category,
     p.brand;
 GO
+

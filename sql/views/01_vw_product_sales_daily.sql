@@ -71,3 +71,4 @@ INNER JOIN dbo.dim_store st ON s.store_id = st.store_id
 INNER JOIN dbo.dim_product p ON s.product_id = p.product_id
 INNER JOIN dbo.dim_date d ON s.date_key = d.date_key;
 GO
+

@@ -8,6 +8,7 @@ SQLAlchemy>=2.0.25
 pyodbc>=5.0.0
 
 # Applied Forecasting & Optimization
+scikit-learn>=1.4.0
 lightgbm>=4.3.0
 pulp>=2.8.0
 
