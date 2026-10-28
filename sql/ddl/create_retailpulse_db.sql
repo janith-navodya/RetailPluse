@@ -243,3 +243,4 @@ GO
 IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = N'IX_quarantine_category')
     CREATE NONCLUSTERED INDEX IX_quarantine_category ON dbo.quarantine_records (violation_category);
 GO
+

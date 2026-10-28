@@ -33,3 +33,4 @@ for row in cursor.fetchall():
 
 print("=" * 60)
 conn.close()
+
