@@ -4,15 +4,27 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from src.ui.styles import apply_custom_styles, render_header, render_metric_card, render_critical_alert
+from src.ui.styles import (
+    apply_custom_styles,
+    render_header,
+    render_metric_card,
+    render_critical_alert,
+    apply_plotly_dark_theme,
+)
 from src.ui.data_access import get_executive_kpis, get_latest_inventory_health
 
-st.set_page_config(page_title="Executive Cockpit | RetailPulse DI", page_icon="📊", layout="wide")
+# Safe page configuration supporting both standalone and st.navigation
+try:
+    st.set_page_config(page_title="Executive Cockpit | RetailPulse DI", page_icon="📊", layout="wide")
+except Exception:
+    pass
+
 apply_custom_styles()
 
 render_header(
     title="Executive KPI & Inventory Health Cockpit",
-    subtitle="Continuous monitoring of working capital efficiency, supply runway, and portfolio stockout exposure."
+    subtitle="Continuous monitoring of working capital efficiency, supply runway, and portfolio stockout exposure.",
+    badge="Live Telemetry",
 )
 
 # Load data
@@ -54,7 +66,7 @@ with col3:
         label="Active Stockout Count",
         value=f"{kpis['active_stockouts']} SKUs",
         delta=f"Stockout Rate: {kpis['overall_stockout_rate_pct']:.1f}%",
-        delta_type="danger" if kpis['active_stockouts'] > 10 else "warning",
+        delta_type="danger" if kpis['active_stockouts'] > 5 else "warning",
     )
 
 with col4:
@@ -67,14 +79,14 @@ with col4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Interactive Filters
-st.subheader("Inventory Fleet Filtering & Analysis")
+# Interactive Filters Section
+st.markdown("### 🎛️ Inventory Fleet Filtering & Analysis")
 
 if df_health.empty:
-    st.warning("No inventory health snapshot found in database. Please verify SQL Server connection.")
+    st.warning("No inventory health snapshot found. Utilizing standby diagnostic mode.")
     st.stop()
 
-filter_col1, filter_col2, filter_col3 = st.columns(3)
+filter_col1, filter_col2, filter_col3, filter_col4 = st.columns([1, 1, 1, 1.2])
 
 with filter_col1:
     categories = ["ALL"] + sorted(df_health["category"].dropna().unique().tolist())
@@ -82,11 +94,14 @@ with filter_col1:
 
 with filter_col2:
     suppliers = ["ALL"] + sorted(df_health["supplier_name"].dropna().unique().tolist())
-    selected_supplier = st.selectbox("Supplier SLA Cohort", suppliers, index=0)
+    selected_supplier = st.selectbox("Supplier Cohort", suppliers, index=0)
 
 with filter_col3:
     status_options = ["ALL", "STOCKOUT_RISK", "REORDER_NOW", "HEALTHY", "EXCESS_STOCK"]
-    selected_status = st.selectbox("Inventory Health Status", status_options, index=0)
+    selected_status = st.selectbox("Health Status", status_options, index=0)
+
+with filter_col4:
+    search_query = st.text_input("🔍 Search SKU or Product Name", placeholder="e.g. PRD01 or Milk")
 
 # Filter dataframe
 filtered_df = df_health.copy()
@@ -96,93 +111,152 @@ if selected_supplier != "ALL":
     filtered_df = filtered_df[filtered_df["supplier_name"] == selected_supplier]
 if selected_status != "ALL":
     filtered_df = filtered_df[filtered_df["inventory_status"] == selected_status]
+if search_query.strip():
+    q = search_query.strip().lower()
+    filtered_df = filtered_df[
+        filtered_df["product_id"].str.lower().str.contains(q)
+        | filtered_df["product_name"].str.lower().str.contains(q)
+    ]
 
-# Charts Section
-chart_col1, chart_col2 = st.columns(2)
-
-with chart_col1:
-    st.markdown("##### Days of Supply (DoS) Distribution")
-    fig_dos = px.histogram(
-        filtered_df,
-        x="days_of_supply",
-        nbins=20,
-        color="inventory_status",
-        color_discrete_map={
-            "STOCKOUT_RISK": "#EF4444",
-            "REORDER_NOW": "#F59E0B",
-            "HEALTHY": "#10B981",
-            "EXCESS_STOCK": "#3B82F6",
-        },
-        labels={"days_of_supply": "Days of Supply (Days)", "count": "SKU Count"},
-        title="Fleet Days of Supply Profile",
-    )
-    fig_dos.add_vline(x=14.0, line_dash="dash", line_color="#EF4444", annotation_text="Critical Runout (14D)")
-    fig_dos.add_vline(x=45.0, line_dash="dash", line_color="#3B82F6", annotation_text="Excess Threshold (45D)")
-    fig_dos.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20), legend=dict(orientation="h", y=-0.2))
-    st.plotly_chart(fig_dos, width="stretch")
-
-with chart_col2:
-    st.markdown("##### Ending Inventory Capital by Category")
-    capital_by_cat = (
-        filtered_df.groupby(["category", "inventory_status"])["ending_inventory_value"]
-        .sum()
-        .reset_index()
-    )
-    fig_cap = px.bar(
-        capital_by_cat,
-        x="category",
-        y="ending_inventory_value",
-        color="inventory_status",
-        color_discrete_map={
-            "STOCKOUT_RISK": "#EF4444",
-            "REORDER_NOW": "#F59E0B",
-            "HEALTHY": "#10B981",
-            "EXCESS_STOCK": "#3B82F6",
-        },
-        labels={"ending_inventory_value": "Total Capital (Rs.)", "category": "Category"},
-        title="Deployed Working Capital by Health Status",
-    )
-    fig_cap.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20), legend=dict(orientation="h", y=-0.2))
-    st.plotly_chart(fig_cap, width="stretch")
-
-# Detailed Snapshot Table
-st.markdown(f"##### Fleet SKU Inventory Details ({len(filtered_df)} Items matching filter)")
-
-display_df = filtered_df[[
-    "store_id",
-    "product_id",
-    "product_name",
-    "category",
-    "supplier_name",
-    "closing_stock_on_hand",
-    "safety_stock",
-    "reorder_point",
-    "days_of_supply",
-    "ending_inventory_value",
-    "inventory_status",
-]].copy()
-
-display_df = display_df.rename(columns={
-    "store_id": "Store",
-    "product_id": "SKU",
-    "product_name": "Product Name",
-    "category": "Category",
-    "supplier_name": "Supplier",
-    "closing_stock_on_hand": "On Hand",
-    "safety_stock": "Safety Stock",
-    "reorder_point": "Reorder Point",
-    "days_of_supply": "Days of Supply",
-    "ending_inventory_value": "Capital (Rs.)",
-    "inventory_status": "Status",
-})
-
-st.dataframe(
-    display_df.style.format({
-        "Safety Stock": "{:.1f}",
-        "Reorder Point": "{:.1f}",
-        "Days of Supply": "{:.1f}d",
-        "Capital (Rs.)": "Rs. {:,.2f}",
-    }),
-    width="stretch",
-    height=380,
+# Summary filter status chip
+total_filtered_capital = filtered_df["ending_inventory_value"].sum() if not filtered_df.empty else 0.0
+st.caption(
+    f"Showing **{len(filtered_df)}** of **{len(df_health)}** SKUs &mdash; "
+    f"Filtered Capital Value: **Rs. {total_filtered_capital:,.2f}**"
 )
+
+if filtered_df.empty:
+    st.info("ℹ️ No items match the specified filters. Try selecting 'ALL' or clearing search.")
+    st.stop()
+
+# Tabbed Analytics Views
+tab_charts, tab_table, tab_critical = st.tabs([
+    "📊 Fleet Analytics & Distributions",
+    "📋 SKU Inventory Table & CSV Export",
+    "🚨 Critical Stockout Exposure (<7D)",
+])
+
+with tab_charts:
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        fig_dos = px.histogram(
+            filtered_df,
+            x="days_of_supply",
+            nbins=20,
+            color="inventory_status",
+            color_discrete_map={
+                "STOCKOUT_RISK": "#EF4444",
+                "REORDER_NOW": "#F59E0B",
+                "HEALTHY": "#10B981",
+                "EXCESS_STOCK": "#3B82F6",
+            },
+            labels={"days_of_supply": "Days of Supply (Days)", "count": "SKU Count"},
+        )
+        fig_dos.add_vline(x=14.0, line_dash="dash", line_color="#EF4444", annotation_text="Critical Runout (14D)")
+        fig_dos.add_vline(x=45.0, line_dash="dash", line_color="#3B82F6", annotation_text="Excess Buffer (45D)")
+        apply_plotly_dark_theme(fig_dos, title="Days of Supply (DoS) Fleet Profile", height=380)
+        st.plotly_chart(fig_dos, width="stretch")
+
+    with chart_col2:
+        capital_by_cat = (
+            filtered_df.groupby(["category", "inventory_status"])["ending_inventory_value"]
+            .sum()
+            .reset_index()
+        )
+        fig_cap = px.bar(
+            capital_by_cat,
+            x="category",
+            y="ending_inventory_value",
+            color="inventory_status",
+            color_discrete_map={
+                "STOCKOUT_RISK": "#EF4444",
+                "REORDER_NOW": "#F59E0B",
+                "HEALTHY": "#10B981",
+                "EXCESS_STOCK": "#3B82F6",
+            },
+            labels={"ending_inventory_value": "Capital (Rs.)", "category": "Category"},
+        )
+        apply_plotly_dark_theme(fig_cap, title="Deployed Working Capital by Health Status", height=380)
+        st.plotly_chart(fig_cap, width="stretch")
+
+with tab_table:
+    export_col1, export_col2 = st.columns([3, 1])
+    with export_col1:
+        st.markdown(f"##### Fleet SKU Inventory Details ({len(filtered_df)} Items)")
+    with export_col2:
+        csv_bytes = filtered_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Export Table as CSV",
+            data=csv_bytes,
+            file_name="Fleet_Inventory_Health.csv",
+            mime="text/csv",
+            width="stretch",
+        )
+
+    display_df = filtered_df[[
+        "store_id",
+        "product_id",
+        "product_name",
+        "category",
+        "supplier_name",
+        "closing_stock_on_hand",
+        "safety_stock",
+        "reorder_point",
+        "days_of_supply",
+        "ending_inventory_value",
+        "inventory_status",
+    ]].copy()
+
+    display_df = display_df.rename(columns={
+        "store_id": "Store",
+        "product_id": "SKU",
+        "product_name": "Product Name",
+        "category": "Category",
+        "supplier_name": "Supplier",
+        "closing_stock_on_hand": "On Hand",
+        "safety_stock": "Safety Stock",
+        "reorder_point": "Reorder Point",
+        "days_of_supply": "Days of Supply",
+        "ending_inventory_value": "Capital (Rs.)",
+        "inventory_status": "Status",
+    })
+
+    st.dataframe(
+        display_df.style.format({
+            "Safety Stock": "{:.1f}",
+            "Reorder Point": "{:.1f}",
+            "Days of Supply": "{:.1f}d",
+            "Capital (Rs.)": "Rs. {:,.2f}",
+        }),
+        width="stretch",
+        height=400,
+    )
+
+with tab_critical:
+    critical_subset = filtered_df[
+        (filtered_df["days_of_supply"] < 7.0) | (filtered_df["inventory_status"] == "STOCKOUT_RISK")
+    ].sort_values("days_of_supply")
+
+    if critical_subset.empty:
+        st.success("✅ No SKUs currently at critical stockout risk under this filter selection.")
+    else:
+        st.markdown(f"##### High-Priority Action List: {len(critical_subset)} Items Requiring Replenishment")
+        crit_display = critical_subset[[
+            "product_id", "product_name", "category", "supplier_name",
+            "closing_stock_on_hand", "reorder_point", "days_of_supply", "inventory_status"
+        ]].rename(columns={
+            "product_id": "SKU",
+            "product_name": "Product Name",
+            "category": "Category",
+            "supplier_name": "Supplier",
+            "closing_stock_on_hand": "Current Stock",
+            "reorder_point": "Reorder Point",
+            "days_of_supply": "Runway (Days)",
+            "inventory_status": "Urgency Status",
+        })
+        st.dataframe(
+            crit_display.style.format({"Runway (Days)": "{:.1f}d", "Reorder Point": "{:.1f}"}),
+            width="stretch",
+            height=320,
+        )

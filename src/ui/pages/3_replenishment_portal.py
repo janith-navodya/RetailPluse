@@ -9,12 +9,18 @@ from src.decision.safety_stock import StochasticInventoryController, InventorySt
 from src.decision.optimizer import ConstrainedReplenishmentOptimizer, ReplenishmentOrderRecommendation
 from src.decision.persistence import ReplenishmentPersistenceEngine
 
-st.set_page_config(page_title="Replenishment Portal | RetailPulse DI", page_icon="🛒", layout="wide")
+# Safe page configuration supporting both standalone and st.navigation
+try:
+    st.set_page_config(page_title="Replenishment Portal | RetailPulse DI", page_icon="🛒", layout="wide")
+except Exception:
+    pass
+
 apply_custom_styles()
 
 render_header(
     title="Constrained Replenishment Engine & Decision Portal",
-    subtitle="Mixed-Integer Linear Programming (MILP) replenishment allocations under working capital and MOQ constraints."
+    subtitle="Mixed-Integer Linear Programming (MILP) replenishment allocations under working capital and MOQ constraints.",
+    badge="MILP Optimization",
 )
 
 persistence = ReplenishmentPersistenceEngine()
@@ -25,16 +31,16 @@ if df_health.empty:
     st.stop()
 
 # Sidebar Optimization Controls
-st.sidebar.markdown("### Optimization Parameters")
+st.sidebar.markdown("### ⚙️ Optimization Parameters")
 store_options = sorted(df_health["store_id"].unique().tolist())
 selected_store = st.sidebar.selectbox("Store Location", store_options, index=0)
 
 budget_input = st.sidebar.slider(
     "Working Capital Budget (Rs.)",
-    min_value=1000.0,
-    max_value=100000.0,
-    value=25000.0,
-    step=1000.0,
+    min_value=5000.0,
+    max_value=150000.0,
+    value=35000.0,
+    step=2500.0,
     format="Rs. %d",
 )
 
@@ -50,10 +56,13 @@ max_storage_val = None
 if apply_storage_cap:
     max_storage_val = st.sidebar.number_input("Max Storage Units Capacity", min_value=100, max_value=5000, value=1200)
 
-run_button = st.sidebar.button("Solve Replenishment MILP", type="primary", width="stretch")
+run_button = st.sidebar.button("⚡ Solve Replenishment MILP", type="primary", width="stretch")
 
 # Prepare Candidate SKUs
 store_skus = df_health[df_health["store_id"] == selected_store]
+if store_skus.empty:
+    store_skus = df_health
+
 controller = StochasticInventoryController(default_service_level=service_level_input)
 candidates = []
 
@@ -61,11 +70,11 @@ for _, r in store_skus.iterrows():
     mu_d = float(r["rolling_30d_avg_daily_sales"]) if pd.notna(r["rolling_30d_avg_daily_sales"]) else 5.0
     sig_d = max(1.0, mu_d * 0.35)
     cand = controller.calculate_sku_inventory_status(
-        store_id=r["store_id"],
-        product_id=r["product_id"],
-        product_name=r["product_name"],
-        category=r["category"],
-        supplier_id=r["supplier_id"],
+        store_id=str(r["store_id"]),
+        product_id=str(r["product_id"]),
+        product_name=str(r["product_name"]),
+        category=str(r["category"]),
+        supplier_id=str(r["supplier_id"]),
         pack_size=int(r["pack_size"]),
         min_order_qty=int(r["min_order_qty"]),
         unit_cost_price=float(r["unit_cost_price"]),
@@ -82,15 +91,16 @@ for _, r in store_skus.iterrows():
 
 # Session state management for recommendations
 if "current_recommendations" not in st.session_state or run_button:
-    optimizer = ConstrainedReplenishmentOptimizer()
-    recs, summary = optimizer.optimize_orders(
-        candidates,
-        available_budget=budget_input,
-        max_storage_units=max_storage_val,
-    )
-    st.session_state["current_recommendations"] = recs
-    st.session_state["optimization_summary"] = summary
-    st.session_state["active_date_key"] = 20251231
+    with st.spinner("Solving multi-item integer linear programming model..."):
+        optimizer = ConstrainedReplenishmentOptimizer()
+        recs, summary = optimizer.optimize_orders(
+            candidates,
+            available_budget=budget_input,
+            max_storage_units=max_storage_val,
+        )
+        st.session_state["current_recommendations"] = recs
+        st.session_state["optimization_summary"] = summary
+        st.session_state["active_date_key"] = 20251231
 
 recs = st.session_state.get("current_recommendations", [])
 summary = st.session_state.get("optimization_summary", {})
@@ -121,8 +131,8 @@ with c3:
     stockout_mitigated = sum(1 for r in recs if r.inventory_status == "STOCKOUT_RISK" and r.recommended_units > 0)
     render_metric_card(
         label="Stockout Risks Mitigated",
-        value=f"{stockout_mitigated} / {stockout_cands}",
-        delta="High Priority Allocation",
+        value=f"{stockout_mitigated} / {max(1, stockout_cands)}",
+        delta="Priority Stockout Allocation",
         delta_type="positive" if stockout_mitigated >= stockout_cands else "warning",
     )
 with c4:
@@ -134,10 +144,16 @@ with c4:
         delta_type="positive" if "OPTIMAL" in solver_status else "danger",
     )
 
+# Budget Utilization Visual Progress Bar
+st.markdown("<br>", unsafe_allow_html=True)
+prog_val = min(1.0, max(0.0, alloc / max(1.0, budget_input)))
+st.markdown(f"**Working Capital Budget Utilization: {pct_util:.1f}% of Rs. {budget_input:,.2f}**")
+st.progress(prog_val)
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Replenishment Order Table
-st.markdown("##### Optimized Purchase Order Allocation Schedule")
+st.markdown("### 📋 Optimized Purchase Order Allocation Schedule")
 st.caption(
     "Mathematical guarantees: 1) Strict budget adherence, 2) Semi-continuous MOQ adherence (order = 0 or >= MOQ), "
     "3) Pack size integer modularity (order = k * pack_size)."
@@ -146,6 +162,15 @@ st.caption(
 if not recs:
     st.info("No candidate items require reordering under current inventory positions.")
     st.stop()
+
+# Table filter controls
+t_col1, t_col2 = st.columns([2, 1])
+with t_col1:
+    filter_order_view = st.radio(
+        "Order Filter Mode",
+        options=["Orders Recommended (>0 Units)", "All Evaluated SKUs", "Stockout Risks Only"],
+        horizontal=True,
+    )
 
 # Convert recs to DataFrame
 table_data = []
@@ -176,37 +201,46 @@ for r in recs:
 
 df_table = pd.DataFrame(table_data)
 
+# Filter based on radio selection
+if filter_order_view == "Orders Recommended (>0 Units)":
+    display_table = df_table[df_table["Rec. Units"] > 0]
+elif filter_order_view == "Stockout Risks Only":
+    display_table = df_table[df_table["Status"] == "STOCKOUT_RISK"]
+else:
+    display_table = df_table
+
 st.dataframe(
-    df_table.style.format({
+    display_table.style.format({
         "ROP": "{:.1f}",
         "Deficit": "{:.1f}",
         "Unit Cost (Rs.)": "Rs. {:.2f}",
         "Total Cost (Rs.)": "Rs. {:,.2f}",
     }),
     width="stretch",
-    height=400,
+    height=380,
 )
 
 # Workflow Approval Section
 st.markdown("---")
-st.markdown("### Manager Approval & Database Write-Back Workflow")
+st.markdown("### 💼 Operational Workflow & Decision Write-Back")
 
 st.caption(
     "Submit generated recommendations to Microsoft SQL Server (`dbo.fact_replenishment_recommendation`). "
-    "Managers can approve, modify order quantities, or reject recommendations."
+    "Managers can bulk approve, single modify, or export purchase orders."
 )
 
 col_act1, col_act2, col_act3 = st.columns([1, 1, 1])
 
 with col_act1:
-    st.markdown("##### Batch Commit to Database")
-    if st.button("Save Fresh Recommendations Batch (PROPOSED)", type="secondary", width="stretch"):
+    st.markdown("##### 💾 Save Batch (PROPOSED)")
+    if st.button("Save Fresh Recommendations Batch", type="secondary", width="stretch"):
         count = persistence.persist_recommendations(recs, run_date_key=active_date_key)
+        st.toast(f"✅ Persisted {count} recommendations to database!")
         st.success(f"Successfully persisted {count} recommendations to SQL Server table dbo.fact_replenishment_recommendation.")
 
 with col_act2:
-    st.markdown("##### Quick Action: Bulk Approve")
-    if st.button("Approve All Recommended Purchase Orders", type="primary", width="stretch"):
+    st.markdown("##### 🚀 Quick Action: Bulk Approve")
+    if st.button("Approve All Recommended Orders", type="primary", width="stretch"):
         persistence.persist_recommendations(recs, run_date_key=active_date_key)
         approved_count = 0
         for r in recs:
@@ -214,13 +248,15 @@ with col_act2:
                 rec_id = f"REC-{active_date_key}-{r.store_id}-{r.product_id}"
                 persistence.update_recommendation_status(rec_id, "APPROVED")
                 approved_count += 1
+        st.toast(f"🎉 Approved {approved_count} purchase orders!")
+        st.balloons()
         st.success(f"Approved {approved_count} purchase orders in SQL Server database.")
 
 with col_act3:
-    st.markdown("##### Export Order Schedule")
-    csv_data = df_table.to_csv(index=False).encode("utf-8")
+    st.markdown("##### 📥 Export Order Schedule")
+    csv_data = display_table.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="📥 Download Purchase Order (CSV)",
+        label="Download Purchase Order (CSV)",
         data=csv_data,
         file_name=f"Purchase_Order_{selected_store}_{active_date_key}.csv",
         mime="text/csv",
@@ -228,14 +264,25 @@ with col_act3:
     )
 
 # Single Item Modification / Review
-st.markdown("##### Single Recommendation Review & Quantity Override")
-rec_ids = [f"REC-{active_date_key}-{r.store_id}-{r.product_id}" for r in recs if r.recommended_units > 0]
+st.markdown("##### ✏️ Single Recommendation Review & Quantity Override")
+rec_ordered = [r for r in recs if r.recommended_units > 0]
+if not rec_ordered:
+    rec_ordered = recs[:5]
 
-if rec_ids:
+rec_options = {
+    f"REC-{active_date_key}-{r.store_id}-{r.product_id}": f"{r.product_id} — {r.product_name} (Rec: {r.recommended_units} units)"
+    for r in rec_ordered
+}
+
+if rec_options:
     rev_c1, rev_c2, rev_c3 = st.columns([2, 1, 1])
     with rev_c1:
-        target_rec_id = st.selectbox("Select Recommendation to Review", rec_ids, index=0)
-        # Find matching rec
+        target_rec_id = st.selectbox(
+            "Select Recommendation to Review",
+            options=list(rec_options.keys()),
+            format_func=lambda x: rec_options[x],
+            index=0,
+        )
         chosen_rec = next(r for r in recs if f"REC-{active_date_key}-{r.store_id}-{r.product_id}" == target_rec_id)
         st.write(
             f"**Item:** {chosen_rec.product_name} | **Current Units:** {chosen_rec.recommended_units} | "
@@ -249,6 +296,7 @@ if rec_ids:
             max_value=200,
             value=chosen_rec.recommended_packs,
             step=1,
+            key=f"pack_input_{target_rec_id}",
         )
         new_units = new_packs * chosen_rec.pack_size
         st.write(f"New Order: **{new_units} units** (Rs. {new_units * chosen_rec.unit_cost_price:,.2f})")
@@ -260,8 +308,9 @@ if rec_ids:
         if btn_apply:
             if new_units != chosen_rec.recommended_units:
                 persistence.update_recommendation_status(target_rec_id, "MODIFIED", modified_units=new_units)
+                st.toast(f"📝 Modified {chosen_rec.product_id} to {new_units} units")
                 st.success(f"Updated {target_rec_id} to MODIFIED with {new_units} units.")
             else:
                 persistence.update_recommendation_status(target_rec_id, "APPROVED")
+                st.toast(f"✅ Approved {chosen_rec.product_id}")
                 st.success(f"Marked {target_rec_id} as APPROVED.")
-
