@@ -42,3 +42,4 @@ def test_ddl_star_and_quarantine_schema():
 
 if __name__ == "__main__":
     test_ddl_star_and_quarantine_schema()
+

@@ -38,3 +38,4 @@ CREATE TABLE IF NOT EXISTS quarantine_invalid_records (
 CREATE INDEX IF NOT EXISTS idx_quarantine_batch ON quarantine_invalid_records(batch_id);
 CREATE INDEX IF NOT EXISTS idx_quarantine_feed ON quarantine_invalid_records(source_feed);
 CREATE INDEX IF NOT EXISTS idx_quarantine_category ON quarantine_invalid_records(violation_category);
+

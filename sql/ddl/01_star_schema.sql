@@ -144,3 +144,4 @@ CREATE INDEX IF NOT EXISTS idx_inv_stockout ON fact_inventory_snapshot(is_stocko
 CREATE INDEX IF NOT EXISTS idx_po_dates ON fact_purchase_orders(order_date_key, expected_delivery_date_key);
 CREATE INDEX IF NOT EXISTS idx_po_supplier ON fact_purchase_orders(supplier_id);
 CREATE INDEX IF NOT EXISTS idx_po_status ON fact_purchase_orders(status);
+
