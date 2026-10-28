@@ -30,12 +30,12 @@ store_options = sorted(df_health["store_id"].unique().tolist())
 selected_store = st.sidebar.selectbox("Store Location", store_options, index=0)
 
 budget_input = st.sidebar.slider(
-    "Working Capital Budget ($)",
+    "Working Capital Budget (Rs.)",
     min_value=1000.0,
-    max_value=50000.0,
-    value=15000.0,
+    max_value=100000.0,
+    value=25000.0,
     step=1000.0,
-    format="$%d",
+    format="Rs. %d",
 )
 
 service_level_input = st.sidebar.selectbox(
@@ -105,8 +105,8 @@ pct_util = (alloc / max(1.0, budget_input)) * 100.0
 with c1:
     render_metric_card(
         label="Budget Allocated",
-        value=f"${alloc:,.2f}",
-        delta=f"Remaining: ${rem:,.2f} ({pct_util:.1f}% used)",
+        value=f"Rs. {alloc:,.2f}",
+        delta=f"Remaining: Rs. {rem:,.2f} ({pct_util:.1f}% used)",
         delta_type="positive" if pct_util <= 100.0 else "danger",
     )
 with c2:
@@ -168,8 +168,8 @@ for r in recs:
         "MOQ": r.min_order_qty,
         "Rec. Packs": r.recommended_packs,
         "Rec. Units": r.recommended_units,
-        "Unit Cost": r.unit_cost_price,
-        "Total Cost": r.estimated_cost,
+        "Unit Cost (Rs.)": r.unit_cost_price,
+        "Total Cost (Rs.)": r.estimated_cost,
         "MOQ Compliant": moq_check,
         "Pack Compliant": pack_check,
     })
@@ -180,8 +180,8 @@ st.dataframe(
     df_table.style.format({
         "ROP": "{:.1f}",
         "Deficit": "{:.1f}",
-        "Unit Cost": "${:.2f}",
-        "Total Cost": "${:,.2f}",
+        "Unit Cost (Rs.)": "Rs. {:.2f}",
+        "Total Cost (Rs.)": "Rs. {:,.2f}",
     }),
     width="stretch",
     height=400,
@@ -196,7 +196,7 @@ st.caption(
     "Managers can approve, modify order quantities, or reject recommendations."
 )
 
-col_act1, col_act2 = st.columns([1, 1])
+col_act1, col_act2, col_act3 = st.columns([1, 1, 1])
 
 with col_act1:
     st.markdown("##### Batch Commit to Database")
@@ -205,7 +205,7 @@ with col_act1:
         st.success(f"Successfully persisted {count} recommendations to SQL Server table dbo.fact_replenishment_recommendation.")
 
 with col_act2:
-    st.markdown("##### Quick Action: Bulk Approve All Positive Orders")
+    st.markdown("##### Quick Action: Bulk Approve")
     if st.button("Approve All Recommended Purchase Orders", type="primary", width="stretch"):
         persistence.persist_recommendations(recs, run_date_key=active_date_key)
         approved_count = 0
@@ -215,6 +215,17 @@ with col_act2:
                 persistence.update_recommendation_status(rec_id, "APPROVED")
                 approved_count += 1
         st.success(f"Approved {approved_count} purchase orders in SQL Server database.")
+
+with col_act3:
+    st.markdown("##### Export Order Schedule")
+    csv_data = df_table.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="📥 Download Purchase Order (CSV)",
+        data=csv_data,
+        file_name=f"Purchase_Order_{selected_store}_{active_date_key}.csv",
+        mime="text/csv",
+        width="stretch",
+    )
 
 # Single Item Modification / Review
 st.markdown("##### Single Recommendation Review & Quantity Override")
@@ -228,7 +239,7 @@ if rec_ids:
         chosen_rec = next(r for r in recs if f"REC-{active_date_key}-{r.store_id}-{r.product_id}" == target_rec_id)
         st.write(
             f"**Item:** {chosen_rec.product_name} | **Current Units:** {chosen_rec.recommended_units} | "
-            f"**Unit Cost:** ${chosen_rec.unit_cost_price:.2f} | **Pack Size:** {chosen_rec.pack_size}"
+            f"**Unit Cost:** Rs. {chosen_rec.unit_cost_price:.2f} | **Pack Size:** {chosen_rec.pack_size}"
         )
 
     with rev_c2:
@@ -240,7 +251,7 @@ if rec_ids:
             step=1,
         )
         new_units = new_packs * chosen_rec.pack_size
-        st.write(f"New Order: **{new_units} units** (${new_units * chosen_rec.unit_cost_price:,.2f})")
+        st.write(f"New Order: **{new_units} units** (Rs. {new_units * chosen_rec.unit_cost_price:,.2f})")
 
     with rev_c3:
         st.write("")

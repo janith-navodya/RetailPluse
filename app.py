@@ -4,6 +4,7 @@ Main application entrypoint configuring multipage navigation, branding, and syst
 Run with: streamlit run app.py
 """
 import streamlit as st
+from src.ui.styles import apply_custom_styles
 
 st.set_page_config(
     page_title="RetailPulse Decision Intelligence Portal",
@@ -11,6 +12,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+apply_custom_styles()
 
 # Sidebar System Health & Branding
 with st.sidebar:

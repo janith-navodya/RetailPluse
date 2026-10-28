@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from src.ui.styles import apply_custom_styles, render_header, render_metric_card
+from src.ui.styles import apply_custom_styles, render_header, render_metric_card, render_critical_alert
 from src.ui.data_access import get_executive_kpis, get_latest_inventory_health
 
 st.set_page_config(page_title="Executive Cockpit | RetailPulse DI", page_icon="📊", layout="wide")
@@ -19,6 +19,16 @@ render_header(
 kpis = get_executive_kpis()
 df_health = get_latest_inventory_health()
 
+# Top Critical Stockout Alert Banner
+if not df_health.empty:
+    critical_skus = df_health[(df_health["days_of_supply"] < 3.0) | (df_health["closing_stock_on_hand"] == 0)]
+    if not critical_skus.empty:
+        critical_count = len(critical_skus)
+        render_critical_alert(
+            count=critical_count,
+            details=f"{critical_count} critical items with < 3 days of supply remaining across fleet",
+        )
+
 # Top KPI Metric Cards
 col1, col2, col3, col4 = st.columns(4)
 
@@ -26,7 +36,7 @@ with col1:
     render_metric_card(
         label="Total Gross Margin",
         value=f"{kpis['gross_margin_pct']:.2f}%",
-        delta=f"Net Profit: ${kpis['total_gross_profit']:,.0f}",
+        delta=f"Net Profit: Rs. {kpis['total_gross_profit']:,.0f}",
         delta_type="positive" if kpis['gross_margin_pct'] >= 35.0 else "warning",
     )
 
@@ -50,7 +60,7 @@ with col3:
 with col4:
     render_metric_card(
         label="Excess Working Capital",
-        value=f"${kpis['excess_working_capital']:,.0f}",
+        value=f"Rs. {kpis['excess_working_capital']:,.0f}",
         delta="Trapped Capital in >45D Supply",
         delta_type="warning" if kpis['excess_working_capital'] > 20000 else "positive",
     )
@@ -129,7 +139,7 @@ with chart_col2:
             "HEALTHY": "#10B981",
             "EXCESS_STOCK": "#3B82F6",
         },
-        labels={"ending_inventory_value": "Total Capital ($)", "category": "Category"},
+        labels={"ending_inventory_value": "Total Capital (Rs.)", "category": "Category"},
         title="Deployed Working Capital by Health Status",
     )
     fig_cap.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20), legend=dict(orientation="h", y=-0.2))
@@ -162,7 +172,7 @@ display_df = display_df.rename(columns={
     "safety_stock": "Safety Stock",
     "reorder_point": "Reorder Point",
     "days_of_supply": "Days of Supply",
-    "ending_inventory_value": "Capital ($)",
+    "ending_inventory_value": "Capital (Rs.)",
     "inventory_status": "Status",
 })
 
@@ -171,7 +181,7 @@ st.dataframe(
         "Safety Stock": "{:.1f}",
         "Reorder Point": "{:.1f}",
         "Days of Supply": "{:.1f}d",
-        "Capital ($)": "${:,.2f}",
+        "Capital (Rs.)": "Rs. {:,.2f}",
     }),
     width="stretch",
     height=380,

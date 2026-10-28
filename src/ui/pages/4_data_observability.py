@@ -84,10 +84,10 @@ reconciliation_records = [
     },
     {
         "Metric Name": "Total Cost of Goods Sold",
-        "SQL Server View": "$782,400.00",
-        "Python Independent": "$782,400.00",
+        "SQL Server View": "Rs. 782,400.00",
+        "Python Independent": "Rs. 782,400.00",
         "DAX Formal Specification": "SUMX(fact_sales_daily, quantity_sold * unit_cost_price)",
-        "Discrepancy": "$0.00",
+        "Discrepancy": "Rs. 0.00",
         "Parity Status": "VERIFIED (TOL <= 0.01)",
     },
     {
