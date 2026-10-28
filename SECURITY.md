@@ -79,3 +79,4 @@ $$\text{PROPOSED} \longrightarrow \{\text{APPROVED}, \; \text{MODIFIED}, \; \tex
 | **Relational Integrity** | Strict database-level foreign key and check constraints | **COMPLIANT** |
 | **Secrets Management** | `.gitignore` rules excluding all `.env`, tokens, and logs | **COMPLIANT** |
 | **Decision Safety** | State-machine transitions and bounded HiGHS MILP constraints | **COMPLIANT** |
+
