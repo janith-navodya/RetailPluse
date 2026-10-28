@@ -101,7 +101,7 @@ reconciliation_records = [
 ]
 
 df_recon = pd.DataFrame(reconciliation_records)
-st.dataframe(df_recon, use_container_width=True, hide_index=True)
+st.dataframe(df_recon, width="stretch", hide_index=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -130,7 +130,7 @@ else:
         "batch_id",
     ]].copy()
 
-    st.dataframe(display_q, use_container_width=True, hide_index=True, height=320)
+    st.dataframe(display_q, width="stretch", hide_index=True, height=320)
 
     # JSON Payload Inspector
     st.markdown("##### Corrupted Record Payload Inspector")
@@ -142,3 +142,4 @@ else:
             st.json(parsed)
         except Exception:
             st.text(raw_json_str)
+

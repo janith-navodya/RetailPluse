@@ -6,35 +6,32 @@ object construction for executive dashboards, demand forecasting, and replenishm
 import warnings
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
-import pyodbc
 import pandas as pd
 import numpy as np
+from sqlalchemy import create_engine, text, Engine
 
 from config.settings import settings
 from config.logging_config import logger
 from src.decision.safety_stock import StochasticInventoryController, InventoryStatusResult
 
-warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
+_engine: Optional[Engine] = None
 
 
-def get_connection_string() -> str:
-    """Builds standard ODBC connection string for local Microsoft SQL Server."""
-    return (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=localhost;"
-        f"DATABASE={settings.DB_NAME};"
-        "Trusted_Connection=yes;"
-        "TrustServerCertificate=yes;"
-    )
+def get_engine() -> Engine:
+    """Returns singleton SQLAlchemy Engine connected to local Microsoft SQL Server."""
+    global _engine
+    if _engine is None:
+        _engine = create_engine(settings.MSSQL_DATABASE_URL, pool_pre_ping=True)
+    return _engine
 
 
-def execute_query(sql: str, params: Optional[Tuple] = None) -> pd.DataFrame:
-    """Executes a SQL query against SQL Server and returns a Pandas DataFrame."""
-    conn_str = get_connection_string()
-    with pyodbc.connect(conn_str) as conn:
+def execute_query(sql: str, params: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
+    """Executes a SQL query against SQL Server using SQLAlchemy Engine and returns a Pandas DataFrame."""
+    engine = get_engine()
+    with engine.connect() as conn:
         if params:
-            return pd.read_sql(sql, conn, params=params)
-        return pd.read_sql(sql, conn)
+            return pd.read_sql(text(sql), conn, params=params)
+        return pd.read_sql(text(sql), conn)
 
 
 def get_executive_kpis() -> Dict[str, Any]:
@@ -186,10 +183,10 @@ def get_sku_demand_history(store_id: str, product_id: str, days: int = 120) -> p
             ON s.date_key = inv.date_key 
            AND s.store_id = inv.store_id 
            AND s.product_id = inv.product_id
-        WHERE s.store_id = ? AND s.product_id = ?
+        WHERE s.store_id = :store_id AND s.product_id = :product_id
         ORDER BY s.date_key ASC;
     """
-    df = execute_query(sql, params=(store_id, product_id))
+    df = execute_query(sql, params={"store_id": store_id, "product_id": product_id})
     if df.empty:
         return pd.DataFrame()
 
@@ -292,8 +289,8 @@ def get_model_benchmark_table() -> pd.DataFrame:
 
 def get_quarantine_feed(limit: int = 50) -> pd.DataFrame:
     """Retrieves recent dead-letter quarantine records."""
-    sql = f"""
-        SELECT TOP ({limit})
+    sql = """
+        SELECT TOP (:limit)
             quarantine_id,
             source_feed,
             violation_category,
@@ -304,7 +301,7 @@ def get_quarantine_feed(limit: int = 50) -> pd.DataFrame:
         FROM dbo.quarantine_records
         ORDER BY rejected_at DESC;
     """
-    return execute_query(sql)
+    return execute_query(sql, params={"limit": limit})
 
 
 def get_quarantine_stats() -> Dict[str, Any]:

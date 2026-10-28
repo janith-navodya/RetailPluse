@@ -309,3 +309,4 @@ CALCULATE (
 - **Visual 1 (What-If Parameter Slicers):** Working Capital Budget Slider (\$1,000 to \$50,000) and Target Service Level (90%, 95%, 99%).
 - **Visual 2 (Stacked Bar Chart):** Recommended Spend by Supplier cohort with MOQ thresholds highlighted.
 - **Visual 3 (Approval Action Grid):** Actionable PO table displaying `recommendation_id`, `product_name`, `recommended_units`, `pack_size`, `approval_status`, and priority rank.
+

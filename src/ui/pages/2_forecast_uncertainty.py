@@ -132,7 +132,7 @@ if not df_history.empty:
         hovermode="x unified",
         legend=dict(orientation="h", y=1.1, x=0.0),
     )
-    st.plotly_chart(fig_hist, use_container_width=True)
+    st.plotly_chart(fig_hist, width="stretch")
 else:
     st.info("No historical sales records found for this SKU.")
 
@@ -186,7 +186,7 @@ if not df_fan.empty:
         hovermode="x unified",
         legend=dict(orientation="h", y=1.1, x=0.0),
     )
-    st.plotly_chart(fig_fan, use_container_width=True)
+    st.plotly_chart(fig_fan, width="stretch")
 
 # Section 3: Model Evaluation Benchmark
 st.markdown("##### Walk-Forward Model Evaluation Suite")
@@ -201,7 +201,7 @@ st.dataframe(
         "Forecast Bias (%)": "{:+.2f}%",
         "Pinball Loss (P90)": "{:.2f}",
     }),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 

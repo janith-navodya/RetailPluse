@@ -50,7 +50,7 @@ max_storage_val = None
 if apply_storage_cap:
     max_storage_val = st.sidebar.number_input("Max Storage Units Capacity", min_value=100, max_value=5000, value=1200)
 
-run_button = st.sidebar.button("Solve Replenishment MILP", type="primary", use_container_width=True)
+run_button = st.sidebar.button("Solve Replenishment MILP", type="primary", width="stretch")
 
 # Prepare Candidate SKUs
 store_skus = df_health[df_health["store_id"] == selected_store]
@@ -183,7 +183,7 @@ st.dataframe(
         "Unit Cost": "${:.2f}",
         "Total Cost": "${:,.2f}",
     }),
-    use_container_width=True,
+    width="stretch",
     height=400,
 )
 
@@ -200,13 +200,13 @@ col_act1, col_act2 = st.columns([1, 1])
 
 with col_act1:
     st.markdown("##### Batch Commit to Database")
-    if st.button("Save Fresh Recommendations Batch (PROPOSED)", type="secondary", use_container_width=True):
+    if st.button("Save Fresh Recommendations Batch (PROPOSED)", type="secondary", width="stretch"):
         count = persistence.persist_recommendations(recs, run_date_key=active_date_key)
         st.success(f"Successfully persisted {count} recommendations to SQL Server table dbo.fact_replenishment_recommendation.")
 
 with col_act2:
     st.markdown("##### Quick Action: Bulk Approve All Positive Orders")
-    if st.button("Approve All Recommended Purchase Orders", type="primary", use_container_width=True):
+    if st.button("Approve All Recommended Purchase Orders", type="primary", width="stretch"):
         persistence.persist_recommendations(recs, run_date_key=active_date_key)
         approved_count = 0
         for r in recs:
@@ -245,7 +245,7 @@ if rec_ids:
     with rev_c3:
         st.write("")
         st.write("")
-        btn_apply = st.button("Apply Status & Units Override", use_container_width=True)
+        btn_apply = st.button("Apply Status & Units Override", width="stretch")
         if btn_apply:
             if new_units != chosen_rec.recommended_units:
                 persistence.update_recommendation_status(target_rec_id, "MODIFIED", modified_units=new_units)
@@ -253,3 +253,4 @@ if rec_ids:
             else:
                 persistence.update_recommendation_status(target_rec_id, "APPROVED")
                 st.success(f"Marked {target_rec_id} as APPROVED.")
+

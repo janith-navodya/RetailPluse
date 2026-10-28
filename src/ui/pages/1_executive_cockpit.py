@@ -109,7 +109,7 @@ with chart_col1:
     fig_dos.add_vline(x=14.0, line_dash="dash", line_color="#EF4444", annotation_text="Critical Runout (14D)")
     fig_dos.add_vline(x=45.0, line_dash="dash", line_color="#3B82F6", annotation_text="Excess Threshold (45D)")
     fig_dos.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20), legend=dict(orientation="h", y=-0.2))
-    st.plotly_chart(fig_dos, use_container_width=True)
+    st.plotly_chart(fig_dos, width="stretch")
 
 with chart_col2:
     st.markdown("##### Ending Inventory Capital by Category")
@@ -133,7 +133,7 @@ with chart_col2:
         title="Deployed Working Capital by Health Status",
     )
     fig_cap.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20), legend=dict(orientation="h", y=-0.2))
-    st.plotly_chart(fig_cap, use_container_width=True)
+    st.plotly_chart(fig_cap, width="stretch")
 
 # Detailed Snapshot Table
 st.markdown(f"##### Fleet SKU Inventory Details ({len(filtered_df)} Items matching filter)")
@@ -173,6 +173,6 @@ st.dataframe(
         "Days of Supply": "{:.1f}d",
         "Capital ($)": "${:,.2f}",
     }),
-    use_container_width=True,
+    width="stretch",
     height=380,
 )
