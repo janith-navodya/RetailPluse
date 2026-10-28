@@ -5,6 +5,7 @@ pandas>=2.2.0
 numpy>=1.26.0
 scipy>=1.12.0
 SQLAlchemy>=2.0.25
+pyodbc>=5.0.0
 
 # Applied Forecasting & Optimization
 lightgbm>=4.3.0

@@ -17,10 +17,18 @@ class Settings:
     DDL_DIR: Path = BASE_DIR / "sql" / "ddl"
     VIEWS_DIR: Path = BASE_DIR / "sql" / "views"
 
-    # Database configuration (Defaults to SQLite; supports PostgreSQL or SQL Server via env)
-    DB_DIALECT: str = os.getenv("DB_DIALECT", "sqlite")
+    # Database configuration: Defaults to local Microsoft SQL Server 2025 Developer instance
+    # Authentication: Windows Integrated Authentication (-E) | Driver: ODBC Driver 18 for SQL Server
+    DB_DIALECT: str = os.getenv("DB_DIALECT", "mssql")
+    MSSQL_DATABASE_URL: str = (
+        "mssql+pyodbc://@localhost/RetailPulseDI?"
+        "driver=ODBC+Driver+18+for+SQL+Server&"
+        "trusted_connection=yes&"
+        "TrustServerCertificate=yes"
+    )
+    SQLITE_DATABASE_URL: str = f"sqlite:///{BASE_DIR / 'data' / 'retailpulse.db'}"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", MSSQL_DATABASE_URL)
     DB_PATH: Path = BASE_DIR / "data" / "retailpulse.db"
-    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'data' / 'retailpulse.db'}")
 
     # Synthetic data generation parameters
     SIMULATION_DAYS: int = 730  # 2 full calendar years

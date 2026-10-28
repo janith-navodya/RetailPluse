@@ -137,19 +137,16 @@ Source code dependencies point inward only.
 
 ### 3. Database Persistence & Repository Pattern
 
-To ensure 100% testability and zero-dependency local operation, database interaction utilizes the **SQLAlchemy 2.0 Repository Pattern**:
+To ensure 100% testability, enterprise-grade storage, and seamless local operation, database interaction utilizes the **SQLAlchemy 2.0 Repository Pattern**:
 
-```python
-class DatabaseSessionManager:
-    def __init__(self, connection_url: str):
-        self.engine = create_engine(connection_url, echo=False)
-        self.session_factory = sessionmaker(bind=self.engine)
-
-    def get_session(self) -> Session: ...
-```
-
-- **Default Engine:** `sqlite:///data/retailpulse.db` (zero external daemon, instant local execution, fully ACID-compliant).
-- **Enterprise Extensibility:** Seamlessly switches to Microsoft SQL Server (`mssql+pyodbc://...`) or PostgreSQL (`postgresql+psycopg2://...`) without changing a single line of business logic.
+- **Primary Target Database:** **Microsoft SQL Server 2025 (Enterprise Developer Edition)**
+  - Instance: `localhost`
+  - Database: `RetailPulseDI`
+  - Authentication: Windows Integrated Authentication (`-E` / `trusted_connection=yes`)
+  - Driver: `ODBC Driver 18 for SQL Server` with `TrustServerCertificate=yes`
+  - Connection String: `mssql+pyodbc://@localhost/RetailPulseDI?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&TrustServerCertificate=yes`
+- **Embedded Fallback Engine:** Embedded SQLite (`sqlite:///data/retailpulse.db`) for lightweight portable grading.
+- **Enterprise Extensibility:** T-SQL DDL (`sql/ddl/01_mssql_star_schema.sql`) enforces primary keys, foreign keys, CHECK constraints, and non-clustered performance indexes natively inside Microsoft SQL Server.
 
 ---
 
