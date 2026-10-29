@@ -1,0 +1,77 @@
+table quarantine_records
+	lineageTag: db26af4d-a505-4953-9d29-28891106eae1
+
+	column quarantine_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e2b89a82-75e3-4d26-9efe-19ad793f5e83
+		summarizeBy: sum
+		sourceColumn: quarantine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_feed
+		dataType: string
+		lineageTag: e3c59c3c-017f-46e8-9121-b014a4682de4
+		summarizeBy: none
+		sourceColumn: source_feed
+
+		annotation SummarizationSetBy = Automatic
+
+	column raw_payload_json
+		dataType: string
+		lineageTag: 8b9e98d0-f622-44e0-933a-662df8d3376a
+		summarizeBy: none
+		sourceColumn: raw_payload_json
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_category
+		dataType: string
+		lineageTag: cef60dd8-eff2-48ab-aab9-ef31a86a315c
+		summarizeBy: none
+		sourceColumn: violation_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_details
+		dataType: string
+		lineageTag: 51dfb897-3451-4326-9ba9-3082c5eef8c1
+		summarizeBy: none
+		sourceColumn: violation_details
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 73a32d5b-dbd8-4b71-a30b-72cac97c7676
+		summarizeBy: none
+		sourceColumn: rejected_at
+
+		variation Variation
+			isDefault
+			relationship: a4d54195-b2e0-4a29-bde8-022d812497b6
+			defaultHierarchy: LocalDateTable_3f98e1a2-1c23-4273-8095-e38d74d32d30.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: 29bde232-7e13-43be-ab3e-b75a91137a17
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition quarantine_records = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_quarantine_records = Source{[Schema="dbo",Item="quarantine_records"]}[Data]
+				in
+				    dbo_quarantine_records
+
+	annotation PBI_ResultType = Table
+

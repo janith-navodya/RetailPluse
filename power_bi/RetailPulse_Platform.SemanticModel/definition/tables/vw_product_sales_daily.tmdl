@@ -1,0 +1,165 @@
+table vw_product_sales_daily
+	lineageTag: 9592e644-6eb6-4f1e-aef9-bbc3dbe3d99c
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: b0971e89-ace2-4e7e-b7f6-aceb95f49839
+		summarizeBy: sum
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column full_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d51f97a0-7138-4294-ae4f-bb702d5e8a9b
+		summarizeBy: none
+		sourceColumn: full_date
+
+		variation Variation
+			isDefault
+			relationship: ea95ff71-3205-465a-8bdc-ba4e8cb1f900
+			defaultHierarchy: LocalDateTable_e0d49cb3-f1d0-44ea-bcf0-467f405618cf.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product_id
+		dataType: string
+		lineageTag: a6d3b5bd-ebf1-41ba-a2f8-0538b352b940
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 78b93698-e6a7-42b5-9d54-2afe9055ffb1
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 3077833d-f374-4744-bfe3-0c366b4cb3e6
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column sub_category
+		dataType: string
+		lineageTag: b599b3aa-062a-4ed5-8fff-b505514d5606
+		summarizeBy: none
+		sourceColumn: sub_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		lineageTag: 5669da14-5d85-4555-a480-335ed8ffed25
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: 7f99ad06-ebb9-4adc-bd59-fff4d58eeaba
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column active_store_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 9dca780d-5ec6-4c36-83b8-284a39ad335d
+		summarizeBy: sum
+		sourceColumn: active_store_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_units_sold
+		dataType: int64
+		formatString: 0
+		lineageTag: 71930cdb-1270-41c1-96fc-2f41959521d7
+		summarizeBy: sum
+		sourceColumn: total_units_sold
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_gross_sales
+		dataType: double
+		lineageTag: 37a3fc95-3a1e-4262-9800-335fdab21316
+		summarizeBy: sum
+		sourceColumn: total_gross_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_discount_amount
+		dataType: double
+		lineageTag: eedfe691-ea89-4d73-bbaf-23b0c7ed29c4
+		summarizeBy: sum
+		sourceColumn: total_discount_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_net_sales
+		dataType: double
+		lineageTag: 122d8b1c-ee43-4674-8c49-36b7ff16cc25
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		lineageTag: 5cf1b4c7-4850-4a91-8639-00bd489dc33f
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_gross_profit
+		dataType: double
+		lineageTag: 5197b94b-c583-4f21-b965-3e5f97fd1dac
+		summarizeBy: sum
+		sourceColumn: total_gross_profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_margin_pct
+		dataType: double
+		lineageTag: 453fb416-006a-4818-a0e4-c468b4f2e42d
+		summarizeBy: sum
+		sourceColumn: gross_margin_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_product_sales_daily = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_product_sales_daily = Source{[Schema="dbo",Item="vw_product_sales_daily"]}[Data]
+				in
+				    dbo_vw_product_sales_daily
+
+	annotation PBI_ResultType = Table
+

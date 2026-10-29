@@ -1,0 +1,97 @@
+table vw_store_inventory_turnover
+	lineageTag: 31420935-2f74-45ce-9a8d-aa5974dbe217
+
+	column store_id
+		dataType: string
+		lineageTag: 5ba625c5-121f-4f54-8b93-26e3540eb800
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		lineageTag: d7a0fd1a-2217-4038-83b8-5e95031163d1
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_format
+		dataType: string
+		lineageTag: 34ca91e9-c5c0-41ab-9bd8-82dc39b383d6
+		summarizeBy: none
+		sourceColumn: store_format
+
+		annotation SummarizationSetBy = Automatic
+
+	column operating_days
+		dataType: int64
+		formatString: 0
+		lineageTag: fda975a3-62db-4d9a-8505-413f78a6f77c
+		summarizeBy: sum
+		sourceColumn: operating_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_net_sales
+		dataType: double
+		lineageTag: c97d0d3e-46e8-48ff-8530-08bea53984f1
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		lineageTag: 888cfe73-2a2d-4760-83a2-658a2e2df428
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_daily_inventory_value
+		dataType: double
+		lineageTag: db34b2a8-09e0-496e-bdc4-d02ea0c26b12
+		summarizeBy: sum
+		sourceColumn: avg_daily_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column raw_inventory_turnover
+		dataType: double
+		lineageTag: 51f904ad-1a28-4612-95f7-f49d34281eaa
+		summarizeBy: sum
+		sourceColumn: raw_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column annualized_inventory_turnover
+		dataType: double
+		lineageTag: 0102bf95-2e73-4a1f-b556-e7f8019aeb10
+		summarizeBy: sum
+		sourceColumn: annualized_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_store_inventory_turnover = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_store_inventory_turnover = Source{[Schema="dbo",Item="vw_store_inventory_turnover"]}[Data]
+				in
+				    dbo_vw_store_inventory_turnover
+
+	annotation PBI_ResultType = Table
+

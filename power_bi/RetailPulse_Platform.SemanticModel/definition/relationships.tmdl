@@ -1,0 +1,187 @@
+relationship 44c44c54-c26a-4897-9a24-279b7c6b6d4b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: quarantine_invalid_records.rejected_at
+	toColumn: LocalDateTable_1b7e5f03-64dc-4444-82a7-9a1a4d3cf4fe.Date
+
+relationship cbb10fc7-1257-4969-944d-501b36da5345
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_inventory_health.full_date
+	toColumn: LocalDateTable_14ede919-25b8-4fef-a7dc-422ab26355af.Date
+
+relationship ea95ff71-3205-465a-8bdc-ba4e8cb1f900
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_product_sales_daily.full_date
+	toColumn: LocalDateTable_e0d49cb3-f1d0-44ea-bcf0-467f405618cf.Date
+
+relationship 93b1920a-e3e1-4739-9a98-74eaa57d37ee
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_purchase_order_details.order_date
+	toColumn: LocalDateTable_d3c58ab2-c847-473c-8f33-ef30ce3571bd.Date
+
+relationship d273d1f9-c308-482b-9eed-bb8a72109434
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_purchase_order_details.expected_delivery_date
+	toColumn: LocalDateTable_f9f6696e-8150-433b-845c-3166cbeee2ae.Date
+
+relationship fb83b71e-bcb2-4d6f-af16-1691232fddc7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_purchase_order_details.actual_delivery_date
+	toColumn: LocalDateTable_bac8a9be-1354-4b7d-854d-d0421f91e8fc.Date
+
+relationship a534fcf1-feca-47b6-9f6e-b567e5ae88f0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: vw_store_product_sales_daily.full_date
+	toColumn: LocalDateTable_96ca690d-6042-409b-a2a0-14102d04ccf6.Date
+
+relationship 58ad0674-7b39-4fb6-9804-76d7e0c8c99c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_date.full_date
+	toColumn: LocalDateTable_6248c976-dd34-463d-ba9e-9d610ec6dba9.Date
+
+relationship 4dbb0586-7650-492b-bdef-d12a1e5c127f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: etl_batch_log.started_at
+	toColumn: LocalDateTable_8724e397-5d4b-4982-83b7-b0a66c61179c.Date
+
+relationship d474637c-4042-42d2-81d1-705dbef8af43
+	joinOnDateBehavior: datePartOnly
+	fromColumn: etl_batch_log.completed_at
+	toColumn: LocalDateTable_ae3ebed7-e2d0-4e80-af49-30fc9b5247bc.Date
+
+relationship a4d54195-b2e0-4a29-bde8-022d812497b6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: quarantine_records.rejected_at
+	toColumn: LocalDateTable_3f98e1a2-1c23-4273-8095-e38d74d32d30.Date
+
+relationship 9ed7e20e-d730-496a-b85a-60acc3c5a77a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_sales_daily.ingested_at
+	toColumn: LocalDateTable_ee57b57f-8668-4c01-b2c5-7172a2a2b763.Date
+
+relationship aeb32b15-039f-41ae-b0e9-836a19108880
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_inventory_snapshot.ingested_at
+	toColumn: LocalDateTable_d359fc65-b348-4445-b296-81c98e14d550.Date
+
+relationship 027cb46c-5be7-4f48-bec0-4eb5a93886ea
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_purchase_orders.ingested_at
+	toColumn: LocalDateTable_4835fd38-a404-4384-bdae-9e8f9424e06c.Date
+
+relationship d2ec50ee-7b0c-4836-9585-077c856c3a82
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_replenishment_recommendation.created_at
+	toColumn: LocalDateTable_c80f55b5-b629-44eb-8bc7-3dfddd39b9b7.Date
+
+relationship 291f2a4d-1564-4c48-a137-13cc055f416f
+	fromColumn: dim_product.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship b74bccaf-a6b7-49bc-85a7-deaf96ed8da8
+	fromColumn: quarantine_records.batch_id
+	toColumn: etl_batch_log.batch_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 3e1da468-19ce-48db-abc8-e0d7242d5ac2
+	fromColumn: fact_sales_daily.date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 6232fa82-8bab-4a47-8c28-45b409831692
+	fromColumn: fact_sales_daily.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship f16e181f-83c6-465e-aa6d-f6bc6d095f57
+	fromColumn: fact_sales_daily.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 916b640b-716e-4951-b484-2f4bced2901a
+	fromColumn: fact_inventory_snapshot.date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship b60f6bf5-3db1-4bd4-9f7f-938ca30215cf
+	fromColumn: fact_inventory_snapshot.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship e2483b53-4fcf-4461-8d5a-b1cde9f9e997
+	fromColumn: fact_inventory_snapshot.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 7d217406-7e98-4cfc-a7f4-5392d5334833
+	fromColumn: fact_purchase_orders.actual_delivery_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship b1d7a3fc-735b-418d-a25f-c71c8fca1d6c
+	isActive: false
+	fromColumn: fact_purchase_orders.expected_delivery_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 583def75-2238-4f6e-aaae-a30c490e0ee1
+	isActive: false
+	fromColumn: fact_purchase_orders.order_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship a08cad7e-48bd-4a3d-a94a-5f8362fc8553
+	fromColumn: fact_purchase_orders.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 8ac7caf6-833f-46f1-9bfc-e6c7f46b97b5
+	fromColumn: fact_purchase_orders.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship ec5da823-3e0e-4d1b-8082-1b6331f5a86f
+	isActive: false
+	fromColumn: fact_purchase_orders.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 27157c1e-f7f9-44a1-b077-98a64d84515b
+	fromColumn: fact_replenishment_recommendation.run_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 292cd2f3-837c-4481-a30e-979cda374402
+	fromColumn: fact_replenishment_recommendation.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 4a090cfb-3a8e-4fd7-93ee-a7431199e3c9
+	fromColumn: fact_replenishment_recommendation.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 137ea914-b3b3-4b8a-8363-7b32ea7ffd41
+	isActive: false
+	fromColumn: fact_replenishment_recommendation.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+

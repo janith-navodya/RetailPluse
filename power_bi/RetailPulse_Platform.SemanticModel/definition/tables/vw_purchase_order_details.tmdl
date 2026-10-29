@@ -1,0 +1,265 @@
+table vw_purchase_order_details
+	lineageTag: 771a962a-32b3-4163-bd39-1eb8aa1c64e4
+
+	column po_id
+		dataType: string
+		lineageTag: fe928966-a64d-4db2-b53d-00f5422ee049
+		summarizeBy: none
+		sourceColumn: po_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c59b4ed-db0c-4951-9518-84e4b451b0f2
+		summarizeBy: sum
+		sourceColumn: order_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a2fbb1e0-6f5c-482c-beb0-ea50c38c73dd
+		summarizeBy: none
+		sourceColumn: order_date
+
+		variation Variation
+			isDefault
+			relationship: 93b1920a-e3e1-4739-9a98-74eaa57d37ee
+			defaultHierarchy: LocalDateTable_d3c58ab2-c847-473c-8f33-ef30ce3571bd.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column expected_delivery_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 9100aa1c-54ff-4824-851b-0da715c240aa
+		summarizeBy: sum
+		sourceColumn: expected_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column expected_delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 90adeee0-4c05-47ec-8e65-dbcb220f1401
+		summarizeBy: none
+		sourceColumn: expected_delivery_date
+
+		variation Variation
+			isDefault
+			relationship: d273d1f9-c308-482b-9eed-bb8a72109434
+			defaultHierarchy: LocalDateTable_f9f6696e-8150-433b-845c-3166cbeee2ae.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column actual_delivery_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 58880e5a-65b1-43b9-9b01-52042776b43d
+		summarizeBy: sum
+		sourceColumn: actual_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual_delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0ddabdec-fc16-4eee-bf79-6ccb292c1cd3
+		summarizeBy: none
+		sourceColumn: actual_delivery_date
+
+		variation Variation
+			isDefault
+			relationship: fb83b71e-bcb2-4d6f-af16-1691232fddc7
+			defaultHierarchy: LocalDateTable_bac8a9be-1354-4b7d-854d-d0421f91e8fc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column store_id
+		dataType: string
+		lineageTag: 5566dc25-70fd-41b6-ad96-0e1c9c256a6c
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		lineageTag: 1edae994-8dea-40c5-bd18-43dd19b7d8bc
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: 2b0d3c03-6be2-41de-a562-e6f4e5923049
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 9dee7a43-675c-4cc5-a731-44f94dc2abf1
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 6bfbedd7-9453-4008-97c9-1b7549f40ae9
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: 9b7f2281-f90c-471e-a5c6-d53f4eaf1da0
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: ea0beaee-1878-425a-aaf6-6921b0be62ed
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column min_order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: ff0e36f2-0d35-47f1-8204-fbd4921b173f
+		summarizeBy: sum
+		sourceColumn: min_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: a7717c4b-3560-43e9-b734-b93a454cab93
+		summarizeBy: sum
+		sourceColumn: order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 7dcc9531-57fe-4135-8f52-306fc87ee18b
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		lineageTag: d83fb476-ae5a-4bf9-bf66-850d62f9648c
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cost_amount
+		dataType: double
+		lineageTag: 136d7dac-8933-4f84-a43e-9bfff56913da
+		summarizeBy: sum
+		sourceColumn: total_cost_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status
+		dataType: string
+		lineageTag: 7c31a0b9-8ff7-4d4d-a476-0e5cd0aad6ed
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column nominal_lead_time_days
+		dataType: double
+		lineageTag: 5bcff750-d0e7-476a-86da-6f037d723db6
+		summarizeBy: sum
+		sourceColumn: nominal_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column actual_lead_time_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 1616414c-fef2-46b6-938c-4bda92af1c6f
+		summarizeBy: sum
+		sourceColumn: actual_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_variance_days
+		dataType: double
+		lineageTag: 32a47570-bfaa-4c31-aeb7-6cf1a279a06c
+		summarizeBy: sum
+		sourceColumn: lead_time_variance_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column order_fill_rate_pct
+		dataType: double
+		lineageTag: fd7568ed-f8f6-4436-a1c0-c9085b28bb97
+		summarizeBy: sum
+		sourceColumn: order_fill_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column moq_adherence_flag
+		dataType: int64
+		formatString: 0
+		lineageTag: 14e1c908-6c9b-45ff-a8b9-abd8e2f8ba4c
+		summarizeBy: sum
+		sourceColumn: moq_adherence_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column on_time_delivery_flag
+		dataType: int64
+		formatString: 0
+		lineageTag: 92bae146-8366-4052-b864-f049f21b9d17
+		summarizeBy: sum
+		sourceColumn: on_time_delivery_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	partition vw_purchase_order_details = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_purchase_order_details = Source{[Schema="dbo",Item="vw_purchase_order_details"]}[Data]
+				in
+				    dbo_vw_purchase_order_details
+
+	annotation PBI_ResultType = Table
+

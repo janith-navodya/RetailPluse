@@ -1,0 +1,199 @@
+table fact_replenishment_recommendation
+	lineageTag: ca8f34e1-6264-4045-9efd-6e7a471e3606
+
+	column recommendation_id
+		dataType: string
+		lineageTag: 66488816-d439-4bb2-8db7-8d2418453117
+		summarizeBy: none
+		sourceColumn: recommendation_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 655a1c98-ea16-450b-ae51-b095e26995d4
+		summarizeBy: none
+		sourceColumn: run_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		lineageTag: 121207c4-3ee4-481a-b37b-aeb61ea07691
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: 4115adf0-565d-4fa3-b058-d4a573355065
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: 7474635f-21bb-4ace-8a6d-39dc27585dfe
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_on_hand_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: b793bd6c-5d32-42be-a017-cc0054f7c362
+		summarizeBy: sum
+		sourceColumn: current_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_on_order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 268b3946-0cda-44d2-b052-68c1d44f411e
+		summarizeBy: sum
+		sourceColumn: current_on_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column inventory_position
+		dataType: int64
+		formatString: 0
+		lineageTag: a2694658-13a6-4d5c-9eab-f63c3f1a1339
+		summarizeBy: sum
+		sourceColumn: inventory_position
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_demand_qty
+		dataType: double
+		lineageTag: 7eb46074-d6ba-486b-8c52-36b3a51bcf42
+		summarizeBy: sum
+		sourceColumn: lead_time_demand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock_qty
+		dataType: double
+		lineageTag: e4b5c91e-ee23-4d4c-91f9-098a1c17dbee
+		summarizeBy: sum
+		sourceColumn: safety_stock_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column reorder_point_qty
+		dataType: double
+		lineageTag: 03955669-6b56-43fc-a472-c8dbc5b847db
+		summarizeBy: sum
+		sourceColumn: reorder_point_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column inventory_status
+		dataType: string
+		lineageTag: fc9fbc51-1809-4d34-907c-45b033dcc486
+		summarizeBy: none
+		sourceColumn: inventory_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommended_units
+		dataType: int64
+		formatString: 0
+		lineageTag: 203cd399-c918-4a2c-9bfc-97383c18b188
+		summarizeBy: sum
+		sourceColumn: recommended_units
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommended_packs
+		dataType: int64
+		formatString: 0
+		lineageTag: 218fee72-abdd-4a00-8f86-491ec728b58c
+		summarizeBy: sum
+		sourceColumn: recommended_packs
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		lineageTag: 93f8d297-d8a9-4470-a6b5-5f6721680d33
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column estimated_cost
+		dataType: double
+		lineageTag: c14a53e6-b502-4106-827f-d70b027e7c2d
+		summarizeBy: sum
+		sourceColumn: estimated_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column priority_rank
+		dataType: int64
+		formatString: 0
+		lineageTag: 18de5034-0137-4d22-9a15-7aaa9a395690
+		summarizeBy: sum
+		sourceColumn: priority_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column approval_status
+		dataType: string
+		lineageTag: fd4ff92d-7c10-4a21-b863-6f1ddcf70ef2
+		summarizeBy: none
+		sourceColumn: approval_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: 5059056a-638b-40fe-8afa-0a49005f78aa
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4d60ea2a-f73d-4119-90c6-fc1fe509cc23
+		summarizeBy: none
+		sourceColumn: created_at
+
+		variation Variation
+			isDefault
+			relationship: d2ec50ee-7b0c-4836-9585-077c856c3a82
+			defaultHierarchy: LocalDateTable_c80f55b5-b629-44eb-8bc7-3dfddd39b9b7.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_replenishment_recommendation = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_fact_replenishment_recommendation = Source{[Schema="dbo",Item="fact_replenishment_recommendation"]}[Data]
+				in
+				    dbo_fact_replenishment_recommendation
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

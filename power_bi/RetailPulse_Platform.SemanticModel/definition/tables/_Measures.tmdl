@@ -1,0 +1,103 @@
+table _Measures
+	lineageTag: e5084182-98f9-4b0c-99fe-cfffb4455f96
+
+	measure 'Total COGS' =
+			
+			SUMX (
+			    fact_sales_daily,
+			    fact_sales_daily[quantity_sold] * RELATED ( dim_product[unit_cost_price] )
+			)
+		lineageTag: cda00ad4-1283-4517-b48a-73d4232433e5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Gross Profit' = [Total Sales] - [Total COGS]
+		lineageTag: 53968e43-9845-4e33-b1bd-4adb330248cc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Gross Margin %' = DIVIDE ( [Gross Profit], [Total Sales], 0 ) * 100
+		lineageTag: a94b153e-f1f7-40b9-8a43-7771ddc324e9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ending Inventory Units' =
+			
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
+			CALCULATE (
+			    SUM ( fact_inventory_snapshot[ending_on_hand_qty] ),
+			    fact_inventory_snapshot[date_key] = MaxDateKey
+			)
+		formatString: 0
+		lineageTag: 65368ab2-8fe1-4da7-b6b6-5328eb0b0d36
+
+	measure 'Rolling 30D Daily Sales' =
+			
+			VAR TotalUnits = SUM ( fact_sales_daily[quantity_sold] )
+			VAR ActiveDays = DISTINCTCOUNT ( fact_sales_daily[date_key] )
+			RETURN
+			DIVIDE ( TotalUnits, IF ( ActiveDays = 0, 30, ActiveDays ), 0 )
+		lineageTag: f30bb01b-8618-45f4-85e3-04ebc8bc3f50
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Days of Supply (DoS)' =
+			
+			DIVIDE ( [Ending Inventory Units], [Rolling 30D Daily Sales], 0 )
+		lineageTag: d8eac601-ecf7-4334-91bf-83a9f1de0620
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Stockout Status Badge SVG' = ```
+			
+			VAR DoS = [Days of Supply (DoS)]
+			VAR BgColor = 
+			    SWITCH (
+			        TRUE (),
+			        DoS = 0, "#64748B",       // Grey (No Active Stock)
+			        DoS < 7, "#EF4444",       // Red (Critical Reorder)
+			        DoS <= 21, "#F59E0B",     // Amber (Low Stock)
+			        "#10B981"                 // Emerald (Healthy)
+			    )
+			VAR StatusText = 
+			    SWITCH (
+			        TRUE (),
+			        DoS = 0, "OUT OF STOCK",
+			        DoS < 7, "REORDER NOW",
+			        DoS <= 21, "LOW STOCK",
+			        "HEALTHY"
+			    )
+			VAR SvgImage = 
+			    "data:image/svg+xml;utf8," & 
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='130' height='32'>" &
+			    "<rect width='130' height='32' rx='16' fill='" & BgColor & "' fill-opacity='0.2'/>" &
+			    "<circle cx='18' cy='16' r='4' fill='" & BgColor & "'/>" &
+			    "<text x='32' y='20' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='" & BgColor & "'>" & 
+			    StatusText & 
+			    "</text></svg>"
+			RETURN
+			    SvgImage
+			```
+		lineageTag: 4db59a23-9549-4a2e-a57e-16b8f5f8a52f
+		dataCategory: ImageUrl
+
+	column Column1
+		dataType: string
+		lineageTag: 64deb920-16d0-4f9a-b3b2-e0be9ee1af3f
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

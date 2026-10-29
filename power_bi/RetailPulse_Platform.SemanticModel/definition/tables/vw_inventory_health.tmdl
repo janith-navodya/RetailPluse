@@ -1,0 +1,172 @@
+table vw_inventory_health
+	lineageTag: 8ec217ee-1d08-4f77-80b1-b64ebd210f5e
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 7fe490df-9016-4f80-99e2-ef0b99c097d2
+		summarizeBy: sum
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column full_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2af14482-4946-45df-a1b3-95c1e16a9ca1
+		summarizeBy: none
+		sourceColumn: full_date
+
+		variation Variation
+			isDefault
+			relationship: cbb10fc7-1257-4969-944d-501b36da5345
+			defaultHierarchy: LocalDateTable_14ede919-25b8-4fef-a7dc-422ab26355af.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column store_id
+		dataType: string
+		lineageTag: 7a0fc380-bd2c-45ef-959a-8c1ec510dfcc
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		lineageTag: d47e93d8-0962-4bea-bd3d-43caf52f0570
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: bce3707b-6a41-4361-a127-92b8e0b50bbb
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 6524c9ad-3d39-4e9d-afd3-6485a40fbbb0
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: e7f116d0-06b2-445d-af39-e54123918698
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		lineageTag: 71e33fa7-a946-4ff5-8e78-30b26a7abf09
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column beginning_on_hand_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 468da1db-c7ba-410b-b5ce-3bdf02103241
+		summarizeBy: sum
+		sourceColumn: beginning_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 8fcb4e0d-b2b3-44ea-8847-676ff144d1ac
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column sold_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 75591cd1-9ad4-4f98-b260-d273aafe6a17
+		summarizeBy: sum
+		sourceColumn: sold_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column closing_stock_on_hand
+		dataType: int64
+		formatString: 0
+		lineageTag: 356ddc29-67cb-4f99-919d-8903ba7bc1ac
+		summarizeBy: sum
+		sourceColumn: closing_stock_on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+	column ending_inventory_value
+		dataType: double
+		lineageTag: f29b04de-2d6f-4b1d-ae20-92057b67dc7f
+		summarizeBy: sum
+		sourceColumn: ending_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_stockout
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d9cab7c-aace-4d28-89af-73beda63e688
+		summarizeBy: sum
+		sourceColumn: is_stockout
+
+		annotation SummarizationSetBy = Automatic
+
+	column rolling_30d_avg_daily_sales
+		dataType: double
+		lineageTag: d00adc79-2fbe-4555-8731-b06eec457c8d
+		summarizeBy: sum
+		sourceColumn: rolling_30d_avg_daily_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column days_of_supply
+		dataType: double
+		lineageTag: 349688bb-477b-478b-a941-ffd6098e4f7e
+		summarizeBy: sum
+		sourceColumn: days_of_supply
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column stockout_frequency_pct
+		dataType: double
+		lineageTag: c0a51b65-05b8-40ae-9b86-40b5ac1eba29
+		summarizeBy: sum
+		sourceColumn: stockout_frequency_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_inventory_health = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_inventory_health = Source{[Schema="dbo",Item="vw_inventory_health"]}[Data]
+				in
+				    dbo_vw_inventory_health
+
+	annotation PBI_ResultType = Table
+

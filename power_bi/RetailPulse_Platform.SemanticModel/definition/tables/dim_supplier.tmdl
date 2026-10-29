@@ -1,0 +1,77 @@
+table dim_supplier
+	lineageTag: aefa3c85-08cf-463f-aac7-529be39395c6
+
+	column supplier_id
+		dataType: string
+		lineageTag: aa18824c-de30-4201-a933-ba11d4fa81a1
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: 4578eafa-f5dd-42b4-8034-62c2b76a676d
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column contact_email
+		dataType: string
+		lineageTag: c59debe1-df8c-43b9-a80e-3d84078dd938
+		summarizeBy: none
+		sourceColumn: contact_email
+
+		annotation SummarizationSetBy = Automatic
+
+	column mean_lead_time_days
+		dataType: double
+		lineageTag: a1954637-7a4d-4680-9708-d58b0a62cd42
+		summarizeBy: none
+		sourceColumn: mean_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column lead_time_std_dev
+		dataType: double
+		lineageTag: 7b8ef90d-4d47-4fbc-83df-9576a046233d
+		summarizeBy: none
+		sourceColumn: lead_time_std_dev
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f42dfc6-2e01-4852-a0c0-032c78f37d1b
+		summarizeBy: none
+		sourceColumn: min_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_level_target_pct
+		dataType: double
+		lineageTag: 226fa498-384f-480a-b19a-3ae621788234
+		summarizeBy: none
+		sourceColumn: service_level_target_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition dim_supplier = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_dim_supplier = Source{[Schema="dbo",Item="dim_supplier"]}[Data]
+				in
+				    dbo_dim_supplier
+
+	annotation PBI_ResultType = Table
+

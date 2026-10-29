@@ -1,0 +1,100 @@
+table dim_product
+	lineageTag: 376fb047-c64d-4081-b343-aff3f8d6e6b6
+
+	column product_id
+		dataType: string
+		lineageTag: 38b3cfbc-d4e6-4fd7-a51f-a2b0b0cc2398
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 7f4e202c-6670-43e4-8db2-b53d0c2b6ee5
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 690dcfa3-0621-41dd-8c4f-aaeb741aa4f5
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column sub_category
+		dataType: string
+		lineageTag: 00698c75-2abd-4a2a-af1b-466122d02554
+		summarizeBy: none
+		sourceColumn: sub_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		lineageTag: 498853f8-308b-4ed6-a7ad-648e5d671aa8
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: ce2b0361-c052-48ef-87cc-33bfc83e9d85
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		lineageTag: 3c4ceb3f-aff2-4d10-be04-7991b262158f
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column unit_retail_price
+		dataType: double
+		lineageTag: b6aa18d3-26be-4f44-bfb9-4572e9ec97a3
+		summarizeBy: sum
+		sourceColumn: unit_retail_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pack_size
+		dataType: int64
+		formatString: 0
+		lineageTag: 542dec05-7adf-4e24-a9bc-8bf06d9177ca
+		summarizeBy: sum
+		sourceColumn: pack_size
+
+		annotation SummarizationSetBy = Automatic
+
+	column shelf_life_days
+		dataType: int64
+		formatString: 0
+		lineageTag: f161815d-7214-4351-addf-17a3ac172d37
+		summarizeBy: sum
+		sourceColumn: shelf_life_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_dim_product = Source{[Schema="dbo",Item="dim_product"]}[Data]
+				in
+				    dbo_dim_product
+
+	annotation PBI_ResultType = Table
+

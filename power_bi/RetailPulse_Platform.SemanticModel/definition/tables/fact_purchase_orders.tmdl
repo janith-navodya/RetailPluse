@@ -1,0 +1,141 @@
+table fact_purchase_orders
+	lineageTag: b9614eee-9661-4f46-a8b5-61cc9938b430
+
+	column po_id
+		dataType: string
+		lineageTag: 92a7555a-41c5-4ab4-a41b-4016bebccffd
+		summarizeBy: none
+		sourceColumn: po_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 65fc9534-f4af-4c77-be7f-574e5d11ec00
+		summarizeBy: sum
+		sourceColumn: order_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column expected_delivery_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: f42946d9-f3c7-446b-9703-6d757e6e85e3
+		summarizeBy: sum
+		sourceColumn: expected_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual_delivery_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 2dba5125-1276-4266-bd43-b6aabb372f56
+		summarizeBy: none
+		sourceColumn: actual_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		lineageTag: 4c2bfa48-cdfe-48d7-8b68-b51d32a204e6
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: c2306991-f5c6-482c-ba9a-91db4343e3ef
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: 17b31029-678b-4491-99d0-51df0fd19b8d
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 9c84852b-3311-4101-bdee-bb475a38efff
+		summarizeBy: sum
+		sourceColumn: order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 3f4aebe0-b6f3-4bd7-a3b4-f5c18f5b4a70
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		lineageTag: 60e80205-c249-47fe-a88d-e32248175ca9
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cost_amount
+		dataType: double
+		lineageTag: d0dcd660-b959-458b-b274-df331699527c
+		summarizeBy: sum
+		sourceColumn: total_cost_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status
+		dataType: string
+		lineageTag: e00b49b4-656d-4edf-ba37-21822111f94a
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: 5c3f3d6f-eaa5-4c66-a788-367c13702270
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ingested_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 745e947f-d3fc-4b39-bde5-a26e6c83dce6
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+		variation Variation
+			isDefault
+			relationship: 027cb46c-5be7-4f48-bec0-4eb5a93886ea
+			defaultHierarchy: LocalDateTable_4835fd38-a404-4384-bdae-9e8f9424e06c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_purchase_orders = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_fact_purchase_orders = Source{[Schema="dbo",Item="fact_purchase_orders"]}[Data]
+				in
+				    dbo_fact_purchase_orders
+
+	annotation PBI_ResultType = Table
+

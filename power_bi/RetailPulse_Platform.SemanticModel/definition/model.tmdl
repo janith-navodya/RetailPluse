@@ -1,0 +1,54 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["quarantine_invalid_records","vw_executive_kpis","vw_inventory_health","vw_inventory_health_summary","vw_product_sales_daily","vw_purchase_order_details","vw_store_inventory_turnover","vw_store_product_sales_daily","vw_supplier_performance","dim_date","dim_product","dim_store","etl_batch_log","dim_supplier","quarantine_records","fact_sales_daily","fact_inventory_snapshot","fact_purchase_orders","fact_replenishment_recommendation","_Measures"]
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table quarantine_invalid_records
+ref table DateTableTemplate_2ed2ea97-b6da-4b33-95aa-5382312dd3d0
+ref table LocalDateTable_1b7e5f03-64dc-4444-82a7-9a1a4d3cf4fe
+ref table vw_executive_kpis
+ref table vw_inventory_health
+ref table LocalDateTable_14ede919-25b8-4fef-a7dc-422ab26355af
+ref table vw_inventory_health_summary
+ref table vw_product_sales_daily
+ref table LocalDateTable_e0d49cb3-f1d0-44ea-bcf0-467f405618cf
+ref table vw_purchase_order_details
+ref table LocalDateTable_d3c58ab2-c847-473c-8f33-ef30ce3571bd
+ref table LocalDateTable_f9f6696e-8150-433b-845c-3166cbeee2ae
+ref table LocalDateTable_bac8a9be-1354-4b7d-854d-d0421f91e8fc
+ref table vw_store_inventory_turnover
+ref table vw_store_product_sales_daily
+ref table LocalDateTable_96ca690d-6042-409b-a2a0-14102d04ccf6
+ref table vw_supplier_performance
+ref table dim_date
+ref table LocalDateTable_6248c976-dd34-463d-ba9e-9d610ec6dba9
+ref table dim_product
+ref table dim_store
+ref table etl_batch_log
+ref table LocalDateTable_8724e397-5d4b-4982-83b7-b0a66c61179c
+ref table LocalDateTable_ae3ebed7-e2d0-4e80-af49-30fc9b5247bc
+ref table dim_supplier
+ref table quarantine_records
+ref table LocalDateTable_3f98e1a2-1c23-4273-8095-e38d74d32d30
+ref table fact_sales_daily
+ref table LocalDateTable_ee57b57f-8668-4c01-b2c5-7172a2a2b763
+ref table fact_inventory_snapshot
+ref table LocalDateTable_d359fc65-b348-4445-b296-81c98e14d550
+ref table fact_purchase_orders
+ref table LocalDateTable_4835fd38-a404-4384-bdae-9e8f9424e06c
+ref table fact_replenishment_recommendation
+ref table LocalDateTable_c80f55b5-b629-44eb-8bc7-3dfddd39b9b7
+ref table _Measures
+
+ref cultureInfo en-US
+

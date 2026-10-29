@@ -1,0 +1,93 @@
+table vw_executive_kpis
+	lineageTag: 3f910f17-b23f-470e-861f-a6286c30c8b2
+
+	column total_net_sales
+		dataType: double
+		lineageTag: df7f30c4-af13-4425-bf5c-8f51514f1cba
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		lineageTag: 23a920e7-b2ee-4061-acec-4b2252598ae9
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_gross_profit
+		dataType: double
+		lineageTag: b38dc7d4-9e32-42bf-b586-2a7fb88e6c5e
+		summarizeBy: sum
+		sourceColumn: total_gross_profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_margin_pct
+		dataType: double
+		lineageTag: 6dc6a1d1-e1fe-4128-99f5-3ee95612c8ba
+		summarizeBy: sum
+		sourceColumn: gross_margin_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_operating_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 73ab929a-102f-4947-98e2-c5b3762a1aa0
+		summarizeBy: sum
+		sourceColumn: total_operating_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column overall_stockout_rate_pct
+		dataType: double
+		lineageTag: 262ed378-7fb8-4133-916c-3e7abe82a4b5
+		summarizeBy: sum
+		sourceColumn: overall_stockout_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_daily_total_inventory_value
+		dataType: double
+		lineageTag: 50f6b502-a481-4725-956d-768aa9f6c81a
+		summarizeBy: sum
+		sourceColumn: avg_daily_total_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column annualized_inventory_turnover
+		dataType: double
+		lineageTag: e00c9a81-ef3f-4d6e-ad87-20020dba21b1
+		summarizeBy: sum
+		sourceColumn: annualized_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_executive_kpis = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_executive_kpis = Source{[Schema="dbo",Item="vw_executive_kpis"]}[Data]
+				in
+				    dbo_vw_executive_kpis
+
+	annotation PBI_ResultType = Table
+

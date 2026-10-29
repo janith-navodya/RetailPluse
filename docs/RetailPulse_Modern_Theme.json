@@ -1,0 +1,171 @@
+{
+    "name": "RetailPulse Modern Executive",
+    "dataColors": [
+        "#00D26A",
+        "#3B82F6",
+        "#F59E0B",
+        "#EF4444",
+        "#8B5CF6",
+        "#06B6D4",
+        "#10B981",
+        "#64748B"
+    ],
+    "background": "#0E131F",
+    "foreground": "#1A2234",
+    "tableAccent": "#00D26A",
+    "textClasses": {
+        "callout": {
+            "fontSize": 26,
+            "fontFace": "Segoe UI Semibold",
+            "color": "#F8FAFC"
+        },
+        "title": {
+            "fontSize": 13,
+            "fontFace": "Segoe UI Semibold",
+            "color": "#94A3B8"
+        },
+        "header": {
+            "fontSize": 12,
+            "fontFace": "Segoe UI",
+            "color": "#E2E8F0"
+        },
+        "label": {
+            "fontSize": 11,
+            "fontFace": "Segoe UI",
+            "color": "#64748B"
+        }
+    },
+    "visualStyles": {
+        "*": {
+            "*": {
+                "background": [
+                    {
+                        "show": true,
+                        "color": {
+                            "solid": {
+                                "color": "#1A2234"
+                            }
+                        },
+                        "transparency": 0
+                    }
+                ],
+                "border": [
+                    {
+                        "show": true,
+                        "color": {
+                            "solid": {
+                                "color": "#2D3748"
+                            }
+                        },
+                        "radius": 12
+                    }
+                ],
+                "dropShadow": [
+                    {
+                        "show": true,
+                        "color": {
+                            "solid": {
+                                "color": "#000000"
+                            }
+                        },
+                        "position": "Outer",
+                        "preset": "BottomRight"
+                    }
+                ]
+            }
+        },
+        "page": {
+            "*": {
+                "background": [
+                    {
+                        "color": {
+                            "solid": {
+                                "color": "#0E131F"
+                            }
+                        },
+                        "transparency": 0
+                    }
+                ]
+            }
+        },
+        "card": {
+            "*": {
+                "labels": [
+                    {
+                        "color": {
+                            "solid": {
+                                "color": "#00D26A"
+                            }
+                        },
+                        "fontSize": 24
+                    }
+                ],
+                "categoryLabels": [
+                    {
+                        "color": {
+                            "solid": {
+                                "color": "#94A3B8"
+                            }
+                        },
+                        "fontSize": 11
+                    }
+                ]
+            }
+        },
+        "tableEx": {
+            "*": {
+                "grid": [
+                    {
+                        "gridVertical": false,
+                        "gridHorizontal": true,
+                        "gridHorizontalColor": {
+                            "solid": {
+                                "color": "#2D3748"
+                            }
+                        },
+                        "gridHorizontalWeight": 1
+                    }
+                ],
+                "columnHeaders": [
+                    {
+                        "fontColor": {
+                            "solid": {
+                                "color": "#94A3B8"
+                            }
+                        },
+                        "backColor": {
+                            "solid": {
+                                "color": "#0E131F"
+                            }
+                        },
+                        "autoSizeColumnWidth": true
+                    }
+                ],
+                "values": [
+                    {
+                        "fontColorPrimary": {
+                            "solid": {
+                                "color": "#F8FAFC"
+                            }
+                        },
+                        "backColorPrimary": {
+                            "solid": {
+                                "color": "#1A2234"
+                            }
+                        },
+                        "fontColorSecondary": {
+                            "solid": {
+                                "color": "#E2E8F0"
+                            }
+                        },
+                        "backColorSecondary": {
+                            "solid": {
+                                "color": "#161D2B"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

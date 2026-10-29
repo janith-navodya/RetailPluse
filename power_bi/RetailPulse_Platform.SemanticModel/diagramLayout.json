@@ -1,0 +1,282 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 3824.8061912926933,
+        "y": 77.172950390925848
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 423.61976367323797,
+            "y": 303.62639469532633
+          },
+          "nodeIndex": "dim_date",
+          "nodeLineageTag": "98f9316c-04cb-4ef9-bd62-432e29f84c0e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 572.84765023881107,
+            "y": -50
+          },
+          "nodeIndex": "dim_product",
+          "nodeLineageTag": "376fb047-c64d-4081-b343-aff3f8d6e6b6",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 336.73336172010772,
+            "y": 656.97112742459717
+          },
+          "nodeIndex": "dim_store",
+          "nodeLineageTag": "617a75a3-f8c9-41af-b614-c4b2ed7b959c",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1201.8061912926937,
+            "y": 345.6997952559658
+          },
+          "nodeIndex": "dim_supplier",
+          "nodeLineageTag": "aefa3c85-08cf-463f-aac7-529be39395c6",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1769.8061912926937,
+            "y": 312.5609363449164
+          },
+          "nodeIndex": "etl_batch_log",
+          "nodeLineageTag": "74b4bc84-d407-4e7c-a9a6-36dfb8fdd3b8",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 125.9839293384573,
+            "y": 5.5169028152997726
+          },
+          "nodeIndex": "fact_inventory_snapshot",
+          "nodeLineageTag": "540fc1e9-7cf7-42be-ac65-12574c1a915d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 859.77310858684211,
+            "y": 293.51994035492288
+          },
+          "nodeIndex": "fact_purchase_orders",
+          "nodeLineageTag": "b9614eee-9661-4f46-a8b5-61cc9938b430",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1022.2011411320732,
+            "y": 647.12187268983234
+          },
+          "nodeIndex": "fact_replenishment_recommendation",
+          "nodeLineageTag": "ca8f34e1-6264-4045-9efd-6e7a471e3606",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 50,
+            "y": 359.17295039092585
+          },
+          "nodeIndex": "fact_sales_daily",
+          "nodeLineageTag": "d950b90f-7f92-433f-afe2-9ba0636c7895",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2003.8061912926937,
+            "y": 374.5609363449164
+          },
+          "nodeIndex": "quarantine_invalid_records",
+          "nodeLineageTag": "b0d16d0a-d39f-4359-a94e-3659d2b8f66b",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1485.8061912926937,
+            "y": 324.5609363449164
+          },
+          "nodeIndex": "quarantine_records",
+          "nodeLineageTag": "db26af4d-a505-4953-9d29-28891106eae1",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2287.8061912926937,
+            "y": 362.5609363449164
+          },
+          "nodeIndex": "vw_executive_kpis",
+          "nodeLineageTag": "3f910f17-b23f-470e-861f-a6286c30c8b2",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2571.8061912926937,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_inventory_health",
+          "nodeLineageTag": "8ec217ee-1d08-4f77-80b1-b64ebd210f5e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2855.8061912926937,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_inventory_health_summary",
+          "nodeLineageTag": "146241aa-a089-4c94-beb6-32537aa5555b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3139.8061912926937,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_product_sales_daily",
+          "nodeLineageTag": "9592e644-6eb6-4f1e-aef9-bbc3dbe3d99c",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3423.8061912926937,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_purchase_order_details",
+          "nodeLineageTag": "771a962a-32b3-4163-bd39-1eb8aa1c64e4",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3707.8061912926937,
+            "y": 350.5609363449164
+          },
+          "nodeIndex": "vw_store_inventory_turnover",
+          "nodeLineageTag": "31420935-2f74-45ce-9a8d-aa5974dbe217",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3991.8061912926937,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_store_product_sales_daily",
+          "nodeLineageTag": "aeb876a0-2e3c-437d-89f5-0da8b063eefa",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4275.8061912926933,
+            "y": 348.5609363449164
+          },
+          "nodeIndex": "vw_supplier_performance",
+          "nodeLineageTag": "a56f1f93-6294-4ec0-b3c5-475fd3252ed0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4509.8061912926933,
+            "y": 446.56093634491617
+          },
+          "nodeIndex": "_Measures",
+          "nodeLineageTag": "e5084182-98f9-4b0c-99fe-cfffb4455f96",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

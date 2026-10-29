@@ -1,0 +1,118 @@
+table dim_date
+	lineageTag: 98f9316c-04cb-4ef9-bd62-432e29f84c0e
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 63e1422f-5642-49fb-9ded-9dea7b2da69d
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column full_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5aa1f0ef-4b88-4e7c-927d-d71a4a20a8ee
+		summarizeBy: none
+		sourceColumn: full_date
+
+		variation Variation
+			isDefault
+			relationship: 58ad0674-7b39-4fb6-9804-76d7e0c8c99c
+			defaultHierarchy: LocalDateTable_6248c976-dd34-463d-ba9e-9d610ec6dba9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column day_of_week
+		dataType: int64
+		formatString: 0
+		lineageTag: cc586157-af50-4f89-a270-306ca3b71992
+		summarizeBy: sum
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_name
+		dataType: string
+		lineageTag: 5c215889-7220-4d44-a2df-6e2763e5b822
+		summarizeBy: none
+		sourceColumn: day_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_month
+		dataType: int64
+		formatString: 0
+		lineageTag: 69c658b5-ce4e-4f6a-bf92-76cd7d530d0d
+		summarizeBy: sum
+		sourceColumn: day_of_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_num
+		dataType: int64
+		formatString: 0
+		lineageTag: 723eb6c7-8319-480c-b451-f1d5cf77ee4c
+		summarizeBy: sum
+		sourceColumn: month_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		dataType: string
+		lineageTag: 748a0d5e-f7f6-484b-b56c-e10f291878fe
+		summarizeBy: none
+		sourceColumn: month_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 72e972f8-dc8b-4da8-864e-ffa7057fc8a8
+		summarizeBy: sum
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: ba3601c0-78da-49a7-a073-1fbfb50b7d34
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: int64
+		formatString: 0
+		lineageTag: 4474ac33-2d8d-42f0-abb0-f7d3380bc882
+		summarizeBy: sum
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_holiday
+		dataType: int64
+		formatString: 0
+		lineageTag: d5ec55c2-0296-4a1c-a762-c4c3fc66254f
+		summarizeBy: sum
+		sourceColumn: is_holiday
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_dim_date = Source{[Schema="dbo",Item="dim_date"]}[Data]
+				in
+				    dbo_dim_date
+
+	annotation PBI_ResultType = Table
+

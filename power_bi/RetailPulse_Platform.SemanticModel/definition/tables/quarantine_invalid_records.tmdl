@@ -1,0 +1,77 @@
+table quarantine_invalid_records
+	lineageTag: b0d16d0a-d39f-4359-a94e-3659d2b8f66b
+
+	column quarantine_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 31018fbc-8d16-459e-94cd-0b5fb5445a29
+		summarizeBy: sum
+		sourceColumn: quarantine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_feed
+		dataType: string
+		lineageTag: 86179190-0bdc-4c21-9c70-1bd71b2a9ac9
+		summarizeBy: none
+		sourceColumn: source_feed
+
+		annotation SummarizationSetBy = Automatic
+
+	column raw_payload_json
+		dataType: string
+		lineageTag: 4dcddf62-04bd-4862-b156-e2ef89dbee23
+		summarizeBy: none
+		sourceColumn: raw_payload_json
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_category
+		dataType: string
+		lineageTag: 8e6b2b7b-773e-46a4-9320-4878526ce112
+		summarizeBy: none
+		sourceColumn: violation_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_details
+		dataType: string
+		lineageTag: f2c94528-c6ad-4512-bd61-21383a5cba3c
+		summarizeBy: none
+		sourceColumn: violation_details
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 29b3237a-3aea-47c1-9c27-9395e49ddf22
+		summarizeBy: none
+		sourceColumn: rejected_at
+
+		variation Variation
+			isDefault
+			relationship: 44c44c54-c26a-4897-9a24-279b7c6b6d4b
+			defaultHierarchy: LocalDateTable_1b7e5f03-64dc-4444-82a7-9a1a4d3cf4fe.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: 6f35200e-b999-4ccb-a60e-82452070f30e
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition quarantine_invalid_records = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_quarantine_invalid_records = Source{[Schema="dbo",Item="quarantine_invalid_records"]}[Data]
+				in
+				    dbo_quarantine_invalid_records
+
+	annotation PBI_ResultType = Table
+

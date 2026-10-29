@@ -1,0 +1,116 @@
+table fact_inventory_snapshot
+	lineageTag: 540fc1e9-7cf7-42be-ac65-12574c1a915d
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 48d16bea-b7fb-4d14-a2d8-02061a0f29d4
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		lineageTag: eba2b699-c546-4e55-a07e-ecdf86b4c9f4
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: dcb32f74-1aa3-4570-ac0d-bd3b226aa2ef
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column beginning_on_hand_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 8b88404f-f3f6-4a62-8cac-6717f3657c52
+		summarizeBy: sum
+		sourceColumn: beginning_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: b0edf34d-d68a-4f77-931b-239dfef6b6d9
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column sold_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 9c6ae2d8-6508-4764-8d43-041da130cc6d
+		summarizeBy: sum
+		sourceColumn: sold_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column ending_on_hand_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 797cfea5-933a-4d14-9a9b-e3e1ac8a70a2
+		summarizeBy: sum
+		sourceColumn: ending_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column ending_inventory_value
+		dataType: double
+		lineageTag: a3ab2254-9fb1-4650-b7ab-646c2ee6e5fe
+		summarizeBy: sum
+		sourceColumn: ending_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_stockout
+		dataType: int64
+		formatString: 0
+		lineageTag: de1d1b66-8903-4f3e-9222-8ff343204430
+		summarizeBy: sum
+		sourceColumn: is_stockout
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: bd7d753d-7475-42c5-a23f-7efe6934718e
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ingested_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b155bf1a-1033-4604-8ba0-032082140fb2
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+		variation Variation
+			isDefault
+			relationship: aeb32b15-039f-41ae-b0e9-836a19108880
+			defaultHierarchy: LocalDateTable_d359fc65-b348-4445-b296-81c98e14d550.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_inventory_snapshot = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_fact_inventory_snapshot = Source{[Schema="dbo",Item="fact_inventory_snapshot"]}[Data]
+				in
+				    dbo_fact_inventory_snapshot
+
+	annotation PBI_ResultType = Table
+

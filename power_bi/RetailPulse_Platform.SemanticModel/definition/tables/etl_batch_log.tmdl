@@ -1,0 +1,93 @@
+table etl_batch_log
+	lineageTag: 74b4bc84-d407-4e7c-a9a6-36dfb8fdd3b8
+
+	column batch_id
+		dataType: string
+		lineageTag: 06419c9f-7ef1-4a65-b2b0-e2c2d988b3c0
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column pipeline_name
+		dataType: string
+		lineageTag: cf1a7239-96d6-4927-88ca-ca4d5a084b96
+		summarizeBy: none
+		sourceColumn: pipeline_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: 4247a3d8-dc61-4998-99f7-5d3237890d76
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_processed
+		dataType: int64
+		formatString: 0
+		lineageTag: 6443c38e-e380-4039-b84c-3643a01f34d3
+		summarizeBy: sum
+		sourceColumn: records_processed
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_loaded
+		dataType: int64
+		formatString: 0
+		lineageTag: 34cdae19-7983-43c5-bee5-9663d606f04e
+		summarizeBy: sum
+		sourceColumn: records_loaded
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_quarantined
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b57c5d1-d24e-4748-96f1-cb31f52602ec
+		summarizeBy: sum
+		sourceColumn: records_quarantined
+
+		annotation SummarizationSetBy = Automatic
+
+	column started_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3f8001a2-38ed-4edf-a704-e0f910b7997e
+		summarizeBy: none
+		sourceColumn: started_at
+
+		variation Variation
+			isDefault
+			relationship: 4dbb0586-7650-492b-bdef-d12a1e5c127f
+			defaultHierarchy: LocalDateTable_8724e397-5d4b-4982-83b7-b0a66c61179c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column completed_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b40581f9-a918-4cdc-ac9c-4c4858b7a424
+		summarizeBy: none
+		sourceColumn: completed_at
+
+		variation Variation
+			isDefault
+			relationship: d474637c-4042-42d2-81d1-705dbef8af43
+			defaultHierarchy: LocalDateTable_ae3ebed7-e2d0-4e80-af49-30fc9b5247bc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition etl_batch_log = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_etl_batch_log = Source{[Schema="dbo",Item="etl_batch_log"]}[Data]
+				in
+				    dbo_etl_batch_log
+
+	annotation PBI_ResultType = Table
+

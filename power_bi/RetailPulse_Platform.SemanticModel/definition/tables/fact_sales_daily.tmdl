@@ -1,0 +1,134 @@
+table fact_sales_daily
+	lineageTag: d950b90f-7f92-433f-afe2-9ba0636c7895
+
+	measure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )
+		lineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: ee2f3e3f-8f15-4436-8ed3-d4ea2ecbf7fe
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		lineageTag: 30eabb52-67fe-4b85-ba45-ddb7a0298583
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: d51f1723-80d8-4c5d-be76-3f443c497590
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity_sold
+		dataType: int64
+		formatString: 0
+		lineageTag: 740da6bc-06a6-41e9-83db-c8685a5110a8
+		summarizeBy: sum
+		sourceColumn: quantity_sold
+
+		annotation SummarizationSetBy = Automatic
+
+	column gross_sales_amount
+		dataType: double
+		lineageTag: 94b6da78-8fb7-455f-b86e-f0c607f4fc9e
+		summarizeBy: sum
+		sourceColumn: gross_sales_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column discount_amount
+		dataType: double
+		lineageTag: a76c757a-10b1-4522-a959-3508f12f7a90
+		summarizeBy: sum
+		sourceColumn: discount_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column net_sales_amount
+		dataType: double
+		lineageTag: 87ad8c41-fd05-4c3b-98c6-3a58297f0b9d
+		summarizeBy: sum
+		sourceColumn: net_sales_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cogs_amount
+		dataType: double
+		lineageTag: 32a485e2-7568-4a09-ae30-293b21f63eab
+		summarizeBy: sum
+		sourceColumn: cogs_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_profit_amount
+		dataType: double
+		lineageTag: e1537e3b-2086-46eb-bb17-61654a102a4e
+		summarizeBy: sum
+		sourceColumn: gross_profit_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_promotional
+		dataType: int64
+		formatString: 0
+		lineageTag: ac3e9130-040d-455d-b3ca-8592f6a7ea5f
+		summarizeBy: sum
+		sourceColumn: is_promotional
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		lineageTag: 4f1ced85-b8d8-4faf-8564-d578ed75d7e5
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ingested_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a6a046ea-f8f9-4396-b6e0-72ed4e33b065
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+		variation Variation
+			isDefault
+			relationship: 9ed7e20e-d730-496a-b85a-60acc3c5a77a
+			defaultHierarchy: LocalDateTable_ee57b57f-8668-4c01-b2c5-7172a2a2b763.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_sales_daily = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_fact_sales_daily = Source{[Schema="dbo",Item="fact_sales_daily"]}[Data]
+				in
+				    dbo_fact_sales_daily
+
+	annotation PBI_ResultType = Table
+

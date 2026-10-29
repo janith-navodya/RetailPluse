@@ -1,0 +1,72 @@
+table dim_store
+	lineageTag: 617a75a3-f8c9-41af-b614-c4b2ed7b959c
+
+	column store_id
+		dataType: string
+		lineageTag: 585e405b-1040-45f0-bffe-d71847ba1b8c
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		lineageTag: 68c773e5-da00-4372-b8bb-a25082017363
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_format
+		dataType: string
+		lineageTag: 93748b48-a3e5-419c-a10a-79a2209c00b7
+		summarizeBy: none
+		sourceColumn: store_format
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: 0ba2c83e-fc60-4b96-8e22-476f0d704771
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 1c2e4b38-c74a-4cb5-ae15-fea13c6a8799
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column square_footage
+		dataType: int64
+		formatString: 0
+		lineageTag: d59a6f88-330a-4fcb-953b-f4b5376d5f3c
+		summarizeBy: sum
+		sourceColumn: square_footage
+
+		annotation SummarizationSetBy = Automatic
+
+	column storage_capacity_units
+		dataType: int64
+		formatString: 0
+		lineageTag: 0483d8fe-fbd8-420c-91a3-3eeea8961b35
+		summarizeBy: sum
+		sourceColumn: storage_capacity_units
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_store = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_dim_store = Source{[Schema="dbo",Item="dim_store"]}[Data]
+				in
+				    dbo_dim_store
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,84 @@
+import os
+
+svg_content = """<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080C15" />
+      <stop offset="50%" stop-color="#0D1322" />
+      <stop offset="100%" stop-color="#070A11" />
+    </linearGradient>
+
+    <!-- Card Background Gradient -->
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141C2E" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#0F1726" stop-opacity="0.65" />
+    </linearGradient>
+
+    <!-- Card Border Gradients -->
+    <linearGradient id="borderStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#1E293B" stop-opacity="0.3" />
+    </linearGradient>
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00D26A" />
+      <stop offset="100%" stop-color="#00F078" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="neonBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#60A5FA" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="neonRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#F87171" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+
+  <!-- Top Header Bar -->
+  <g transform="translate(40, 30)">
+    <circle cx="10" cy="22" r="6" fill="#00D26A" />
+    <text x="30" y="28" font-family="Segoe UI, -apple-system, sans-serif" font-size="24" font-weight="800" fill="#F8FAFC" letter-spacing="1">RETAILPULSE DECISION INTELLIGENCE</text>
+    <text x="560" y="27" font-family="Segoe UI, sans-serif" font-size="14" font-weight="500" fill="#64748B">|  OPERATIONAL EXECUTIVE COCKPIT &amp; SUPPLY CHAIN RADAR</text>
+  </g>
+
+  <!-- 4 Top KPI Containers -->
+  <!-- Card 1: Total Sales -->
+  <rect x="40" y="80" width="440" height="140" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="40" y="80" width="140" height="3" rx="1.5" fill="url(#neonBlue)"/>
+
+  <!-- Card 2: Gross Margin % -->
+  <rect x="510" y="80" width="440" height="140" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="510" y="80" width="140" height="3" rx="1.5" fill="url(#neonGreen)"/>
+
+  <!-- Card 3: Ending Inventory Units -->
+  <rect x="980" y="80" width="440" height="140" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="980" y="80" width="140" height="3" rx="1.5" fill="url(#neonBlue)"/>
+
+  <!-- Card 4: Stockout Exposure -->
+  <rect x="1450" y="80" width="430" height="140" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="1450" y="80" width="140" height="3" rx="1.5" fill="url(#neonRed)"/>
+
+  <!-- Main Left Container: Financial Momentum & Sales Chart -->
+  <rect x="40" y="250" width="910" height="790" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(70, 290)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#F1F5F9">Revenue &amp; Cost Momentum</text>
+    <text x="0" y="22" font-family="Segoe UI, sans-serif" font-size="12" font-weight="500" fill="#64748B">Daily Net Sales vs Total COGS over time</text>
+  </g>
+
+  <!-- Main Right Container: Inventory Health Fleet & Decision Matrix -->
+  <rect x="980" y="250" width="900" height="790" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(1010, 290)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#F1F5F9">Inventory Health &amp; Reorder Radar</text>
+    <text x="0" y="22" font-family="Segoe UI, sans-serif" font-size="12" font-weight="500" fill="#64748B">Real-time portfolio Days of Supply (DoS) and risk status badges</text>
+  </g>
+</svg>
+"""
+
+os.makedirs("power_bi", exist_ok=True)
+with open("power_bi/RetailPulse_Executive_Canvas.svg", "w", encoding="utf-8") as f:
+    f.write(svg_content)
+print("Canvas SVG generated successfully at power_bi/RetailPulse_Executive_Canvas.svg")
+

@@ -1,0 +1,155 @@
+table vw_supplier_performance
+	lineageTag: a56f1f93-6294-4ec0-b3c5-475fd3252ed0
+
+	column supplier_id
+		dataType: string
+		lineageTag: b007a0e7-f688-4325-b80d-c86b0062a33f
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: 6f0006e8-678b-4aa6-8f00-8e59c446c52c
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column contact_email
+		dataType: string
+		lineageTag: 389f8e38-2e50-41c0-8996-82971d2db206
+		summarizeBy: none
+		sourceColumn: contact_email
+
+		annotation SummarizationSetBy = Automatic
+
+	column nominal_lead_time_days
+		dataType: double
+		lineageTag: 9cd29d6f-782c-42eb-ad9a-b09f7106f382
+		summarizeBy: sum
+		sourceColumn: nominal_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column nominal_lead_time_std_dev
+		dataType: double
+		lineageTag: bc03a0d2-f20d-411f-9cb7-b2ad800bbdab
+		summarizeBy: sum
+		sourceColumn: nominal_lead_time_std_dev
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_order_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a2017f0-2bb4-48e2-88ca-4cfb500ada10
+		summarizeBy: sum
+		sourceColumn: min_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_level_target_pct
+		dataType: double
+		lineageTag: b798457a-0218-4762-9105-edf7d34a2bca
+		summarizeBy: sum
+		sourceColumn: service_level_target_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_orders_placed
+		dataType: int64
+		formatString: 0
+		lineageTag: 00fb5344-f1b1-4b9b-a66c-8acb9e93e0fb
+		summarizeBy: sum
+		sourceColumn: total_orders_placed
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_orders_delivered
+		dataType: int64
+		formatString: 0
+		lineageTag: 49c9056e-ea62-4a22-9534-770151f8c6c6
+		summarizeBy: sum
+		sourceColumn: total_orders_delivered
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_actual_lead_time_days
+		dataType: double
+		lineageTag: db410a28-6ccb-4b29-9aae-ef5276e3a6d6
+		summarizeBy: sum
+		sourceColumn: avg_actual_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column lead_time_variance_days
+		dataType: double
+		lineageTag: 921ea2b7-cfb2-49ef-b61f-58fb713724b8
+		summarizeBy: sum
+		sourceColumn: lead_time_variance_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column order_fill_rate_pct
+		dataType: double
+		lineageTag: b1694605-9629-4438-bca9-6d59008c7217
+		summarizeBy: sum
+		sourceColumn: order_fill_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column moq_adherence_pct
+		dataType: double
+		lineageTag: 1781881d-e3af-4f55-b6e2-e256effa75e6
+		summarizeBy: sum
+		sourceColumn: moq_adherence_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column on_time_delivery_rate_pct
+		dataType: double
+		lineageTag: c2bb55da-c086-4047-be07-4e0c738455ba
+		summarizeBy: sum
+		sourceColumn: on_time_delivery_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_procurement_spend
+		dataType: double
+		lineageTag: 872086b4-8000-4e26-b7ad-42035e20a280
+		summarizeBy: sum
+		sourceColumn: total_procurement_spend
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_supplier_performance = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("localhost", "RetailPulseDB"),
+				    dbo_vw_supplier_performance = Source{[Schema="dbo",Item="vw_supplier_performance"]}[Data]
+				in
+				    dbo_vw_supplier_performance
+
+	annotation PBI_ResultType = Table
+
