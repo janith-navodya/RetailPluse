@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "Table_InventoryFleetHealth",
   "position": {
-    "x": 995,
+    "x": 975,
     "y": 330,
     "z": 2001,
-    "width": 870,
+    "width": 890,
     "height": 690,
     "tabOrder": 2001
   },
@@ -42,6 +42,20 @@
               },
               "queryRef": "dim_product.category",
               "nativeQueryRef": "Category"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Ending Inventory Units"
+                }
+              },
+              "queryRef": "_Measures.Ending Inventory Units",
+              "nativeQueryRef": "Ending Inventory Units"
             },
             {
               "field": {
@@ -95,7 +109,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#00000000'"
+                      "Value": "'#141C2E'"
                     }
                   }
                 }
@@ -117,7 +131,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#00000000'"
+                      "Value": "'#0F1726'"
                     }
                   }
                 }
@@ -134,7 +148,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F8FAFC'"
+                      "Value": "'#00D26A'"
                     }
                   }
                 }
@@ -145,7 +159,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#00000000'"
+                      "Value": "'#0E131F'"
                     }
                   }
                 }
@@ -176,7 +190,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#334155'"
+                      "Value": "'#1E293B'"
                     }
                   }
                 }

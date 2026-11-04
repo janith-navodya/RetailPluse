@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "Card_GrossMargin",
   "position": {
-    "x": 510,
-    "y": 80,
+    "x": 505,
+    "y": 90,
     "z": 1001,
-    "width": 440,
-    "height": 140,
+    "width": 435,
+    "height": 135,
     "tabOrder": 1001
   },
   "visual": {

@@ -1,25 +1,32 @@
 table _Measures
 	lineageTag: e5084182-98f9-4b0c-99fe-cfffb4455f96
 
+	measure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
+		lineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
 	measure 'Total COGS' =
 			
 			SUMX (
 			    fact_sales_daily,
 			    fact_sales_daily[quantity_sold] * RELATED ( dim_product[unit_cost_price] )
 			)
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
 		lineageTag: cda00ad4-1283-4517-b48a-73d4232433e5
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
 	measure 'Gross Profit' = [Total Sales] - [Total COGS]
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
 		lineageTag: 53968e43-9845-4e33-b1bd-4adb330248cc
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
-	measure 'Gross Margin %' = DIVIDE ( [Gross Profit], [Total Sales], 0 ) * 100
+	measure 'Gross Margin %' = DIVIDE ( [Gross Profit], [Total Sales], 0 )
+		formatString: 0.0%
 		lineageTag: a94b153e-f1f7-40b9-8a43-7771ddc324e9
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Ending Inventory Units' =
 			
@@ -29,7 +36,7 @@ table _Measures
 			    SUM ( fact_inventory_snapshot[ending_on_hand_qty] ),
 			    fact_inventory_snapshot[date_key] = MaxDateKey
 			)
-		formatString: 0
+		formatString: #,##0
 		lineageTag: 65368ab2-8fe1-4da7-b6b6-5328eb0b0d36
 
 	measure 'Rolling 30D Daily Sales' =
@@ -48,6 +55,27 @@ table _Measures
 		lineageTag: d8eac601-ecf7-4334-91bf-83a9f1de0620
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Critical Stockout SKUs' = 
+			CALCULATE (
+			    DISTINCTCOUNT ( fact_inventory_snapshot[product_id] ),
+			    fact_inventory_snapshot[stockout_flag] = 1,
+			    LASTDATE ( dim_date[full_date] )
+			)
+		formatString: #,##0
+		lineageTag: f49e2410-67fe-4a85-9da0-293b21f63eae
+
+	measure 'Stockout Rate %' = 
+			VAR Stockouts = CALCULATE ( COUNTROWS ( fact_inventory_snapshot ), fact_inventory_snapshot[stockout_flag] = 1 )
+			VAR TotalRows = COUNTROWS ( fact_inventory_snapshot )
+			RETURN
+			DIVIDE ( Stockouts, TotalRows, 0 ) * 100
+		formatString: 0.0%
+		lineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac
+
+	measure 'Stockout Exposure' = [Stockout Rate %]
+		formatString: 0.0%
+		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
 
 	measure 'Stockout Status Badge SVG' = ```
 			
@@ -106,26 +134,26 @@ table _Measures
 		lineageTag: 3cf824ed-9391-4404-8380-d1aaac113150
 		dataCategory: ImageUrl
 
-	measure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )
-		lineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'Stockout Rate %' = 
-			VAR Stockouts = CALCULATE ( COUNTROWS ( fact_inventory_snapshot ), fact_inventory_snapshot[stockout_flag] = 1 )
-			VAR TotalRows = COUNTROWS ( fact_inventory_snapshot )
+	measure 'DoS Bar SVG' = ```
+			VAR DoS = [Days of Supply (DoS)]
+			VAR MaxCap = 60.0
+			VAR Ratio = MIN ( 1.0, DIVIDE ( DoS, MaxCap, 0 ) )
+			VAR BarWidth = INT ( Ratio * 90 )
+			VAR BarColor = 
+			    SWITCH (
+			        TRUE (),
+			        DoS < 7, "#EF4444",     // Red (Critical)
+			        DoS <= 21, "#F59E0B",   // Amber (Low Stock)
+			        "#00D26A"               // Green (Healthy)
+			    )
 			RETURN
-			DIVIDE ( Stockouts, TotalRows, 0 ) * 100
-		lineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'Stockout Exposure' = [Stockout Rate %]
-		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	measure 'DoS Bar SVG' = [DoS Health Bar SVG]
+			    "data:image/svg+xml;utf8," &
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='24'>" &
+			    "<rect width='90' height='8' y='8' rx='4' fill='#1E293B'/>" &
+			    "<rect width='" & BarWidth & "' height='8' y='8' rx='4' fill='" & BarColor & "'/>" &
+			    "<text x='98' y='16' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='#E2E8F0'>" & 
+			    FORMAT(DoS, "0.0") & "d</text></svg>"
+			```
 		lineageTag: 8e594d75-bc90-4269-638a-3209b95f9925
 		dataCategory: ImageUrl
 
@@ -147,4 +175,3 @@ table _Measures
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
-

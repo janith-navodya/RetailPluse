@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "Card_EndingInventoryUnits",
   "position": {
-    "x": 980,
-    "y": 80,
+    "x": 970,
+    "y": 90,
     "z": 1002,
-    "width": 440,
-    "height": 140,
+    "width": 435,
+    "height": 135,
     "tabOrder": 1002
   },
   "visual": {

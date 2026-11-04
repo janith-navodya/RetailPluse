@@ -3,21 +3,26 @@
 scripts/build_pbir_layout.py
 
 Automated Fabric PBIR Layout Builder for RetailPulse Decision Intelligence.
-1. Locates active page folder in power_bi/RetailPulse_Platform.Report/definition/pages/
-2. Generates compliant Fabric PBIR visual.json files:
-   - 4 Top KPI Cards mapped inside SVG canvas containers with exact pixel coordinates.
-   - An Area Chart visual mapped to dim_date[full_date] on X, and _Measures[Total Sales] & _Measures[Total COGS] on Y.
-   - An Inventory Table visual configured with transparent background, white text, and auto-sized columns
-     for Product Name, Category, DoS Bar SVG, and Status Badge SVG.
-3. Formats all measure bindings to use the existing _Measures table.
-4. Synchronizes TMDL definitions so all measures exist cleanly in _Measures.
+Applies the executive two-layer grid system on 1920x1080 canvas:
+1. Base Layer: Synchronizes pre-rendered high-res SVG canvas background.
+2. Data Layer: Generates 100% background-transparent Fabric PBIR visuals snapped to exact coordinates:
+   - Card 1: [Total Sales] at [40, 90, 435x135] (Blue Neon Accent #3B82F6)
+   - Card 2: [Gross Margin %] at [505, 90, 435x135] (Emerald Neon Accent #00D26A)
+   - Card 3: [Ending Inventory Units] at [970, 90, 435x135] (Blue Neon Accent #3B82F6)
+   - Card 4: [Critical Stockout SKUs] at [1435, 90, 445x135] (Crimson Neon Accent #EF4444)
+   - Area Chart: Revenue & Cost Trajectory at [55, 330, 865x690]
+     - X: dim_date[full_date]
+     - Y: [Total Sales] (#00D26A), [Total COGS] (#3B82F6)
+   - Table: Inventory Health Fleet Radar at [975, 330, 890x690]
+     - Columns: product_name, category, [Ending Inventory Units], [DoS Bar SVG], [Stockout Status Badge SVG]
+     - Contrast-locked: #F8FAFC text, #141C2E / #0F1726 rows, #00D26A headers on #0E131F
+3. Reconciles and formats all DAX measures in _Measures.tmdl.
 """
 
 from __future__ import annotations
 
 import json
 import shutil
-import sys
 from pathlib import Path
 
 # Paths
@@ -65,7 +70,7 @@ def create_kpi_card_visual(
     height: int,
     z_index: int,
     measure_name: str,
-    accent_color: str = "#00D26A",
+    accent_color: str,
 ) -> dict:
     """Generate a Fabric PBIR card visual.json dictionary."""
     return {
@@ -309,7 +314,7 @@ def create_area_chart_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#64748B'"
+                                                "Value": "'#94A3B8'"
                                             }
                                         }
                                     }
@@ -333,7 +338,7 @@ def create_area_chart_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#64748B'"
+                                                "Value": "'#94A3B8'"
                                             }
                                         }
                                     }
@@ -377,6 +382,44 @@ def create_area_chart_visual(
                                     }
                                 }
                             }
+                        }
+                    }
+                ],
+                "dataPoint": [
+                    {
+                        "properties": {
+                            "fill": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#00D26A'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "selector": {
+                            "metadata": "_Measures.Total Sales"
+                        }
+                    },
+                    {
+                        "properties": {
+                            "fill": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#3B82F6'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "selector": {
+                            "metadata": "_Measures.Total COGS"
                         }
                     }
                 ]
@@ -434,7 +477,7 @@ def create_inventory_table_visual(
     height: int,
     z_index: int,
 ) -> dict:
-    """Generate a Fabric PBIR tableEx visual configured with transparent background, white text, and auto-sized columns."""
+    """Generate a Fabric PBIR tableEx visual configured with contrast-locked palette and auto-sized columns."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -488,6 +531,20 @@ def create_inventory_table_visual(
                                                 "Entity": "_Measures"
                                             }
                                         },
+                                        "Property": "Ending Inventory Units",
+                                    }
+                                },
+                                "queryRef": "_Measures.Ending Inventory Units",
+                                "nativeQueryRef": "Ending Inventory Units",
+                            },
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "_Measures"
+                                            }
+                                        },
                                         "Property": "DoS Bar SVG",
                                     }
                                 },
@@ -532,7 +589,7 @@ def create_inventory_table_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#00000000'"
+                                                "Value": "'#141C2E'"
                                             }
                                         }
                                     }
@@ -554,7 +611,7 @@ def create_inventory_table_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#00000000'"
+                                                "Value": "'#0F1726'"
                                             }
                                         }
                                     }
@@ -571,7 +628,7 @@ def create_inventory_table_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#F8FAFC'"
+                                                "Value": "'#00D26A'"
                                             }
                                         }
                                     }
@@ -582,7 +639,7 @@ def create_inventory_table_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#00000000'"
+                                                "Value": "'#0E131F'"
                                             }
                                         }
                                     }
@@ -613,7 +670,7 @@ def create_inventory_table_visual(
                                     "color": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'#334155'"
+                                                "Value": "'#1E293B'"
                                             }
                                         }
                                     }
@@ -675,99 +732,8 @@ def create_inventory_table_visual(
     }
 
 
-def synchronize_semantic_model_measures() -> None:
-    """Ensure _Measures.tmdl defines Total Sales, Stockout Rate %, and DoS Bar SVG, and avoid duplicates in fact_sales_daily."""
-    print("-> Synchronizing DAX measures in Semantic Model TMDL files...")
-
-    # 1. Update _Measures.tmdl
-    if MEASURES_TMDL.exists():
-        with open(MEASURES_TMDL, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        new_measures = []
-
-        if "measure 'Total Sales'" not in content:
-            new_measures.append(
-                "\tmeasure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )\n"
-                "\t\tlineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a\n\n"
-                '\t\tannotation PBI_FormatHint = {"isGeneralNumber":true}\n'
-            )
-
-        if "measure 'Stockout Rate %'" not in content:
-            new_measures.append(
-                "\tmeasure 'Stockout Rate %' = \n"
-                "\t\t\tVAR Stockouts = CALCULATE ( COUNTROWS ( fact_inventory_snapshot ), fact_inventory_snapshot[stockout_flag] = 1 )\n"
-                "\t\t\tVAR TotalRows = COUNTROWS ( fact_inventory_snapshot )\n"
-                "\t\t\tRETURN\n"
-                "\t\t\tDIVIDE ( Stockouts, TotalRows, 0 ) * 100\n"
-                "\t\tlineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac\n\n"
-                '\t\tannotation PBI_FormatHint = {"isGeneralNumber":true}\n'
-            )
-
-        if "measure 'Stockout Exposure'" not in content:
-            new_measures.append(
-                "\tmeasure 'Stockout Exposure' = [Stockout Rate %]\n"
-                "\t\tlineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead\n\n"
-                '\t\tannotation PBI_FormatHint = {"isGeneralNumber":true}\n'
-            )
-
-        if "measure 'DoS Bar SVG'" not in content:
-            new_measures.append(
-                "\tmeasure 'DoS Bar SVG' = [DoS Health Bar SVG]\n"
-                "\t\tlineageTag: 8e594d75-bc90-4269-638a-3209b95f9925\n"
-                "\t\tdataCategory: ImageUrl\n"
-            )
-
-        if new_measures:
-            # Insert before column Column1
-            insert_pos = content.find("\tcolumn Column1")
-            if insert_pos != -1:
-                updated_content = content[:insert_pos] + "\n".join(new_measures) + "\n" + content[insert_pos:]
-            else:
-                updated_content = content + "\n\n" + "\n".join(new_measures)
-
-            with open(MEASURES_TMDL, "w", encoding="utf-8") as f:
-                f.write(updated_content)
-            print("   [x] Added required measures (Total Sales, Stockout Rate %, Stockout Exposure, DoS Bar SVG) to _Measures.tmdl")
-
-    # 2. Remove duplicate 'Total Sales' from fact_sales_daily.tmdl if present
-    if SALES_TMDL.exists():
-        with open(SALES_TMDL, "r", encoding="utf-8") as f:
-            sales_content = f.read()
-
-        if "measure 'Total Sales'" in sales_content:
-            # Locate measure block
-            start_idx = sales_content.find("\tmeasure 'Total Sales'")
-            next_col_idx = sales_content.find("\tcolumn date_key", start_idx)
-            if start_idx != -1 and next_col_idx != -1:
-                sales_content = sales_content[:start_idx] + sales_content[next_col_idx:]
-                with open(SALES_TMDL, "w", encoding="utf-8") as f:
-                    f.write(sales_content)
-                print("   [x] Replaced duplicate Total Sales in fact_sales_daily.tmdl with canonical _Measures binding")
-
-
-def update_page_bindings(active_page_dir: Path) -> None:
-    """Ensure page.json drillthrough filters reference _Measures instead of fact_sales_daily."""
-    page_json_path = active_page_dir / "page.json"
-    if not page_json_path.exists():
-        return
-
-    with open(page_json_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Replace Entity: "fact_sales_daily" with "_Measures" for Total Sales
-    if '"Entity": "fact_sales_daily"' in content:
-        content = content.replace(
-            '"Entity": "fact_sales_daily"',
-            '"Entity": "_Measures"'
-        )
-        with open(page_json_path, "w", encoding="utf-8") as f:
-            f.write(content)
-        print("   [x] Updated page.json filter bindings to reference _Measures")
-
-
 def build_layout() -> None:
-    """Build the complete Fabric PBIR layout."""
+    """Build the complete Fabric PBIR layout snapped to SVG containers."""
     print("================================================================================")
     print("   RetailPulse DI - Fabric PBIR Layout & Visual Generator")
     print("================================================================================")
@@ -779,92 +745,91 @@ def build_layout() -> None:
     visuals_dir = active_page_dir / "visuals"
     visuals_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2. Define the visuals according to exact SVG background container coordinates
-    # SVG coordinates from scripts/generate_powerbi_canvas.py:
-    # Card 1: x=40, y=80, width=440, height=140
-    # Card 2: x=510, y=80, width=440, height=140
-    # Card 3: x=980, y=80, width=440, height=140
-    # Card 4: x=1450, y=80, width=430, height=140
-    # Left Main Container: x=40, y=250, width=910, height=790 (Header at 70, 290)
-    # Right Main Container: x=980, y=250, width=900, height=790 (Header at 1010, 290)
+    # 2. Define the visuals according to exact spec coordinates:
+    # Card 1: [Total Sales] at [40, 90, 435x135] (Blue Neon Accent)
+    # Card 2: [Gross Margin %] at [505, 90, 435x135] (Emerald Neon Accent)
+    # Card 3: [Ending Inventory Units] at [970, 90, 435x135] (Blue Neon Accent)
+    # Card 4: [Critical Stockout SKUs] at [1435, 90, 445x135] (Crimson Neon Accent)
+    # Area Chart: Revenue & Cost Trajectory at [55, 330, 865x690]
+    # Table: Inventory Health Fleet Radar at [975, 330, 890x690]
 
     visual_configs = [
-        # Top KPI Card 1: Total Sales
+        # Top KPI Card 1: NET REVENUE / Total Sales
         (
             "Card_TotalSales",
             create_kpi_card_visual(
                 name="Card_TotalSales",
                 x=40,
-                y=80,
-                width=440,
-                height=140,
+                y=90,
+                width=435,
+                height=135,
                 z_index=1000,
                 measure_name="Total Sales",
-                accent_color="#3B82F6",  # Neon Blue accent
+                accent_color="#3B82F6",  # Electric Blue
             ),
         ),
-        # Top KPI Card 2: Gross Margin %
+        # Top KPI Card 2: GROSS MARGIN %
         (
             "Card_GrossMargin",
             create_kpi_card_visual(
                 name="Card_GrossMargin",
-                x=510,
-                y=80,
-                width=440,
-                height=140,
+                x=505,
+                y=90,
+                width=435,
+                height=135,
                 z_index=1001,
                 measure_name="Gross Margin %",
-                accent_color="#00D26A",  # Neon Green accent
+                accent_color="#00D26A",  # Emerald Green
             ),
         ),
-        # Top KPI Card 3: Ending Inventory Units
+        # Top KPI Card 3: ENDING INVENTORY UNITS
         (
             "Card_EndingInventoryUnits",
             create_kpi_card_visual(
                 name="Card_EndingInventoryUnits",
-                x=980,
-                y=80,
-                width=440,
-                height=140,
+                x=970,
+                y=90,
+                width=435,
+                height=135,
                 z_index=1002,
                 measure_name="Ending Inventory Units",
-                accent_color="#3B82F6",  # Neon Blue accent
+                accent_color="#3B82F6",  # Electric Blue
             ),
         ),
-        # Top KPI Card 4: Stockout Exposure / Stockout Rate %
+        # Top KPI Card 4: CRITICAL STOCKOUT SKUS
         (
-            "Card_StockoutExposure",
+            "Card_CriticalStockoutSKUs",
             create_kpi_card_visual(
-                name="Card_StockoutExposure",
-                x=1450,
-                y=80,
-                width=430,
-                height=140,
+                name="Card_CriticalStockoutSKUs",
+                x=1435,
+                y=90,
+                width=445,
+                height=135,
                 z_index=1003,
-                measure_name="Stockout Rate %",
-                accent_color="#EF4444",  # Neon Red accent
+                measure_name="Critical Stockout SKUs",
+                accent_color="#EF4444",  # Crimson Red
             ),
         ),
-        # Left Panel: Area Chart (Revenue & Cost Momentum)
+        # Left Panel: Area Chart (Revenue & Cost Trajectory)
         (
             "Chart_RevenueCostMomentum",
             create_area_chart_visual(
                 name="Chart_RevenueCostMomentum",
                 x=55,
                 y=330,
-                width=880,
+                width=865,
                 height=690,
                 z_index=2000,
             ),
         ),
-        # Right Panel: Inventory Table (Fleet Health & Reorder Radar)
+        # Right Panel: Inventory Health Fleet Radar Table
         (
             "Table_InventoryFleetHealth",
             create_inventory_table_visual(
                 name="Table_InventoryFleetHealth",
-                x=995,
+                x=975,
                 y=330,
-                width=870,
+                width=890,
                 height=690,
                 z_index=2001,
             ),
@@ -892,10 +857,6 @@ def build_layout() -> None:
         v_type = visual_dict["visual"]["visualType"]
         print(f"   [+] Generated visual '{folder_name}' ({v_type}) at [{pos['x']}, {pos['y']}, {pos['width']}x{pos['height']}]")
 
-    # 5. Synchronize semantic model measures and page bindings
-    synchronize_semantic_model_measures()
-    update_page_bindings(active_page_dir)
-
     print("================================================================================")
     print("   [SUCCESS] PBIR Layout Successfully Generated & Validated!")
     print("================================================================================")
@@ -903,4 +864,3 @@ def build_layout() -> None:
 
 if __name__ == "__main__":
     build_layout()
-

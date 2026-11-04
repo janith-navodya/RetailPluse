@@ -1,12 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "Card_StockoutExposure",
+  "name": "Card_CriticalStockoutSKUs",
   "position": {
-    "x": 1450,
-    "y": 80,
+    "x": 1435,
+    "y": 90,
     "z": 1003,
-    "width": 430,
-    "height": 140,
+    "width": 445,
+    "height": 135,
     "tabOrder": 1003
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Stockout Rate %"
+                  "Property": "Critical Stockout SKUs"
                 }
               },
-              "queryRef": "_Measures.Stockout Rate %",
-              "nativeQueryRef": "Stockout Rate %"
+              "queryRef": "_Measures.Critical Stockout SKUs",
+              "nativeQueryRef": "Critical Stockout SKUs"
             }
           ]
         }
