@@ -13,7 +13,7 @@
           "Measure": {
             "Expression": {
               "SourceRef": {
-                "Entity": "fact_sales_daily"
+                "Entity": "_Measures"
               }
             },
             "Property": "Total Sales"
@@ -46,13 +46,11 @@
       {
         "name": "acbde2c0b0000e5bd212",
         "boundFilter": "b2930b9e70023c07dceb",
-        "asAggregation": false,
-        "qnaSingleSelectRequired": false,
         "fieldExpr": {
           "Measure": {
             "Expression": {
               "SourceRef": {
-                "Entity": "fact_sales_daily"
+                "Entity": "_Measures"
               }
             },
             "Property": "Total Sales"
@@ -62,8 +60,6 @@
       {
         "name": "fbf2e500cc001547075a",
         "boundFilter": "cf227e91b0910d0c0250",
-        "asAggregation": false,
-        "qnaSingleSelectRequired": false,
         "fieldExpr": {
           "Measure": {
             "Expression": {
@@ -105,6 +101,13 @@
                     "Value": "'Normal'"
                   }
                 }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
               }
             }
           }

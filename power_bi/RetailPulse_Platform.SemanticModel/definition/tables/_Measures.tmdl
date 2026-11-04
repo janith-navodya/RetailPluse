@@ -82,6 +82,53 @@ table _Measures
 		lineageTag: 4db59a23-9549-4a2e-a57e-16b8f5f8a52f
 		dataCategory: ImageUrl
 
+	measure 'DoS Health Bar SVG' = ```
+			
+			VAR DoS = [Days of Supply (DoS)]
+			VAR MaxScale = 60.0  -- Cap at 60 days
+			VAR FillPct = MIN ( 1.0, DIVIDE ( DoS, MaxScale, 0 ) )
+			VAR BarWidth = INT ( FillPct * 100 )
+			VAR BarColor = 
+			    SWITCH (
+			        TRUE (),
+			        DoS < 7, "#EF4444",    -- Critical
+			        DoS <= 21, "#F59E0B",  -- Low Stock
+			        "#00D26A"              -- Healthy
+			    )
+			RETURN
+			    "data:image/svg+xml;utf8," &
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='24'>" &
+			    "<rect width='100' height='8' y='8' rx='4' fill='#1E293B'/>" &
+			    "<rect width='" & BarWidth & "' height='8' y='8' rx='4' fill='" & BarColor & "'/>" &
+			    "<text x='108' y='16' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='#E2E8F0'>" & 
+			    FORMAT(DoS, "0.0") & "d</text></svg>"
+			```
+		lineageTag: 3cf824ed-9391-4404-8380-d1aaac113150
+		dataCategory: ImageUrl
+
+	measure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )
+		lineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Stockout Rate %' = 
+			VAR Stockouts = CALCULATE ( COUNTROWS ( fact_inventory_snapshot ), fact_inventory_snapshot[stockout_flag] = 1 )
+			VAR TotalRows = COUNTROWS ( fact_inventory_snapshot )
+			RETURN
+			DIVIDE ( Stockouts, TotalRows, 0 ) * 100
+		lineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Stockout Exposure' = [Stockout Rate %]
+		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'DoS Bar SVG' = [DoS Health Bar SVG]
+		lineageTag: 8e594d75-bc90-4269-638a-3209b95f9925
+		dataCategory: ImageUrl
+
 	column Column1
 		dataType: string
 		lineageTag: 64deb920-16d0-4f9a-b3b2-e0be9ee1af3f

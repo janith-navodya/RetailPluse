@@ -1,5 +1,5 @@
 DEFINE
-    MEASURE fact_sales_daily[Total Sales] = 
+    MEASURE _Measures[Total Sales] = 
         SUM ( fact_sales_daily[net_sales_amount] )
 
 EVALUATE
