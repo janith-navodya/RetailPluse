@@ -1,0 +1,125 @@
+table vw_inventory_health_summary
+	lineageTag: a5b64ae5-3091-442b-9f7d-b8e43ff18474
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 5ccc6f15-7ee3-4df1-a529-4d85ebb52519
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: 08a34a45-4e3d-40e0-a695-f3a5e112b471
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 0ecc6977-63f1-4bc9-98a2-20f50d5a7864
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: 7368d367-1b87-4ea2-8207-b860ccd82d96
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: ead9e8ea-8be8-4065-b4d9-8f6d6d15fdb7
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: b93265eb-a8f1-4c53-9381-6f6dbddd41ac
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_operating_days
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 10649200-3c76-492a-84bb-10836554ee98
+		summarizeBy: sum
+		sourceColumn: total_operating_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_stockout_days
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 8f39d80a-d1d4-4fbb-9700-9771d7083dbe
+		summarizeBy: sum
+		sourceColumn: total_stockout_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column stockout_rate_pct
+		dataType: double
+		sourceProviderType: float
+		lineageTag: 47a8a814-eab0-47f4-88e0-7f0b106816f1
+		summarizeBy: sum
+		sourceColumn: stockout_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_on_hand_qty
+		dataType: double
+		sourceProviderType: float
+		lineageTag: b1be033b-08cd-42c2-95e8-f3762cab087f
+		summarizeBy: sum
+		sourceColumn: avg_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_inventory_value
+		dataType: double
+		sourceProviderType: float
+		lineageTag: 9582bfcd-ea00-4580-9747-af0b8526c83c
+		summarizeBy: sum
+		sourceColumn: avg_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_inventory_health_summary = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_inventory_health_summary"]}[Data]
+				in
+				  #"Navigation 1"
+

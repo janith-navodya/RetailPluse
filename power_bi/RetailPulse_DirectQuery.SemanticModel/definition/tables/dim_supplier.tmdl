@@ -1,0 +1,89 @@
+table dim_supplier
+	lineageTag: 07a33dc2-3a64-4730-8e5c-6fcfa42224c7
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 637a375b-fda8-438f-9346-cb1e1e53a338
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: dce6dc64-b000-4a4d-9cc7-8969e78f8f6a
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column contact_email
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: 823d6567-6b0d-4634-8b92-eef4afdb9db2
+		summarizeBy: none
+		sourceColumn: contact_email
+
+		annotation SummarizationSetBy = Automatic
+
+	column mean_lead_time_days
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: b2bd3c96-41ff-4e04-ac0f-d88727a546e8
+		summarizeBy: none
+		sourceColumn: mean_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column lead_time_std_dev
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: db1f5dd7-8e8f-4bf6-80ef-fc7b40f61d14
+		summarizeBy: none
+		sourceColumn: lead_time_std_dev
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_order_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: b3f36d48-b5d7-4c32-8b61-9c942cc40f09
+		summarizeBy: none
+		sourceColumn: min_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_level_target_pct
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: 0fb6b3b4-b9f8-4ddd-9b9c-74d08b566843
+		summarizeBy: none
+		sourceColumn: service_level_target_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition dim_supplier = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "dim_supplier"]}[Data]
+				in
+				  #"Navigation 1"
+

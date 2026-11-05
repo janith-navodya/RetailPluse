@@ -1,0 +1,99 @@
+table vw_executive_kpis
+	lineageTag: 2df03f59-1495-45e6-b28e-4f3460f9dfc6
+
+	column total_net_sales
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: d04a3425-4bbe-4d99-89f4-7a1e37d62be4
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 643ee0a8-111c-4b81-b229-6e766bcf5638
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_gross_profit
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 99a394af-1de5-4dcc-8fe0-2751219f89d1
+		summarizeBy: sum
+		sourceColumn: total_gross_profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_margin_pct
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: f34a3c90-3eac-4af4-bc9f-7d9730802200
+		summarizeBy: sum
+		sourceColumn: gross_margin_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_operating_days
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 52d8f89c-0569-4dc1-9818-73210b6d32a3
+		summarizeBy: sum
+		sourceColumn: total_operating_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column overall_stockout_rate_pct
+		dataType: double
+		sourceProviderType: float
+		lineageTag: 643c8cee-c19e-45eb-bec7-3b58906758ce
+		summarizeBy: sum
+		sourceColumn: overall_stockout_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_daily_total_inventory_value
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: 688c99b5-2557-49ad-a9f8-cbd4900e5a40
+		summarizeBy: sum
+		sourceColumn: avg_daily_total_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column annualized_inventory_turnover
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: 7fb02b64-7040-4854-961a-2be888e07905
+		summarizeBy: sum
+		sourceColumn: annualized_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_executive_kpis = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_executive_kpis"]}[Data]
+				in
+				  #"Navigation 1"
+

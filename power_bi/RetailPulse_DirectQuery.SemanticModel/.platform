@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "RetailPulse_DirectQuery"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "aed533f1-7684-4897-8f6a-a35f1a1061c6"
+  }
+}

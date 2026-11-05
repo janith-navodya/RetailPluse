@@ -1,0 +1,163 @@
+table fact_purchase_orders
+	lineageTag: c03fab66-272b-4b00-b54d-2caa05055913
+
+	column po_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(30)
+		lineageTag: bf168aa2-e54e-42c0-8e62-77e3ba651706
+		summarizeBy: none
+		sourceColumn: po_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 1065f8f8-8d76-48df-b94f-7a0c7d0b0012
+		summarizeBy: sum
+		sourceColumn: order_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column expected_delivery_date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: fccf872a-e739-4be8-8daf-8606aacf3903
+		summarizeBy: sum
+		sourceColumn: expected_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual_delivery_date_key
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 10e11c50-3f6f-4036-ba8c-8ce213502b1c
+		summarizeBy: none
+		sourceColumn: actual_delivery_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 122ebcb4-445a-449e-9b30-96b27d3229e6
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 45b4d45a-740d-427e-b861-d0b22364a4cd
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 6b1d824a-2ea9-43a6-bff7-025438c2ee01
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: a5088696-c379-4b87-9206-4bf9a129b2ec
+		summarizeBy: sum
+		sourceColumn: order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 33987722-7e5c-457b-ba2f-52e6275be0f2
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(10, 2)
+		lineageTag: 7928b6f9-2d28-4cb5-9c9c-4c15b42e4477
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cost_amount
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(12, 2)
+		lineageTag: 52db604a-7926-4e34-b6a2-2fb42af74a6e
+		summarizeBy: sum
+		sourceColumn: total_cost_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(20)
+		lineageTag: 29d5704a-6738-4596-82ba-0ae4c0f2079d
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: be1a2ce5-15ef-49f4-b956-1e6b41384d52
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ingested_at
+		dataType: dateTime
+		isNullable: false
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 6aa6ad5a-17f6-4791-9174-e64dec44be49
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_purchase_orders = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "fact_purchase_orders"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

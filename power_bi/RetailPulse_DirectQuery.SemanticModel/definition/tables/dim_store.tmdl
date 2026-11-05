@@ -1,0 +1,84 @@
+table dim_store
+	lineageTag: 38924dab-19db-4457-9373-92d6debda2f4
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 872f00f7-df34-44fe-9be7-8fcd23520c64
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: bdec214a-bb1e-4416-8488-7af802185690
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_format
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(30)
+		lineageTag: 424eb1b0-a144-43cd-92c1-0a819cd8a3b0
+		summarizeBy: none
+		sourceColumn: store_format
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 1ab8bf94-f43c-4fd8-9aba-8f8a812bcde9
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 1a020978-bedb-4b6b-a5f3-6ef9588a0360
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column square_footage
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 54418a72-4d40-46a4-88a0-988d6c558c8b
+		summarizeBy: sum
+		sourceColumn: square_footage
+
+		annotation SummarizationSetBy = Automatic
+
+	column storage_capacity_units
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 2a9bdf66-cf28-447c-9f42-ec22ee4eeea0
+		summarizeBy: sum
+		sourceColumn: storage_capacity_units
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_store = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "dim_store"]}[Data]
+				in
+				  #"Navigation 1"
+

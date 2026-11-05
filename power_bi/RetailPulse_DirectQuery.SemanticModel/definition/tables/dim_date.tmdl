@@ -1,0 +1,133 @@
+table dim_date
+	lineageTag: 787eeec3-b8a9-4a6b-b204-861b361d3c3f
+
+	column date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 48a8ab06-4087-4f5d-928d-537655ebd882
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column full_date
+		dataType: dateTime
+		isNullable: false
+		formatString: Long Date
+		sourceProviderType: date
+		lineageTag: fab0d786-9947-41d0-854a-4f979eb0db54
+		summarizeBy: none
+		sourceColumn: full_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column day_of_week
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: 8888b803-8a2f-4110-ac45-b95ea9d2a2be
+		summarizeBy: sum
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 4749bea8-aaf0-41af-8e24-80b05b58b619
+		summarizeBy: none
+		sourceColumn: day_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column day_of_month
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: cdee8edb-64a5-4bea-ae08-d6ebb7776ba4
+		summarizeBy: sum
+		sourceColumn: day_of_month
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_num
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: e4b86d40-bafb-493c-91be-fa8bd7b1ab0d
+		summarizeBy: sum
+		sourceColumn: month_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 7eb659f7-3040-494e-8044-a7fd7ea95022
+		summarizeBy: none
+		sourceColumn: month_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: 6f931b3a-bca8-4a7f-9d55-134cb4165860
+		summarizeBy: sum
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column year
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: smallint
+		lineageTag: 221816ec-e921-4e14-a992-7f21d362d5a9
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: f8efbb1f-92a1-46f6-b634-c2c986402e23
+		summarizeBy: sum
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_holiday
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: d74c704c-406a-48cc-a05c-d05acca38f42
+		summarizeBy: sum
+		sourceColumn: is_holiday
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "dim_date"]}[Data]
+				in
+				  #"Navigation 1"
+

@@ -1,0 +1,117 @@
+table dim_product
+	lineageTag: 1b66a348-47dd-4db7-ad81-1aeccc5865c6
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 07944e52-aa7f-423a-8d7b-c457db4b0336
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: e8b6c677-acf9-464b-8d07-ef83ecb56b79
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: c5fb57df-3776-4e86-b3e6-1bbad248ece5
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column sub_category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 04fdbb53-d103-4142-8f8a-ba332c656f6b
+		summarizeBy: none
+		sourceColumn: sub_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 63d53369-f5ae-4cf1-98d2-cafea09f541f
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 49866826-0631-4699-b083-219e3cb1a6e7
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(10, 2)
+		lineageTag: 9cddb2db-0a55-482f-8d88-a518e19c6a16
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column unit_retail_price
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(10, 2)
+		lineageTag: 9b408fde-8494-47c7-a619-2bf96403d19d
+		summarizeBy: sum
+		sourceColumn: unit_retail_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pack_size
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 8a24ae22-59cd-4f5b-911d-6a7ebffc5807
+		summarizeBy: sum
+		sourceColumn: pack_size
+
+		annotation SummarizationSetBy = Automatic
+
+	column shelf_life_days
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 5cc5132d-e898-4ca0-950f-20200bfd2e8a
+		summarizeBy: sum
+		sourceColumn: shelf_life_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_product = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "dim_product"]}[Data]
+				in
+				  #"Navigation 1"
+

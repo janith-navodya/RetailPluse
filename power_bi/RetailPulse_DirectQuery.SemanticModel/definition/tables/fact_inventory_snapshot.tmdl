@@ -1,0 +1,133 @@
+table fact_inventory_snapshot
+	lineageTag: cdb53b95-3294-43df-961c-25afd32dbafe
+
+	column date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 335c3253-7aa6-488e-bc6d-344133ce88e2
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 5bdf5dbd-cca4-404e-8230-8e8735435731
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: b0b78341-806e-4bbe-9b35-b697b24680d9
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column beginning_on_hand_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 55fda0af-33da-442a-9115-2145b2f60901
+		summarizeBy: sum
+		sourceColumn: beginning_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column received_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: c5535002-5bfe-474e-945b-b424eae95d06
+		summarizeBy: sum
+		sourceColumn: received_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column sold_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: af7bcce0-1a77-40c5-958c-19dc5d05adcb
+		summarizeBy: sum
+		sourceColumn: sold_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column ending_on_hand_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 1db384f4-67d5-4dfa-957d-546b3ef0f290
+		summarizeBy: sum
+		sourceColumn: ending_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column ending_inventory_value
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(12, 2)
+		lineageTag: 21b86583-a6ac-43f9-9d26-f71848f7bf51
+		summarizeBy: sum
+		sourceColumn: ending_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_stockout
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: tinyint
+		lineageTag: d6862a18-b6de-46b7-bc10-295c3c5f0ec2
+		summarizeBy: sum
+		sourceColumn: is_stockout
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 38838730-6579-46ca-a110-a9fe9536bcfa
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column ingested_at
+		dataType: dateTime
+		isNullable: false
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 60f24bd4-3c34-458d-bddf-d4bdbc4d7e3e
+		summarizeBy: none
+		sourceColumn: ingested_at
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_inventory_snapshot = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "fact_inventory_snapshot"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

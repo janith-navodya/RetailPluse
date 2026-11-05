@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "RetailPulse_DirectQuery"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "eb439cd4-f56f-4ef3-a4dd-5dd2616d9ab6"
+  }
+}

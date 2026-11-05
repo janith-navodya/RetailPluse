@@ -1,0 +1,177 @@
+table vw_supplier_performance
+	lineageTag: 54eec72a-a9c8-4158-a31f-cc9dd61d1cd3
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 8410e197-fd69-42ca-a902-4ba5b2902001
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: bdcca699-07e8-4320-9124-ba7017e37093
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column contact_email
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: 50435efc-82db-4607-88b5-38afda1b1fe3
+		summarizeBy: none
+		sourceColumn: contact_email
+
+		annotation SummarizationSetBy = Automatic
+
+	column nominal_lead_time_days
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: 2a40571e-0fb4-467b-beb1-337ae9f1b786
+		summarizeBy: sum
+		sourceColumn: nominal_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column nominal_lead_time_std_dev
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: 1b07667b-b2b9-482f-b626-36643b78d727
+		summarizeBy: sum
+		sourceColumn: nominal_lead_time_std_dev
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_order_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 5799310f-a7e0-457e-8c8d-ba86ed0db8d3
+		summarizeBy: sum
+		sourceColumn: min_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_level_target_pct
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: fa6a2ffd-0820-49fb-87e3-72d9ca2aee02
+		summarizeBy: sum
+		sourceColumn: service_level_target_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_orders_placed
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 3f6dab5d-4156-450a-8ed9-e45fd90805fb
+		summarizeBy: sum
+		sourceColumn: total_orders_placed
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_orders_delivered
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 8a45b294-c79b-421d-a8a3-073c1e8fbe16
+		summarizeBy: sum
+		sourceColumn: total_orders_delivered
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_actual_lead_time_days
+		dataType: double
+		sourceProviderType: float
+		lineageTag: 6b35882e-0fe2-49dd-99d6-d6621e4a0a2d
+		summarizeBy: sum
+		sourceColumn: avg_actual_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column lead_time_variance_days
+		dataType: double
+		sourceProviderType: float
+		lineageTag: b0da0d4c-0e38-44b4-b842-d24efd2d1319
+		summarizeBy: sum
+		sourceColumn: lead_time_variance_days
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column order_fill_rate_pct
+		dataType: double
+		sourceProviderType: float
+		lineageTag: ed51ff8c-26cb-420f-aec0-ffc6e6766ffb
+		summarizeBy: sum
+		sourceColumn: order_fill_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column moq_adherence_pct
+		dataType: double
+		sourceProviderType: float
+		lineageTag: e68faa99-ef68-4bef-8658-6c22aa6b6050
+		summarizeBy: sum
+		sourceColumn: moq_adherence_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column on_time_delivery_rate_pct
+		dataType: double
+		sourceProviderType: float
+		lineageTag: db7c3333-9475-4faf-9552-b64fc392f50f
+		summarizeBy: sum
+		sourceColumn: on_time_delivery_rate_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_procurement_spend
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 18685c4b-429a-45af-9483-94083267488b
+		summarizeBy: sum
+		sourceColumn: total_procurement_spend
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_supplier_performance = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_supplier_performance"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

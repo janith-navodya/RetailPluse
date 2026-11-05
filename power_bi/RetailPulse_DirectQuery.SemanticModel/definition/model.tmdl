@@ -1,0 +1,37 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["dim_date","dim_product","dim_store","dim_supplier","etl_batch_log","fact_inventory_snapshot","fact_purchase_orders","fact_replenishment_recommendation","fact_sales_daily","quarantine_invalid_records","quarantine_records","vw_executive_kpis","vw_inventory_health","vw_inventory_health_summary","vw_product_sales_daily","vw_purchase_order_details","vw_store_inventory_turnover","vw_store_product_sales_daily","vw_supplier_performance"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table dim_date
+ref table dim_product
+ref table dim_store
+ref table dim_supplier
+ref table etl_batch_log
+ref table fact_inventory_snapshot
+ref table fact_purchase_orders
+ref table fact_replenishment_recommendation
+ref table fact_sales_daily
+ref table quarantine_invalid_records
+ref table quarantine_records
+ref table vw_executive_kpis
+ref table vw_inventory_health
+ref table vw_inventory_health_summary
+ref table vw_product_sales_daily
+ref table vw_purchase_order_details
+ref table vw_store_inventory_turnover
+ref table vw_store_product_sales_daily
+ref table vw_supplier_performance
+
+ref cultureInfo en-US
+

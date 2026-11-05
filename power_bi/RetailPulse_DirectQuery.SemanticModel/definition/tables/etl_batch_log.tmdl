@@ -1,0 +1,98 @@
+table etl_batch_log
+	lineageTag: 466d7aa6-74d5-4161-a7f9-ae634c1418ab
+
+	column batch_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: b9240fcb-c460-4b22-91f2-fd0cf98bb0c7
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column pipeline_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: ab3e2de8-c766-472a-ad05-974022492cb2
+		summarizeBy: none
+		sourceColumn: pipeline_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(20)
+		lineageTag: 71916c52-bbfc-499b-954e-4917ed95c29c
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_processed
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 097a303f-3f54-4f6d-9ff5-fb6aff194ff8
+		summarizeBy: none
+		sourceColumn: records_processed
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_loaded
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 308ef858-55e6-412f-a7e0-c5d732cfe4e2
+		summarizeBy: none
+		sourceColumn: records_loaded
+
+		annotation SummarizationSetBy = Automatic
+
+	column records_quarantined
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 9a08bde6-dac4-4567-a359-d38ea4018e5b
+		summarizeBy: none
+		sourceColumn: records_quarantined
+
+		annotation SummarizationSetBy = Automatic
+
+	column started_at
+		dataType: dateTime
+		isNullable: false
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: cbbdc602-4e26-41a9-9edc-49a629078180
+		summarizeBy: none
+		sourceColumn: started_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column completed_at
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 8f274f8b-3114-47a7-8404-159659ec99b9
+		summarizeBy: none
+		sourceColumn: completed_at
+
+		annotation SummarizationSetBy = Automatic
+
+	partition etl_batch_log = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "etl_batch_log"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

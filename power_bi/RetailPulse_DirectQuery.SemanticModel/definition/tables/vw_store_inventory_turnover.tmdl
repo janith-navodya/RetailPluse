@@ -1,0 +1,109 @@
+table vw_store_inventory_turnover
+	lineageTag: 778228fa-5731-40ce-8b6c-de15d3c8ee8f
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: f387ae28-2ebf-4367-af68-010bbaf1be9d
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: c7eda29f-d6ea-4d9b-936f-8c25f741a7a0
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_format
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(30)
+		lineageTag: c75083ff-0544-4360-8388-275b393b342f
+		summarizeBy: none
+		sourceColumn: store_format
+
+		annotation SummarizationSetBy = Automatic
+
+	column operating_days
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 14e3312e-846e-4a8c-adba-7fb49183eee8
+		summarizeBy: sum
+		sourceColumn: operating_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_net_sales
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 5d563fb2-0e08-4614-b61e-5eb036797185
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 2eb60294-90c2-41e1-8ce6-c2b2eb166a91
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_daily_inventory_value
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: 4576872d-18fb-4de2-9ce2-1826be4694f4
+		summarizeBy: sum
+		sourceColumn: avg_daily_inventory_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column raw_inventory_turnover
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: 631fff44-cc93-4431-b854-2b1df891cb62
+		summarizeBy: sum
+		sourceColumn: raw_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column annualized_inventory_turnover
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: 49fce7a1-d7ec-45ef-ad77-f5907f15cd6c
+		summarizeBy: sum
+		sourceColumn: annualized_inventory_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_store_inventory_turnover = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_store_inventory_turnover"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

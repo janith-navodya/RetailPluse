@@ -1,0 +1,232 @@
+table fact_replenishment_recommendation
+	lineageTag: 38753668-916f-4fc0-a373-e7ac66243e96
+
+	column recommendation_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(64)
+		lineageTag: b17adacb-8f92-4c03-97ac-50db6714a3ac
+		summarizeBy: none
+		sourceColumn: recommendation_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: eb0bb39e-279a-4550-8420-59bc32c8d345
+		summarizeBy: none
+		sourceColumn: run_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column store_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 37355e65-5aa3-4999-8738-73441cc1c0a6
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 98c74546-c071-4aec-b5c9-44cf0cffe6af
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: f4bd7658-4d42-4e67-993f-964b0843df02
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_on_hand_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 7681c858-fdd2-42c4-9b2a-a7547799d0e4
+		summarizeBy: sum
+		sourceColumn: current_on_hand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column current_on_order_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 5c106c70-8edf-40de-8c3b-9ffd49704433
+		summarizeBy: sum
+		sourceColumn: current_on_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column inventory_position
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: de0dfd4c-f95b-4835-9f72-30279fe67607
+		summarizeBy: sum
+		sourceColumn: inventory_position
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_demand_qty
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: e727bdce-1352-4670-8ba5-4fe812cb9f02
+		summarizeBy: sum
+		sourceColumn: lead_time_demand_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock_qty
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: d2e46952-c159-4df1-81f6-febc15146518
+		summarizeBy: sum
+		sourceColumn: safety_stock_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column reorder_point_qty
+		dataType: double
+		isNullable: false
+		sourceProviderType: float
+		lineageTag: 2a9d2303-0c38-4477-b48c-44f7c6e9463c
+		summarizeBy: sum
+		sourceColumn: reorder_point_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column inventory_status
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(30)
+		lineageTag: bcefd67e-419d-4807-9719-cffd7cc80d25
+		summarizeBy: none
+		sourceColumn: inventory_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommended_units
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 365e011a-04f3-4348-babc-800403bef83a
+		summarizeBy: sum
+		sourceColumn: recommended_units
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommended_packs
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 3de7119d-751a-4df0-94a2-4f96e0ae9d15
+		summarizeBy: sum
+		sourceColumn: recommended_packs
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost_price
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(10, 2)
+		lineageTag: 92153b6f-746b-45ea-b831-c43dc22f0b17
+		summarizeBy: sum
+		sourceColumn: unit_cost_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column estimated_cost
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(12, 2)
+		lineageTag: f2e2dfff-890c-4b41-a8c4-191ba341a677
+		summarizeBy: sum
+		sourceColumn: estimated_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column priority_rank
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 27a1a57c-176b-418b-afad-3599bd7586c4
+		summarizeBy: sum
+		sourceColumn: priority_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column approval_status
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(20)
+		lineageTag: ce0ca71c-693b-43c2-9ea9-1af66905e1e3
+		summarizeBy: none
+		sourceColumn: approval_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(64)
+		lineageTag: ea9cb356-2f0c-47f8-a43f-9bb831e1c215
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		isNullable: false
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: c2bb480f-7c43-43c3-ba0a-09610caf9dca
+		summarizeBy: none
+		sourceColumn: created_at
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_replenishment_recommendation = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "fact_replenishment_recommendation"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

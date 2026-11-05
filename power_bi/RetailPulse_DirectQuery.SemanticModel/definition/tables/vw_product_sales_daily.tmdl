@@ -1,0 +1,184 @@
+table vw_product_sales_daily
+	lineageTag: 7b0877eb-8535-494f-989e-1bdaa9f60e8b
+
+	column date_key
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 725926b3-ae87-4657-bca1-e5f3fc14a7db
+		summarizeBy: sum
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column full_date
+		dataType: dateTime
+		isNullable: false
+		formatString: Long Date
+		sourceProviderType: date
+		lineageTag: f4882371-3d9c-471f-8cf7-a3f969852018
+		summarizeBy: none
+		sourceColumn: full_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: 2408efb0-861a-4fb6-b116-dc80d8de43d8
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: 35f24f41-7dc3-4928-97f5-c0dc1a11b579
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 2b89616d-f4d6-491f-8379-9ce4be163b93
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column sub_category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 0bb81b56-75be-425c-beab-53bdfc5063eb
+		summarizeBy: none
+		sourceColumn: sub_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 071fe39d-c598-45b0-aadc-e79b2c148bb6
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(10)
+		lineageTag: d4686385-5022-4e03-ba14-ed3804304b2a
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column active_store_count
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 7b60c199-582b-45a9-aa7b-29489c508bda
+		summarizeBy: sum
+		sourceColumn: active_store_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_units_sold
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 620027a3-666b-497b-ae87-09123dc1b3c6
+		summarizeBy: sum
+		sourceColumn: total_units_sold
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_gross_sales
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 76daf7ab-0ed9-4a44-baf6-813bc4871bab
+		summarizeBy: sum
+		sourceColumn: total_gross_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_discount_amount
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: d86c6ca6-f5e3-48f2-afdb-c76640866aea
+		summarizeBy: sum
+		sourceColumn: total_discount_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_net_sales
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: c0e25133-335d-4b82-b51d-fc8c483ea313
+		summarizeBy: sum
+		sourceColumn: total_net_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_cogs
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 2e16ea38-18c5-487c-9a97-091d7922215a
+		summarizeBy: sum
+		sourceColumn: total_cogs
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_gross_profit
+		dataType: double
+		sourceProviderType: decimal(38, 2)
+		lineageTag: 2bde5d7d-8d60-4304-91b3-02355c583d71
+		summarizeBy: sum
+		sourceColumn: total_gross_profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column gross_margin_pct
+		dataType: double
+		sourceProviderType: decimal(38, 6)
+		lineageTag: c83c31ac-0c44-4d09-9482-11cd3d94534a
+		summarizeBy: sum
+		sourceColumn: gross_margin_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition vw_product_sales_daily = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_product_sales_daily"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

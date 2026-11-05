@@ -1,0 +1,86 @@
+table quarantine_invalid_records
+	lineageTag: a1c72570-2593-4f27-9da4-439899fa8d4f
+
+	column quarantine_id
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: bigint
+		lineageTag: 84736f39-805a-43e2-a292-edc3f380f184
+		summarizeBy: sum
+		sourceColumn: quarantine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_feed
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 89a25a6b-4a8e-466a-a02b-956c1f5f1414
+		summarizeBy: none
+		sourceColumn: source_feed
+
+		annotation SummarizationSetBy = Automatic
+
+	column raw_payload_json
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8406bde4-2fbc-4249-ab8d-b261a9c7e3e3
+		summarizeBy: none
+		sourceColumn: raw_payload_json
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_category
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: c26eea0f-cbef-4ab5-9f76-d091fa0c52ea
+		summarizeBy: none
+		sourceColumn: violation_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column violation_details
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(max)
+		lineageTag: 47a36be5-8090-4b76-80aa-efed1e085006
+		summarizeBy: none
+		sourceColumn: violation_details
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_at
+		dataType: dateTime
+		isNullable: false
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 0f5cf1c4-defc-4e88-8a24-9fd83db7012f
+		summarizeBy: none
+		sourceColumn: rejected_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column batch_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(50)
+		lineageTag: 987bac6d-0394-4849-a33a-2ba535c126ae
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition quarantine_invalid_records = m
+		mode: directQuery
+		source =
+				let
+				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "quarantine_invalid_records"]}[Data]
+				in
+				  #"Navigation 1"
+
+	annotation PBI_ResultType = Table
+

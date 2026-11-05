@@ -1,0 +1,112 @@
+relationship 5ce26a61-1e4f-4f6d-9770-527967ef15c8
+	fromColumn: dim_product.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship d271b6d8-e49a-4d6f-ad20-e83aeedb47c0
+	fromColumn: fact_inventory_snapshot.date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship df6cd2ae-2e95-4783-8021-21a207051724
+	fromColumn: fact_inventory_snapshot.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 1b03d115-baff-4495-aed7-1c9e2b992e08
+	fromColumn: fact_inventory_snapshot.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 5ca6fd50-2efb-4bbc-8a8b-40226058094d
+	fromColumn: fact_purchase_orders.actual_delivery_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 9231df88-112e-4658-bd38-0fe853220c40
+	isActive: false
+	fromColumn: fact_purchase_orders.expected_delivery_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 474373da-d3da-4396-a0c4-b9efb1987319
+	isActive: false
+	fromColumn: fact_purchase_orders.order_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 1dac1ae6-0805-408c-9ae2-5f57b62ea2f4
+	fromColumn: fact_purchase_orders.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 02ddc8e7-d01e-4414-87bb-7004bd6e3b90
+	fromColumn: fact_purchase_orders.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 63dc0ea3-c195-447f-a6ed-b1f8b3fc7fb8
+	isActive: false
+	fromColumn: fact_purchase_orders.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship c57d4eb0-1316-41ac-a0d2-5a85579a4bf2
+	fromColumn: fact_replenishment_recommendation.run_date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship cb959399-75d9-4f93-b5f5-ace470544826
+	fromColumn: fact_replenishment_recommendation.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 46d2599e-33aa-4d3f-a846-907253cae07c
+	fromColumn: fact_replenishment_recommendation.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship e8cef08b-7fd2-46d2-bd74-a30f197481f2
+	isActive: false
+	fromColumn: fact_replenishment_recommendation.supplier_id
+	toColumn: dim_supplier.supplier_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship bb5c488d-9508-4b10-b54c-d6586a953bf2
+	fromColumn: fact_sales_daily.date_key
+	toColumn: dim_date.date_key
+
+	annotation PBI_IsFromSource = FS
+
+relationship 256f63af-e71d-4b8d-82ec-f52f8e21a62b
+	fromColumn: fact_sales_daily.product_id
+	toColumn: dim_product.product_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 590e550f-5497-474c-9dd0-6d45c21ac77b
+	fromColumn: fact_sales_daily.store_id
+	toColumn: dim_store.store_id
+
+	annotation PBI_IsFromSource = FS
+
+relationship 1f0949c2-66c6-4550-b6c7-d1e9ca68a19e
+	fromColumn: quarantine_records.batch_id
+	toColumn: etl_batch_log.batch_id
+
+	annotation PBI_IsFromSource = FS
+
