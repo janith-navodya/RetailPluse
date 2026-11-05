@@ -94,14 +94,15 @@ def step_2_sync_semantic_model() -> None:
     dq_dim_prod = DQ_MODEL_DIR / "definition" / "tables" / "dim_product.tmdl"
     if dq_dim_prod.exists():
         prod_text = dq_dim_prod.read_text(encoding="utf-8")
-        # Ensure summarizeBy: none and currency formatString
-        if "column unit_retail_price" in prod_text and "summarizeBy: sum" in prod_text:
+        # Ensure summarizeBy: none and currency formatString idempotently
+        if "formatString: $#,##0.00;($#,##0.00);$#,##0.00" not in prod_text:
             prod_text = prod_text.replace(
                 "column unit_retail_price\n\t\tdataType: double",
                 "column unit_retail_price\n\t\tdataType: double\n\t\tformatString: $#,##0.00;($#,##0.00);$#,##0.00",
-            ).replace("summarizeBy: sum\n\t\tsourceColumn: unit_retail_price", "summarizeBy: none\n\t\tsourceColumn: unit_retail_price")
-            dq_dim_prod.write_text(prod_text, encoding="utf-8")
-            print("   [+] Updated dim_product.tmdl unit_retail_price currency format and summarizeBy: none.")
+            )
+        prod_text = prod_text.replace("summarizeBy: sum\n\t\tsourceColumn: unit_retail_price", "summarizeBy: none\n\t\tsourceColumn: unit_retail_price")
+        dq_dim_prod.write_text(prod_text, encoding="utf-8")
+        print("   [+] Updated dim_product.tmdl unit_retail_price currency format and summarizeBy: none.")
 
     # 3. Register ref table _Measures in model.tmdl
     dq_model = DQ_MODEL_DIR / "definition" / "model.tmdl"
@@ -278,7 +279,28 @@ def step_5_verify_integrity() -> None:
     for p in expected_tmdl:
         assert p.exists(), f"Integrity check failed: {p} missing"
         assert p.stat().st_size > 0, f"Integrity check failed: {p} empty"
-    print("   [+] All DirectQuery TMDL model definitions verified.")
+
+    # Scan all TMDL files for duplicate properties in the same scope
+    for tmdl_file in DQ_MODEL_DIR.rglob("*.tmdl"):
+        lines = tmdl_file.read_text(encoding="utf-8").splitlines()
+        props_by_scope = {}
+        scope = []
+        for line_num, line in enumerate(lines, 1):
+            stripped = line.strip()
+            if not stripped or stripped.startswith("//") or stripped.startswith("/*"):
+                continue
+            indent = len(line) - len(line.lstrip("\t"))
+            while len(scope) > indent:
+                scope.pop()
+            if ":" in stripped and not any(stripped.startswith(kw) for kw in ("measure ", "column ", "partition ", "table ", "relationship ")):
+                prop_name = stripped.split(":")[0].strip()
+                scope_key = (tuple(scope), prop_name)
+                assert scope_key not in props_by_scope, f"Duplicate property '{prop_name}' in {tmdl_file.name}:{line_num} (first at line {props_by_scope[scope_key]})"
+                props_by_scope[scope_key] = line_num
+            else:
+                scope.append(stripped)
+
+    print("   [+] All DirectQuery TMDL model definitions verified without duplicate properties.")
 
     # Check JSON files
     expected_json = [
