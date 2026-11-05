@@ -75,10 +75,11 @@ table dim_product
 
 	column unit_retail_price
 		dataType: double
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
 		isNullable: false
 		sourceProviderType: decimal(10, 2)
 		lineageTag: 9b408fde-8494-47c7-a619-2bf96403d19d
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_retail_price
 
 		annotation SummarizationSetBy = Automatic

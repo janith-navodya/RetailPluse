@@ -9,6 +9,15 @@
         "page": "2.3.1"
       },
       "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "RetailPulse_Modern_Dark5092110651804341.json",
+      "reportVersionAtImport": {
+        "visual": "2.14.0",
+        "report": "3.4.0",
+        "page": "2.3.1"
+      },
+      "type": "RegisteredResources"
     }
   },
   "objects": {
@@ -35,6 +44,22 @@
           "name": "Fluent2-CY26SU10",
           "path": "BaseThemes/Fluent2-CY26SU10.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "RetailPulse_Executive_Canvas8660435112045219.svg",
+          "path": "RetailPulse_Executive_Canvas8660435112045219.svg",
+          "type": "Image"
+        },
+        {
+          "name": "RetailPulse_Modern_Dark5092110651804341.json",
+          "path": "RetailPulse_Modern_Dark5092110651804341.json",
+          "type": "CustomTheme"
         }
       ]
     }

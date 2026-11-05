@@ -33,5 +33,7 @@ ref table vw_store_inventory_turnover
 ref table vw_store_product_sales_daily
 ref table vw_supplier_performance
 
+ref table _Measures
+
 ref cultureInfo en-US
 

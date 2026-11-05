@@ -1,0 +1,212 @@
+table _Measures
+	lineageTag: e5084182-98f9-4b0c-99fe-cfffb4455f96
+
+	measure 'Total Sales' = SUM ( fact_sales_daily[net_sales_amount] )
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
+		lineageTag: 7c008fa3-a4f5-4844-9955-2491f0f59c5a
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total COGS' =
+			
+			SUMX (
+			    fact_sales_daily,
+			    fact_sales_daily[quantity_sold] * RELATED ( dim_product[unit_cost_price] )
+			)
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
+		lineageTag: cda00ad4-1283-4517-b48a-73d4232433e5
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Gross Profit' = [Total Sales] - [Total COGS]
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
+		lineageTag: 53968e43-9845-4e33-b1bd-4adb330248cc
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Gross Margin %' = DIVIDE ( [Gross Profit], [Total Sales], 0 )
+		formatString: 0.0%
+		lineageTag: a94b153e-f1f7-40b9-8a43-7771ddc324e9
+
+	measure 'Ending Inventory Units' =
+			
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
+			CALCULATE (
+			    SUM ( fact_inventory_snapshot[ending_on_hand_qty] ),
+			    fact_inventory_snapshot[date_key] = MaxDateKey
+			)
+		formatString: #,##0
+		lineageTag: 65368ab2-8fe1-4da7-b6b6-5328eb0b0d36
+
+	measure 'Ending Inventory Value' = 
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
+			CALCULATE (
+			    SUM ( fact_inventory_snapshot[ending_inventory_value] ),
+			    fact_inventory_snapshot[date_key] = MaxDateKey
+			)
+		formatString: $#,##0;($#,##0);$#,##0
+		lineageTag: e65368ab-8fe1-4da7-b6b6-5328eb0b0d37
+
+	measure 'Rolling 30D Daily Sales' =
+			
+			VAR TotalUnits = SUM ( fact_sales_daily[quantity_sold] )
+			VAR ActiveDays = DISTINCTCOUNT ( fact_sales_daily[date_key] )
+			RETURN
+			DIVIDE ( TotalUnits, IF ( ActiveDays = 0, 30, ActiveDays ), 0 )
+		lineageTag: f30bb01b-8618-45f4-85e3-04ebc8bc3f50
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Days of Supply (DoS)' =
+			
+			DIVIDE ( [Ending Inventory Units], [Rolling 30D Daily Sales], 0 )
+		formatString: #,##0.0
+		lineageTag: d8eac601-ecf7-4334-91bf-83a9f1de0620
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Critical Stockout SKUs' = 
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( fact_inventory_snapshot[product_id] ),
+			    fact_inventory_snapshot[is_stockout] = 1,
+			    fact_inventory_snapshot[date_key] = MaxDateKey
+			)
+		formatString: #,##0
+		lineageTag: f49e2410-67fe-4a85-9da0-293b21f63eae
+
+	measure 'Stockout Rate %' = 
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			VAR Stockouts = 
+			    CALCULATE ( 
+			        COUNTROWS ( fact_inventory_snapshot ), 
+			        fact_inventory_snapshot[is_stockout] = 1,
+			        fact_inventory_snapshot[date_key] = MaxDateKey
+			    )
+			VAR TotalRows = 
+			    CALCULATE ( 
+			        COUNTROWS ( fact_inventory_snapshot ),
+			        fact_inventory_snapshot[date_key] = MaxDateKey
+			    )
+			RETURN
+			DIVIDE ( Stockouts, TotalRows, 0 )
+		formatString: 0.0%
+		lineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac
+
+	measure 'Stockout Exposure' = [Stockout Rate %]
+		formatString: 0.0%
+		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
+
+	measure 'Total Recommended Spend' = 
+			SUM ( fact_replenishment_recommendation[estimated_cost] )
+		formatString: $#,##0;($#,##0);$#,##0
+		lineageTag: d75368ab-8fe1-4da7-b6b6-5328eb0b0d38
+
+	measure 'Stockout Status Badge SVG' = ```
+			IF (
+			    NOT HASONEVALUE ( dim_product[product_id] ),
+			    BLANK (),
+			    VAR DoS = [Days of Supply (DoS)]
+			    VAR BgColor = 
+			        SWITCH (
+			            TRUE (),
+			            DoS = 0, "#64748B",       // Grey (No Active Stock)
+			            DoS < 7, "#EF4444",       // Red (Critical Reorder)
+			            DoS <= 21, "#F59E0B",     // Amber (Low Stock)
+			            "#10B981"                 // Emerald (Healthy)
+			        )
+			    VAR StatusText = 
+			        SWITCH (
+			            TRUE (),
+			            DoS = 0, "OUT OF STOCK",
+			            DoS < 7, "REORDER NOW",
+			            DoS <= 21, "LOW STOCK",
+			            "HEALTHY"
+			        )
+			    VAR SvgImage = 
+			        "data:image/svg+xml;utf8," & 
+			        "<svg xmlns='http://www.w3.org/2000/svg' width='130' height='32'>" &
+			        "<rect width='130' height='32' rx='16' fill='" & BgColor & "' fill-opacity='0.2'/>" &
+			        "<circle cx='18' cy='16' r='4' fill='" & BgColor & "'/>" &
+			        "<text x='32' y='20' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='" & BgColor & "'>" & 
+			        StatusText & 
+			        "</text></svg>"
+			    RETURN
+			        SvgImage
+			)
+			```
+		lineageTag: 4db59a23-9549-4a2e-a57e-16b8f5f8a52f
+		dataCategory: ImageUrl
+
+	measure 'DoS Health Bar SVG' = ```
+			
+			VAR DoS = [Days of Supply (DoS)]
+			VAR MaxScale = 60.0  -- Cap at 60 days
+			VAR FillPct = MIN ( 1.0, DIVIDE ( DoS, MaxScale, 0 ) )
+			VAR BarWidth = INT ( FillPct * 100 )
+			VAR BarColor = 
+			    SWITCH (
+			        TRUE (),
+			        DoS < 7, "#EF4444",    -- Critical
+			        DoS <= 21, "#F59E0B",  -- Low Stock
+			        "#00D26A"              -- Healthy
+			    )
+			RETURN
+			    "data:image/svg+xml;utf8," &
+			    "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='24'>" &
+			    "<rect width='100' height='8' y='8' rx='4' fill='#1E293B'/>" &
+			    "<rect width='" & BarWidth & "' height='8' y='8' rx='4' fill='" & BarColor & "'/>" &
+			    "<text x='108' y='16' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='#E2E8F0'>" & 
+			    FORMAT(DoS, "0.0") & "d</text></svg>"
+			```
+		lineageTag: 3cf824ed-9391-4404-8380-d1aaac113150
+		dataCategory: ImageUrl
+
+	measure 'DoS Bar SVG' = ```
+			IF (
+			    NOT HASONEVALUE ( dim_product[product_id] ),
+			    BLANK (),
+			    VAR DoS = [Days of Supply (DoS)]
+			    VAR MaxCap = 60.0
+			    VAR Ratio = MIN ( 1.0, DIVIDE ( DoS, MaxCap, 0 ) )
+			    VAR BarWidth = INT ( Ratio * 90 )
+			    VAR BarColor = 
+			        SWITCH (
+			            TRUE (),
+			            DoS < 7, "#EF4444",     // Red (Critical)
+			            DoS <= 21, "#F59E0B",   // Amber (Low Stock)
+			            "#00D26A"               // Green (Healthy)
+			        )
+			    RETURN
+			        "data:image/svg+xml;utf8," &
+			        "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='24'>" &
+			        "<rect width='90' height='8' y='8' rx='4' fill='#1E293B'/>" &
+			        "<rect width='" & BarWidth & "' height='8' y='8' rx='4' fill='" & BarColor & "'/>" &
+			        "<text x='98' y='16' font-family='Segoe UI, sans-serif' font-size='11' font-weight='600' fill='#E2E8F0'>" & 
+			        FORMAT(DoS, "0.0") & "d</text></svg>"
+			)
+			```
+		lineageTag: 8e594d75-bc90-4269-638a-3209b95f9925
+		dataCategory: ImageUrl
+
+	column Column1
+		dataType: string
+		lineageTag: 64deb920-16d0-4f9a-b3b2-e0be9ee1af3f
+		summarizeBy: none
+		sourceColumn: Column1
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
