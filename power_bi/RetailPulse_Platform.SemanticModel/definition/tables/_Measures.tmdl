@@ -67,19 +67,31 @@ table _Measures
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Critical Stockout SKUs' = 
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
 			CALCULATE (
 			    DISTINCTCOUNT ( fact_inventory_snapshot[product_id] ),
 			    fact_inventory_snapshot[stockout_flag] = 1,
-			    LASTDATE ( dim_date[full_date] )
+			    fact_inventory_snapshot[date_key] = MaxDateKey
 			)
 		formatString: #,##0
 		lineageTag: f49e2410-67fe-4a85-9da0-293b21f63eae
 
 	measure 'Stockout Rate %' = 
-			VAR Stockouts = CALCULATE ( COUNTROWS ( fact_inventory_snapshot ), fact_inventory_snapshot[stockout_flag] = 1 )
-			VAR TotalRows = COUNTROWS ( fact_inventory_snapshot )
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			VAR Stockouts = 
+			    CALCULATE ( 
+			        COUNTROWS ( fact_inventory_snapshot ), 
+			        fact_inventory_snapshot[stockout_flag] = 1,
+			        fact_inventory_snapshot[date_key] = MaxDateKey
+			    )
+			VAR TotalRows = 
+			    CALCULATE ( 
+			        COUNTROWS ( fact_inventory_snapshot ),
+			        fact_inventory_snapshot[date_key] = MaxDateKey
+			    )
 			RETURN
-			DIVIDE ( Stockouts, TotalRows, 0 ) * 100
+			DIVIDE ( Stockouts, TotalRows, 0 )
 		formatString: 0.0%
 		lineageTag: b38e2410-67fe-4a85-9da0-293b21f63eac
 

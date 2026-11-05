@@ -6,8 +6,8 @@ High-Professional Fabric PBIR Layout Builder for RetailPulse Decision Intelligen
 Implements the 4-zone Executive Cockpit Architecture on 1920x1080 canvas:
 
 ZONE 1: Header & Interactive Slicers
-  - Slicer 1: [dim_store.store_name] at [1420, 20, 220x46]
-  - Slicer 2: [dim_product.category] at [1660, 20, 220x46]
+  - Slicer 1: [dim_store.store_name] at [1380, 20, 235x46]
+  - Slicer 2: [dim_product.category] at [1645, 20, 235x46]
 
 ZONE 2: 5 Executive Hero KPI Pods
   - Pod 1: [Total Sales] at [40, 85, 350x125] (Electric Blue #3B82F6)
@@ -18,14 +18,17 @@ ZONE 2: 5 Executive Hero KPI Pods
 
 ZONE 3: Middle Analytical Engine (Combo & Donut)
   - Left: Financial & Margin Trajectory (Area Chart) at [55, 285, 1130x320]
+          Legend aligned TopRight to avoid Y-axis collision.
   - Right: Category Revenue & Profit Share (Donut Chart) at [1235, 285, 630x320]
 
 ZONE 4: Bottom Operational Intelligence & Fleet Radar
-  - Left: Actionable Inventory Fleet Health Radar (Table) at [55, 695, 1130x340]
+  - Left: Actionable Inventory Fleet Health Radar (Full-Width Table) at [55, 695, 1130x340]
+          8 comprehensive columns eliminating voids: Product, Category, Unit Price,
+          Units, Inventory Value, DoS Days, DoS Battery SVG, Status Badge SVG.
   - Right: Replenishment Allocation by Supplier (Bar Chart) at [1235, 695, 630x340]
 
-All visual container titles disabled (no double title collisions with SVG headers),
-transparent backgrounds, and full data-layer connectivity across all dimensions and facts.
+Visual headers disabled across all visuals (no floating white toolbar obstruction),
+transparent backgrounds, and full data-layer connectivity.
 """
 
 from __future__ import annotations
@@ -79,7 +82,7 @@ def create_slicer_visual(
     property_name: str,
     display_name: str,
 ) -> dict:
-    """Generate a Fabric PBIR slicer visual dictionary."""
+    """Generate a Fabric PBIR slicer visual dictionary with dropdown mode and clean dark aesthetics."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -128,9 +131,35 @@ def create_slicer_visual(
                             }
                         }
                     }
+                ],
+                "data": [
+                    {
+                        "properties": {
+                            "mode": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "'Dropdown'"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -272,6 +301,19 @@ def create_kpi_card_visual(
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -324,7 +366,7 @@ def create_financial_momentum_chart(
     height: int,
     z_index: int,
 ) -> dict:
-    """Generate Financial & Margin Momentum Area Chart visual."""
+    """Generate Financial & Margin Momentum Area Chart visual with TopRight legend."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -491,7 +533,7 @@ def create_financial_momentum_chart(
                             "position": {
                                 "expr": {
                                     "Literal": {
-                                        "Value": "'TopLeft'"
+                                        "Value": "'TopRight'"
                                     }
                                 }
                             }
@@ -538,6 +580,19 @@ def create_financial_momentum_chart(
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -691,6 +746,19 @@ def create_category_donut_chart(
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -743,7 +811,7 @@ def create_inventory_table_visual(
     height: int,
     z_index: int,
 ) -> dict:
-    """Generate Full-Width Responsive Table Visual for Inventory Fleet Health."""
+    """Generate Full-Width Responsive Table Visual for Inventory Fleet Health with 8 comprehensive columns."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -791,6 +859,20 @@ def create_inventory_table_visual(
                             },
                             {
                                 "field": {
+                                    "Column": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "dim_product"
+                                            }
+                                        },
+                                        "Property": "unit_retail_price",
+                                    }
+                                },
+                                "queryRef": "dim_product.unit_retail_price",
+                                "nativeQueryRef": "Unit Price",
+                            },
+                            {
+                                "field": {
                                     "Measure": {
                                         "Expression": {
                                             "SourceRef": {
@@ -811,11 +893,39 @@ def create_inventory_table_visual(
                                                 "Entity": "_Measures"
                                             }
                                         },
+                                        "Property": "Ending Inventory Value",
+                                    }
+                                },
+                                "queryRef": "_Measures.Ending Inventory Value",
+                                "nativeQueryRef": "Inventory Value",
+                            },
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "_Measures"
+                                            }
+                                        },
+                                        "Property": "Days of Supply (DoS)",
+                                    }
+                                },
+                                "queryRef": "_Measures.Days of Supply (DoS)",
+                                "nativeQueryRef": "DoS (Days)",
+                            },
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "_Measures"
+                                            }
+                                        },
                                         "Property": "DoS Bar SVG",
                                     }
                                 },
                                 "queryRef": "_Measures.DoS Bar SVG",
-                                "nativeQueryRef": "Days of Supply (DoS)",
+                                "nativeQueryRef": "DoS Battery",
                             },
                             {
                                 "field": {
@@ -829,7 +939,7 @@ def create_inventory_table_visual(
                                     }
                                 },
                                 "queryRef": "_Measures.Stockout Status Badge SVG",
-                                "nativeQueryRef": "Status Badge",
+                                "nativeQueryRef": "Risk Status",
                             }
                         ]
                     }
@@ -954,6 +1064,19 @@ def create_inventory_table_visual(
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -1170,6 +1293,19 @@ def create_replenishment_bar_chart(
                 ]
             },
             "visualContainerObjects": {
+                "visualHeader": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 "background": [
                     {
                         "properties": {
@@ -1229,14 +1365,14 @@ def build_layout() -> None:
 
     # 2. Complete Visual Configurations matching the 4-Zone Blueprint
     visual_configs = [
-        # ZONE 1: SLICERS
+        # ZONE 1: SLICERS (x=1380 and x=1645 to snap cleanly against the 1880px right margin)
         (
             "Slicer_Store",
             create_slicer_visual(
                 name="Slicer_Store",
-                x=1420,
+                x=1380,
                 y=20,
-                width=220,
+                width=235,
                 height=46,
                 z_index=5000,
                 entity="dim_store",
@@ -1248,9 +1384,9 @@ def build_layout() -> None:
             "Slicer_Category",
             create_slicer_visual(
                 name="Slicer_Category",
-                x=1660,
+                x=1645,
                 y=20,
-                width=220,
+                width=235,
                 height=46,
                 z_index=5001,
                 entity="dim_product",

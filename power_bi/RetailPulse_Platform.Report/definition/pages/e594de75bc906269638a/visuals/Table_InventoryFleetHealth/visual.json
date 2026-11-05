@@ -45,6 +45,20 @@
             },
             {
               "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "unit_retail_price"
+                }
+              },
+              "queryRef": "dim_product.unit_retail_price",
+              "nativeQueryRef": "Unit Price"
+            },
+            {
+              "field": {
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
@@ -65,11 +79,39 @@
                       "Entity": "_Measures"
                     }
                   },
+                  "Property": "Ending Inventory Value"
+                }
+              },
+              "queryRef": "_Measures.Ending Inventory Value",
+              "nativeQueryRef": "Inventory Value"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Days of Supply (DoS)"
+                }
+              },
+              "queryRef": "_Measures.Days of Supply (DoS)",
+              "nativeQueryRef": "DoS (Days)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
                   "Property": "DoS Bar SVG"
                 }
               },
               "queryRef": "_Measures.DoS Bar SVG",
-              "nativeQueryRef": "Days of Supply (DoS)"
+              "nativeQueryRef": "DoS Battery"
             },
             {
               "field": {
@@ -83,7 +125,7 @@
                 }
               },
               "queryRef": "_Measures.Stockout Status Badge SVG",
-              "nativeQueryRef": "Status Badge"
+              "nativeQueryRef": "Risk Status"
             }
           ]
         }
@@ -208,6 +250,19 @@
       ]
     },
     "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
       "background": [
         {
           "properties": {

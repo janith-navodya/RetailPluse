@@ -58,12 +58,10 @@ svg_content = """<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="10
   </g>
 
   <!-- Slicer Pod 1: Store Filter Frame -->
-  <rect x="1420" y="20" width="220" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <text x="1432" y="48" font-family="Segoe UI, sans-serif" font-size="11" font-weight="600" fill="#64748B">STORE:</text>
+  <rect x="1380" y="20" width="235" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
 
   <!-- Slicer Pod 2: Category Filter Frame -->
-  <rect x="1660" y="20" width="220" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <text x="1672" y="48" font-family="Segoe UI, sans-serif" font-size="11" font-weight="600" fill="#64748B">CATEGORY:</text>
+  <rect x="1645" y="20" width="235" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
 
   <!-- ZONE 2: 5 EXECUTIVE HERO KPI PODS (y: 85, height: 125) -->
   <!-- Pod 1: Total Sales (Net Revenue) -->
@@ -91,7 +89,7 @@ svg_content = """<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="10
   <rect x="40" y="225" width="1160" height="395" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
   <g transform="translate(65, 255)">
     <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#F1F5F9">Financial &amp; Margin Trajectory</text>
-    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Monthly Net Sales vs Total Cost of Goods Sold over time</text>
+    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Daily Net Sales vs Total Cost of Goods Sold over time</text>
   </g>
 
   <!-- Right Container: Category Revenue & Profit Share -->
