@@ -164,7 +164,7 @@
             "position": {
               "expr": {
                 "Literal": {
-                  "Value": "'TopRight'"
+                  "Value": "'TopCenter'"
                 }
               }
             }

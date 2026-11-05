@@ -590,6 +590,26 @@
             },
             "transparency": 0
           }
+        ],
+        "visualHeader": [
+          {
+            "background": {
+              "solid": {
+                "color": "#1A2234"
+              }
+            },
+            "foreground": {
+              "solid": {
+                "color": "#F8FAFC"
+              }
+            },
+            "border": {
+              "solid": {
+                "color": "#334155"
+              }
+            },
+            "transparency": 0
+          }
         ]
       }
     },
@@ -603,6 +623,23 @@
               }
             },
             "transparency": 0
+          }
+        ]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "grid": [
+          {
+            "imageHeight": 24,
+            "rowPadding": 2,
+            "gridHorizontal": true,
+            "gridHorizontalColor": {
+              "solid": {
+                "color": "#1E293B"
+              }
+            },
+            "gridVertical": false
           }
         ]
       }

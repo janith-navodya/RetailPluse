@@ -3,10 +3,10 @@
   "name": "Table_InventoryFleetHealth",
   "position": {
     "x": 55,
-    "y": 695,
+    "y": 700,
     "z": 3000,
     "width": 1130,
-    "height": 345,
+    "height": 340,
     "tabOrder": 3000
   },
   "visual": {
@@ -186,6 +186,13 @@
                   }
                 }
               }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
+                }
+              }
             }
           }
         }
@@ -221,6 +228,13 @@
                   "Value": "true"
                 }
               }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
+                }
+              }
             }
           }
         }
@@ -228,6 +242,13 @@
       "grid": [
         {
           "properties": {
+            "imageHeight": {
+              "expr": {
+                "Literal": {
+                  "Value": "24D"
+                }
+              }
+            },
             "rowPadding": {
               "expr": {
                 "Literal": {

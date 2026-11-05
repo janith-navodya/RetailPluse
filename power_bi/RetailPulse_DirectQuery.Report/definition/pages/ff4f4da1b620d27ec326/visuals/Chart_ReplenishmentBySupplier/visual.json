@@ -3,7 +3,7 @@
   "name": "Chart_ReplenishmentBySupplier",
   "position": {
     "x": 1235,
-    "y": 695,
+    "y": 700,
     "z": 3001,
     "width": 630,
     "height": 340,
@@ -49,6 +49,24 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Total Recommended Spend"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {

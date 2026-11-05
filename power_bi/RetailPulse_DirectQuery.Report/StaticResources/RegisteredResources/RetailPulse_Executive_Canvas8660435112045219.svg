@@ -55,10 +55,12 @@
   </g>
 
   <!-- Slicer Pod 1: Store Filter Frame -->
-  <rect x="1380" y="20" width="235" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="1380" y="14" width="235" height="54" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <text x="1395" y="26" font-family="Segoe UI, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#00D26A" letter-spacing="1">LOCATION / STORE</text>
 
   <!-- Slicer Pod 2: Category Filter Frame -->
-  <rect x="1645" y="20" width="235" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="1645" y="14" width="235" height="54" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <text x="1660" y="26" font-family="Segoe UI, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#3B82F6" letter-spacing="1">MERCHANDISE CATEGORY</text>
 
   <!-- ZONE 2: 5 EXECUTIVE HERO KPI PODS (y: 85, height: 125) -->
   <!-- Pod 1: Total Sales (Net Revenue) -->
