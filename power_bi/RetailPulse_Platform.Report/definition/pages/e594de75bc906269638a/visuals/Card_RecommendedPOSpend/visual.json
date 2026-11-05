@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "Card_EndingInventoryUnits",
+  "name": "Card_RecommendedPOSpend",
   "position": {
-    "x": 970,
-    "y": 90,
-    "z": 1002,
-    "width": 435,
-    "height": 135,
-    "tabOrder": 1002
+    "x": 1540,
+    "y": 85,
+    "z": 1004,
+    "width": 340,
+    "height": 125,
+    "tabOrder": 1004
   },
   "visual": {
     "visualType": "card",
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Ending Inventory Units"
+                  "Property": "Total Recommended Spend"
                 }
               },
-              "queryRef": "_Measures.Ending Inventory Units",
-              "nativeQueryRef": "Ending Inventory Units"
+              "queryRef": "_Measures.Total Recommended Spend",
+              "nativeQueryRef": "Total Recommended Spend"
             }
           ]
         }
@@ -42,7 +42,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#3B82F6'"
+                      "Value": "'#F59E0B'"
                     }
                   }
                 }
@@ -51,7 +51,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "26D"
+                  "Value": "24D"
                 }
               }
             }
@@ -110,7 +110,7 @@
           }
         }
       ],
-      "dropShadow": [
+      "title": [
         {
           "properties": {
             "show": {

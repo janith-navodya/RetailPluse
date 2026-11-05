@@ -1,60 +1,115 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
   <defs>
+    <!-- Background Gradient -->
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#080C15" />
       <stop offset="50%" stop-color="#0D1322" />
       <stop offset="100%" stop-color="#070A11" />
     </linearGradient>
+
+    <!-- Card Background Gradient -->
     <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#141C2E" stop-opacity="0.9" />
-      <stop offset="100%" stop-color="#0F1726" stop-opacity="0.75" />
+      <stop offset="0%" stop-color="#141C2E" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#0F1726" stop-opacity="0.80" />
     </linearGradient>
+
+    <!-- Slicer Pod Background -->
+    <linearGradient id="slicerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A2438" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#111827" stop-opacity="0.7" />
+    </linearGradient>
+
+    <!-- Card Border Gradients -->
     <linearGradient id="borderStroke" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#334155" stop-opacity="0.9" />
       <stop offset="100%" stop-color="#1E293B" stop-opacity="0.4" />
     </linearGradient>
+
+    <!-- Neon Accents -->
     <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#00D26A" /><stop offset="100%" stop-color="#00F078" stop-opacity="0" />
     </linearGradient>
     <linearGradient id="neonBlue" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#3B82F6" /><stop offset="100%" stop-color="#60A5FA" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="neonPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B5CF6" /><stop offset="100%" stop-color="#A78BFA" stop-opacity="0" />
+    </linearGradient>
     <linearGradient id="neonRed" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#EF4444" /><stop offset="100%" stop-color="#F87171" stop-opacity="0" />
     </linearGradient>
+    <linearGradient id="neonAmber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B" /><stop offset="100%" stop-color="#FBBF24" stop-opacity="0" />
+    </linearGradient>
   </defs>
 
+  <!-- Canvas Background -->
   <rect width="1920" height="1080" fill="url(#bg)"/>
 
-  <g transform="translate(40, 30)">
-    <circle cx="10" cy="20" r="6" fill="#00D26A" />
-    <text x="28" y="26" font-family="Segoe UI, sans-serif" font-size="22" font-weight="800" fill="#F8FAFC" letter-spacing="1">RETAILPULSE DECISION INTELLIGENCE</text>
-    <text x="500" y="25" font-family="Segoe UI, sans-serif" font-size="13" font-weight="500" fill="#64748B">|  OPERATIONAL EXECUTIVE RADAR</text>
+  <!-- ZONE 1: TOP HEADER & SLICER BAR (y: 20 to 75) -->
+  <g transform="translate(40, 24)">
+    <circle cx="10" cy="20" r="7" fill="#00D26A" />
+    <circle cx="10" cy="20" r="11" fill="#00D26A" fill-opacity="0.2" />
+    <text x="32" y="27" font-family="Segoe UI, sans-serif" font-size="22" font-weight="800" fill="#F8FAFC" letter-spacing="1">RETAILPULSE DECISION INTELLIGENCE</text>
+    <text x="510" y="26" font-family="Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#64748B">|  OPERATIONAL EXECUTIVE COCKPIT &amp; SUPPLY CHAIN RADAR</text>
   </g>
 
-  <!-- Top KPI Cards -->
-  <rect x="40" y="85" width="435" height="145" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <rect x="40" y="85" width="120" height="3" rx="1.5" fill="url(#neonBlue)"/>
+  <!-- Slicer Pod 1: Store Filter Frame -->
+  <rect x="1420" y="20" width="220" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <text x="1432" y="48" font-family="Segoe UI, sans-serif" font-size="11" font-weight="600" fill="#64748B">STORE:</text>
 
-  <rect x="505" y="85" width="435" height="145" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <rect x="505" y="85" width="120" height="3" rx="1.5" fill="url(#neonGreen)"/>
+  <!-- Slicer Pod 2: Category Filter Frame -->
+  <rect x="1660" y="20" width="220" height="46" rx="8" fill="url(#slicerBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <text x="1672" y="48" font-family="Segoe UI, sans-serif" font-size="11" font-weight="600" fill="#64748B">CATEGORY:</text>
 
-  <rect x="970" y="85" width="435" height="145" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <rect x="970" y="85" width="120" height="3" rx="1.5" fill="url(#neonBlue)"/>
+  <!-- ZONE 2: 5 EXECUTIVE HERO KPI PODS (y: 85, height: 125) -->
+  <!-- Pod 1: Total Sales (Net Revenue) -->
+  <rect x="40" y="85" width="350" height="125" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="40" y="85" width="100" height="3" rx="1.5" fill="url(#neonBlue)"/>
 
-  <rect x="1435" y="85" width="445" height="145" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <rect x="1435" y="85" width="120" height="3" rx="1.5" fill="url(#neonRed)"/>
+  <!-- Pod 2: Gross Margin % -->
+  <rect x="415" y="85" width="350" height="125" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="415" y="85" width="100" height="3" rx="1.5" fill="url(#neonGreen)"/>
 
-  <!-- Main Containers -->
-  <rect x="40" y="255" width="895" height="785" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <g transform="translate(70, 295)">
-    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#F1F5F9">Revenue &amp; Cost Trajectory</text>
-    <text x="0" y="22" font-family="Segoe UI, sans-serif" font-size="12" font-weight="500" fill="#64748B">Daily Net Sales vs Total Cost of Goods Sold over time</text>
+  <!-- Pod 3: Ending Inventory Value -->
+  <rect x="790" y="85" width="350" height="125" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="790" y="85" width="100" height="3" rx="1.5" fill="url(#neonPurple)"/>
+
+  <!-- Pod 4: Critical Stockout SKUs -->
+  <rect x="1165" y="85" width="350" height="125" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="1165" y="85" width="100" height="3" rx="1.5" fill="url(#neonRed)"/>
+
+  <!-- Pod 5: Recommended PO Spend -->
+  <rect x="1540" y="85" width="340" height="125" rx="14" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <rect x="1540" y="85" width="100" height="3" rx="1.5" fill="url(#neonAmber)"/>
+
+  <!-- ZONE 3: MIDDLE ANALYTICAL ENGINE (y: 225, height: 395) -->
+  <!-- Left Container: Financial & Margin Momentum Chart -->
+  <rect x="40" y="225" width="1160" height="395" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(65, 255)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#F1F5F9">Financial &amp; Margin Trajectory</text>
+    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Monthly Net Sales vs Total Cost of Goods Sold over time</text>
   </g>
 
-  <rect x="960" y="255" width="920" height="785" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
-  <g transform="translate(990, 295)">
-    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="18" font-weight="700" fill="#F1F5F9">Inventory Health &amp; Reorder Radar</text>
-    <text x="0" y="22" font-family="Segoe UI, sans-serif" font-size="12" font-weight="500" fill="#64748B">SKU Days of Supply (DoS), Active Stock Levels, and Risk Badges</text>
+  <!-- Right Container: Category Revenue & Profit Share -->
+  <rect x="1220" y="225" width="660" height="395" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(1245, 255)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#F1F5F9">Category Revenue &amp; Margin Split</text>
+    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Merchandise portfolio distribution and sales contribution</text>
+  </g>
+
+  <!-- ZONE 4: BOTTOM OPERATIONAL INTELLIGENCE (y: 635, height: 415) -->
+  <!-- Left Container: Actionable Inventory Fleet Health & Reorder Radar -->
+  <rect x="40" y="635" width="1160" height="415" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(65, 665)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#F1F5F9">Inventory Health &amp; Reorder Radar</text>
+    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Real-time SKU Days of Supply (DoS), Active Stock Levels, and Risk Badges</text>
+  </g>
+
+  <!-- Right Container: Replenishment Allocation by Supplier -->
+  <rect x="1220" y="635" width="660" height="415" rx="16" fill="url(#cardBg)" stroke="url(#borderStroke)" stroke-width="1"/>
+  <g transform="translate(1245, 665)">
+    <text x="0" y="0" font-family="Segoe UI, sans-serif" font-size="16" font-weight="700" fill="#F1F5F9">Replenishment Allocation by Supplier</text>
+    <text x="0" y="20" font-family="Segoe UI, sans-serif" font-size="11" font-weight="500" fill="#64748B">Optimized purchase order capital distribution and risk mitigation</text>
   </g>
 </svg>

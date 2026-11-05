@@ -2,21 +2,30 @@
 """
 scripts/build_pbir_layout.py
 
-Automated Fabric PBIR Layout Builder for RetailPulse Decision Intelligence.
-Applies the executive two-layer grid system on 1920x1080 canvas:
-1. Base Layer: Synchronizes pre-rendered high-res SVG canvas background.
-2. Data Layer: Generates 100% background-transparent Fabric PBIR visuals snapped to exact coordinates:
-   - Card 1: [Total Sales] at [40, 90, 435x135] (Blue Neon Accent #3B82F6)
-   - Card 2: [Gross Margin %] at [505, 90, 435x135] (Emerald Neon Accent #00D26A)
-   - Card 3: [Ending Inventory Units] at [970, 90, 435x135] (Blue Neon Accent #3B82F6)
-   - Card 4: [Critical Stockout SKUs] at [1435, 90, 445x135] (Crimson Neon Accent #EF4444)
-   - Area Chart: Revenue & Cost Trajectory at [55, 330, 865x690]
-     - X: dim_date[full_date]
-     - Y: [Total Sales] (#00D26A), [Total COGS] (#3B82F6)
-   - Table: Inventory Health Fleet Radar at [975, 330, 890x690]
-     - Columns: product_name, category, [Ending Inventory Units], [DoS Bar SVG], [Stockout Status Badge SVG]
-     - Contrast-locked: #F8FAFC text, #141C2E / #0F1726 rows, #00D26A headers on #0E131F
-3. Reconciles and formats all DAX measures in _Measures.tmdl.
+High-Professional Fabric PBIR Layout Builder for RetailPulse Decision Intelligence.
+Implements the 4-zone Executive Cockpit Architecture on 1920x1080 canvas:
+
+ZONE 1: Header & Interactive Slicers
+  - Slicer 1: [dim_store.store_name] at [1420, 20, 220x46]
+  - Slicer 2: [dim_product.category] at [1660, 20, 220x46]
+
+ZONE 2: 5 Executive Hero KPI Pods
+  - Pod 1: [Total Sales] at [40, 85, 350x125] (Electric Blue #3B82F6)
+  - Pod 2: [Gross Margin %] at [415, 85, 350x125] (Emerald Green #00D26A)
+  - Pod 3: [Ending Inventory Value] at [790, 85, 350x125] (Purple #8B5CF6)
+  - Pod 4: [Critical Stockout SKUs] at [1165, 85, 350x125] (Crimson Red #EF4444)
+  - Pod 5: [Total Recommended Spend] at [1540, 85, 340x125] (Amber #F59E0B)
+
+ZONE 3: Middle Analytical Engine (Combo & Donut)
+  - Left: Financial & Margin Trajectory (Area Chart) at [55, 285, 1130x320]
+  - Right: Category Revenue & Profit Share (Donut Chart) at [1235, 285, 630x320]
+
+ZONE 4: Bottom Operational Intelligence & Fleet Radar
+  - Left: Actionable Inventory Fleet Health Radar (Table) at [55, 695, 1130x340]
+  - Right: Replenishment Allocation by Supplier (Bar Chart) at [1235, 695, 630x340]
+
+All visual container titles disabled (no double title collisions with SVG headers),
+transparent backgrounds, and full data-layer connectivity across all dimensions and facts.
 """
 
 from __future__ import annotations
@@ -30,9 +39,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REPORT_DIR = REPO_ROOT / "power_bi" / "RetailPulse_Platform.Report"
 PAGES_DIR = REPORT_DIR / "definition" / "pages"
 PAGES_META_FILE = PAGES_DIR / "pages.json"
-SEMANTIC_MODEL_DIR = REPO_ROOT / "power_bi" / "RetailPulse_Platform.SemanticModel"
-MEASURES_TMDL = SEMANTIC_MODEL_DIR / "definition" / "tables" / "_Measures.tmdl"
-SALES_TMDL = SEMANTIC_MODEL_DIR / "definition" / "tables" / "fact_sales_daily.tmdl"
 
 PBIR_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json"
 
@@ -62,6 +68,113 @@ def locate_active_page_dir() -> Path:
     return active_page_dir
 
 
+def create_slicer_visual(
+    name: str,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    z_index: int,
+    entity: str,
+    property_name: str,
+    display_name: str,
+) -> dict:
+    """Generate a Fabric PBIR slicer visual dictionary."""
+    return {
+        "$schema": PBIR_SCHEMA,
+        "name": name,
+        "position": {
+            "x": x,
+            "y": y,
+            "z": z_index,
+            "width": width,
+            "height": height,
+            "tabOrder": z_index,
+        },
+        "visual": {
+            "visualType": "slicer",
+            "query": {
+                "queryState": {
+                    "Values": {
+                        "projections": [
+                            {
+                                "field": {
+                                    "Column": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": entity
+                                            }
+                                        },
+                                        "Property": property_name,
+                                    }
+                                },
+                                "queryRef": f"{entity}.{property_name}",
+                                "nativeQueryRef": display_name,
+                            }
+                        ]
+                    }
+                }
+            },
+            "objects": {
+                "header": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "visualContainerObjects": {
+                "background": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "border": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "title": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+
 def create_kpi_card_visual(
     name: str,
     x: int,
@@ -72,7 +185,7 @@ def create_kpi_card_visual(
     measure_name: str,
     accent_color: str,
 ) -> dict:
-    """Generate a Fabric PBIR card visual.json dictionary."""
+    """Generate a Fabric PBIR card visual dictionary."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -126,7 +239,7 @@ def create_kpi_card_visual(
                             "fontSize": {
                                 "expr": {
                                     "Literal": {
-                                        "Value": "26D"
+                                        "Value": "24D"
                                     }
                                 }
                             }
@@ -185,7 +298,7 @@ def create_kpi_card_visual(
                         }
                     }
                 ],
-                "dropShadow": [
+                "title": [
                     {
                         "properties": {
                             "show": {
@@ -199,11 +312,11 @@ def create_kpi_card_visual(
                     }
                 ]
             }
-        },
+        }
     }
 
 
-def create_area_chart_visual(
+def create_financial_momentum_chart(
     name: str,
     x: int,
     y: int,
@@ -211,7 +324,7 @@ def create_area_chart_visual(
     height: int,
     z_index: int,
 ) -> dict:
-    """Generate a Fabric PBIR areaChart visual mapped to dim_date[full_date] on X, and Total Sales & Total COGS on Y."""
+    """Generate Financial & Margin Momentum Area Chart visual."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -241,7 +354,7 @@ def create_area_chart_visual(
                                     }
                                 },
                                 "queryRef": "dim_date.full_date",
-                                "nativeQueryRef": "full_date",
+                                "nativeQueryRef": "Date",
                                 "active": True,
                             }
                         ]
@@ -451,7 +564,160 @@ def create_area_chart_visual(
                         }
                     }
                 ],
-                "dropShadow": [
+                "title": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+
+def create_category_donut_chart(
+    name: str,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    z_index: int,
+) -> dict:
+    """Generate Category Revenue & Margin Share Donut Chart visual."""
+    return {
+        "$schema": PBIR_SCHEMA,
+        "name": name,
+        "position": {
+            "x": x,
+            "y": y,
+            "z": z_index,
+            "width": width,
+            "height": height,
+            "tabOrder": z_index,
+        },
+        "visual": {
+            "visualType": "donutChart",
+            "query": {
+                "queryState": {
+                    "Category": {
+                        "projections": [
+                            {
+                                "field": {
+                                    "Column": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "dim_product"
+                                            }
+                                        },
+                                        "Property": "category",
+                                    }
+                                },
+                                "queryRef": "dim_product.category",
+                                "nativeQueryRef": "Category",
+                            }
+                        ]
+                    },
+                    "Y": {
+                        "projections": [
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "_Measures"
+                                            }
+                                        },
+                                        "Property": "Total Sales",
+                                    }
+                                },
+                                "queryRef": "_Measures.Total Sales",
+                                "nativeQueryRef": "Total Sales",
+                            }
+                        ]
+                    }
+                }
+            },
+            "objects": {
+                "legend": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "position": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "'Right'"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "labels": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "color": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#F8FAFC'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "visualContainerObjects": {
+                "background": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "border": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "title": [
                     {
                         "properties": {
                             "show": {
@@ -477,7 +743,7 @@ def create_inventory_table_visual(
     height: int,
     z_index: int,
 ) -> dict:
-    """Generate a Fabric PBIR tableEx visual configured with contrast-locked palette and auto-sized columns."""
+    """Generate Full-Width Responsive Table Visual for Inventory Fleet Health."""
     return {
         "$schema": PBIR_SCHEMA,
         "name": name,
@@ -535,7 +801,7 @@ def create_inventory_table_visual(
                                     }
                                 },
                                 "queryRef": "_Measures.Ending Inventory Units",
-                                "nativeQueryRef": "Ending Inventory Units",
+                                "nativeQueryRef": "On Hand Units",
                             },
                             {
                                 "field": {
@@ -549,7 +815,7 @@ def create_inventory_table_visual(
                                     }
                                 },
                                 "queryRef": "_Measures.DoS Bar SVG",
-                                "nativeQueryRef": "DoS Bar SVG",
+                                "nativeQueryRef": "Days of Supply (DoS)",
                             },
                             {
                                 "field": {
@@ -563,7 +829,7 @@ def create_inventory_table_visual(
                                     }
                                 },
                                 "queryRef": "_Measures.Stockout Status Badge SVG",
-                                "nativeQueryRef": "Status Badge SVG",
+                                "nativeQueryRef": "Status Badge",
                             }
                         ]
                     }
@@ -714,7 +980,223 @@ def create_inventory_table_visual(
                         }
                     }
                 ],
-                "dropShadow": [
+                "title": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+
+def create_replenishment_bar_chart(
+    name: str,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    z_index: int,
+) -> dict:
+    """Generate Replenishment by Supplier Clustered Bar Chart visual."""
+    return {
+        "$schema": PBIR_SCHEMA,
+        "name": name,
+        "position": {
+            "x": x,
+            "y": y,
+            "z": z_index,
+            "width": width,
+            "height": height,
+            "tabOrder": z_index,
+        },
+        "visual": {
+            "visualType": "clusteredBarChart",
+            "query": {
+                "queryState": {
+                    "Category": {
+                        "projections": [
+                            {
+                                "field": {
+                                    "Column": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "dim_supplier"
+                                            }
+                                        },
+                                        "Property": "supplier_name",
+                                    }
+                                },
+                                "queryRef": "dim_supplier.supplier_name",
+                                "nativeQueryRef": "Supplier",
+                            }
+                        ]
+                    },
+                    "Y": {
+                        "projections": [
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {
+                                            "SourceRef": {
+                                                "Entity": "_Measures"
+                                            }
+                                        },
+                                        "Property": "Total Recommended Spend",
+                                    }
+                                },
+                                "queryRef": "_Measures.Total Recommended Spend",
+                                "nativeQueryRef": "Recommended Spend",
+                            }
+                        ]
+                    }
+                }
+            },
+            "objects": {
+                "categoryAxis": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "labelColor": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#94A3B8'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "valueAxis": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "labelColor": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#94A3B8'"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "gridlineShow": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "gridlineColor": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#1E293B'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "dataPoint": [
+                    {
+                        "properties": {
+                            "fill": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#F59E0B'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "dataLabels": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "color": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#F8FAFC'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "visualContainerObjects": {
+                "background": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "border": [
+                    {
+                        "properties": {
+                            "show": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "title": [
                     {
                         "properties": {
                             "show": {
@@ -733,9 +1215,9 @@ def create_inventory_table_visual(
 
 
 def build_layout() -> None:
-    """Build the complete Fabric PBIR layout snapped to SVG containers."""
+    """Build the complete 4-zone Fabric PBIR executive layout."""
     print("================================================================================")
-    print("   RetailPulse DI - Fabric PBIR Layout & Visual Generator")
+    print("   RetailPulse DI - Executive PBIR Layout & Visual Generator")
     print("================================================================================")
 
     # 1. Locate active page folder
@@ -745,93 +1227,147 @@ def build_layout() -> None:
     visuals_dir = active_page_dir / "visuals"
     visuals_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2. Define the visuals according to exact spec coordinates:
-    # Card 1: [Total Sales] at [40, 90, 435x135] (Blue Neon Accent)
-    # Card 2: [Gross Margin %] at [505, 90, 435x135] (Emerald Neon Accent)
-    # Card 3: [Ending Inventory Units] at [970, 90, 435x135] (Blue Neon Accent)
-    # Card 4: [Critical Stockout SKUs] at [1435, 90, 445x135] (Crimson Neon Accent)
-    # Area Chart: Revenue & Cost Trajectory at [55, 330, 865x690]
-    # Table: Inventory Health Fleet Radar at [975, 330, 890x690]
-
+    # 2. Complete Visual Configurations matching the 4-Zone Blueprint
     visual_configs = [
-        # Top KPI Card 1: NET REVENUE / Total Sales
+        # ZONE 1: SLICERS
+        (
+            "Slicer_Store",
+            create_slicer_visual(
+                name="Slicer_Store",
+                x=1420,
+                y=20,
+                width=220,
+                height=46,
+                z_index=5000,
+                entity="dim_store",
+                property_name="store_name",
+                display_name="Store",
+            ),
+        ),
+        (
+            "Slicer_Category",
+            create_slicer_visual(
+                name="Slicer_Category",
+                x=1660,
+                y=20,
+                width=220,
+                height=46,
+                z_index=5001,
+                entity="dim_product",
+                property_name="category",
+                display_name="Category",
+            ),
+        ),
+        # ZONE 2: 5 HERO KPI PODS
         (
             "Card_TotalSales",
             create_kpi_card_visual(
                 name="Card_TotalSales",
                 x=40,
-                y=90,
-                width=435,
-                height=135,
+                y=85,
+                width=350,
+                height=125,
                 z_index=1000,
                 measure_name="Total Sales",
                 accent_color="#3B82F6",  # Electric Blue
             ),
         ),
-        # Top KPI Card 2: GROSS MARGIN %
         (
             "Card_GrossMargin",
             create_kpi_card_visual(
                 name="Card_GrossMargin",
-                x=505,
-                y=90,
-                width=435,
-                height=135,
+                x=415,
+                y=85,
+                width=350,
+                height=125,
                 z_index=1001,
                 measure_name="Gross Margin %",
                 accent_color="#00D26A",  # Emerald Green
             ),
         ),
-        # Top KPI Card 3: ENDING INVENTORY UNITS
         (
-            "Card_EndingInventoryUnits",
+            "Card_EndingInventoryValue",
             create_kpi_card_visual(
-                name="Card_EndingInventoryUnits",
-                x=970,
-                y=90,
-                width=435,
-                height=135,
+                name="Card_EndingInventoryValue",
+                x=790,
+                y=85,
+                width=350,
+                height=125,
                 z_index=1002,
-                measure_name="Ending Inventory Units",
-                accent_color="#3B82F6",  # Electric Blue
+                measure_name="Ending Inventory Value",
+                accent_color="#8B5CF6",  # Purple Accent
             ),
         ),
-        # Top KPI Card 4: CRITICAL STOCKOUT SKUS
         (
             "Card_CriticalStockoutSKUs",
             create_kpi_card_visual(
                 name="Card_CriticalStockoutSKUs",
-                x=1435,
-                y=90,
-                width=445,
-                height=135,
+                x=1165,
+                y=85,
+                width=350,
+                height=125,
                 z_index=1003,
                 measure_name="Critical Stockout SKUs",
                 accent_color="#EF4444",  # Crimson Red
             ),
         ),
-        # Left Panel: Area Chart (Revenue & Cost Trajectory)
         (
-            "Chart_RevenueCostMomentum",
-            create_area_chart_visual(
-                name="Chart_RevenueCostMomentum",
+            "Card_RecommendedPOSpend",
+            create_kpi_card_visual(
+                name="Card_RecommendedPOSpend",
+                x=1540,
+                y=85,
+                width=340,
+                height=125,
+                z_index=1004,
+                measure_name="Total Recommended Spend",
+                accent_color="#F59E0B",  # Amber Accent
+            ),
+        ),
+        # ZONE 3: MIDDLE ANALYTICAL ENGINE
+        (
+            "Chart_FinancialMomentum",
+            create_financial_momentum_chart(
+                name="Chart_FinancialMomentum",
                 x=55,
-                y=330,
-                width=865,
-                height=690,
+                y=285,
+                width=1130,
+                height=320,
                 z_index=2000,
             ),
         ),
-        # Right Panel: Inventory Health Fleet Radar Table
+        (
+            "Chart_CategoryRevenueShare",
+            create_category_donut_chart(
+                name="Chart_CategoryRevenueShare",
+                x=1235,
+                y=285,
+                width=630,
+                height=320,
+                z_index=2001,
+            ),
+        ),
+        # ZONE 4: BOTTOM OPERATIONAL INTELLIGENCE
         (
             "Table_InventoryFleetHealth",
             create_inventory_table_visual(
                 name="Table_InventoryFleetHealth",
-                x=975,
-                y=330,
-                width=890,
-                height=690,
-                z_index=2001,
+                x=55,
+                y=695,
+                width=1130,
+                height=340,
+                z_index=3000,
+            ),
+        ),
+        (
+            "Chart_ReplenishmentBySupplier",
+            create_replenishment_bar_chart(
+                name="Chart_ReplenishmentBySupplier",
+                x=1235,
+                y=695,
+                width=630,
+                height=340,
+                z_index=3001,
             ),
         ),
     ]

@@ -1,12 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "Chart_RevenueCostMomentum",
+  "name": "Chart_FinancialMomentum",
   "position": {
     "x": 55,
-    "y": 330,
+    "y": 285,
     "z": 2000,
-    "width": 865,
-    "height": 690,
+    "width": 1130,
+    "height": 320,
     "tabOrder": 2000
   },
   "visual": {
@@ -27,7 +27,7 @@
                 }
               },
               "queryRef": "dim_date.full_date",
-              "nativeQueryRef": "full_date",
+              "nativeQueryRef": "Date",
               "active": true
             }
           ]
@@ -237,7 +237,7 @@
           }
         }
       ],
-      "dropShadow": [
+      "title": [
         {
           "properties": {
             "show": {

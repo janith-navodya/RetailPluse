@@ -39,6 +39,16 @@ table _Measures
 		formatString: #,##0
 		lineageTag: 65368ab2-8fe1-4da7-b6b6-5328eb0b0d36
 
+	measure 'Ending Inventory Value' = 
+			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
+			RETURN
+			CALCULATE (
+			    SUM ( fact_inventory_snapshot[ending_inventory_value] ),
+			    fact_inventory_snapshot[date_key] = MaxDateKey
+			)
+		formatString: $#,##0;($#,##0);$#,##0
+		lineageTag: e65368ab-8fe1-4da7-b6b6-5328eb0b0d37
+
 	measure 'Rolling 30D Daily Sales' =
 			
 			VAR TotalUnits = SUM ( fact_sales_daily[quantity_sold] )
@@ -76,6 +86,11 @@ table _Measures
 	measure 'Stockout Exposure' = [Stockout Rate %]
 		formatString: 0.0%
 		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
+
+	measure 'Total Recommended Spend' = 
+			SUM ( fact_replenishment_recommendation[estimated_cost] )
+		formatString: $#,##0;($#,##0);$#,##0
+		lineageTag: d75368ab-8fe1-4da7-b6b6-5328eb0b0d38
 
 	measure 'Stockout Status Badge SVG' = ```
 			

@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
   "name": "Table_InventoryFleetHealth",
   "position": {
-    "x": 975,
-    "y": 330,
-    "z": 2001,
-    "width": 890,
-    "height": 690,
-    "tabOrder": 2001
+    "x": 55,
+    "y": 695,
+    "z": 3000,
+    "width": 1130,
+    "height": 340,
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "tableEx",
@@ -55,7 +55,7 @@
                 }
               },
               "queryRef": "_Measures.Ending Inventory Units",
-              "nativeQueryRef": "Ending Inventory Units"
+              "nativeQueryRef": "On Hand Units"
             },
             {
               "field": {
@@ -69,7 +69,7 @@
                 }
               },
               "queryRef": "_Measures.DoS Bar SVG",
-              "nativeQueryRef": "DoS Bar SVG"
+              "nativeQueryRef": "Days of Supply (DoS)"
             },
             {
               "field": {
@@ -83,7 +83,7 @@
                 }
               },
               "queryRef": "_Measures.Stockout Status Badge SVG",
-              "nativeQueryRef": "Status Badge SVG"
+              "nativeQueryRef": "Status Badge"
             }
           ]
         }
@@ -234,7 +234,7 @@
           }
         }
       ],
-      "dropShadow": [
+      "title": [
         {
           "properties": {
             "show": {
