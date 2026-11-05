@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_product.product_name",
-              "nativeQueryRef": "Product Name"
+              "nativeQueryRef": "Product Name",
+              "displayName": "Product Name"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "dim_product.category",
-              "nativeQueryRef": "Category"
+              "nativeQueryRef": "Category",
+              "displayName": "Category"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "dim_product.unit_retail_price",
-              "nativeQueryRef": "Unit Price"
+              "nativeQueryRef": "Unit Price",
+              "displayName": "Unit Price"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "_Measures.Ending Inventory Units",
-              "nativeQueryRef": "On Hand Units"
+              "nativeQueryRef": "On Hand Units",
+              "displayName": "On Hand Units"
             },
             {
               "field": {
@@ -83,7 +87,8 @@
                 }
               },
               "queryRef": "_Measures.Ending Inventory Value",
-              "nativeQueryRef": "Inventory Value"
+              "nativeQueryRef": "Inventory Value",
+              "displayName": "Inventory Value"
             },
             {
               "field": {
@@ -97,7 +102,8 @@
                 }
               },
               "queryRef": "_Measures.Days of Supply (DoS)",
-              "nativeQueryRef": "DoS (Days)"
+              "nativeQueryRef": "DoS (Days)",
+              "displayName": "DoS (Days)"
             },
             {
               "field": {
@@ -111,7 +117,8 @@
                 }
               },
               "queryRef": "_Measures.DoS Bar SVG",
-              "nativeQueryRef": "DoS Battery"
+              "nativeQueryRef": "DoS Battery",
+              "displayName": "DoS Battery"
             },
             {
               "field": {
@@ -125,7 +132,8 @@
                 }
               },
               "queryRef": "_Measures.Stockout Status Badge SVG",
-              "nativeQueryRef": "Risk Status"
+              "nativeQueryRef": "Risk Status",
+              "displayName": "Risk Status"
             }
           ]
         }
