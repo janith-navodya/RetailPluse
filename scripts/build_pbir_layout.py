@@ -1034,6 +1034,13 @@ def create_inventory_table_visual(
                 "grid": [
                     {
                         "properties": {
+                            "rowPadding": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "2D"
+                                    }
+                                }
+                            },
                             "gridHorizontal": {
                                 "expr": {
                                     "Literal": {
@@ -1056,6 +1063,48 @@ def create_inventory_table_visual(
                                 "expr": {
                                     "Literal": {
                                         "Value": "false"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "total": [
+                    {
+                        "properties": {
+                            "totals": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "true"
+                                    }
+                                }
+                            },
+                            "fontColor": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#00D26A'"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "backColor": {
+                                "solid": {
+                                    "color": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'#1A2438'"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "fontSize": {
+                                "expr": {
+                                    "Literal": {
+                                        "Value": "11D"
                                     }
                                 }
                             }
@@ -1491,7 +1540,7 @@ def build_layout() -> None:
                 x=55,
                 y=695,
                 width=1130,
-                height=340,
+                height=345,
                 z_index=3000,
             ),
         ),

@@ -61,13 +61,14 @@ table dim_product
 
 	column unit_retail_price
 		dataType: double
+		formatString: $#,##0.00;($#,##0.00);$#,##0.00
 		lineageTag: b6aa18d3-26be-4f44-bfb9-4572e9ec97a3
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_retail_price
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
 	column pack_size
 		dataType: int64
