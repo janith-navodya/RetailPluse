@@ -483,7 +483,7 @@
     "#54484E"
   ],
   "background": "#0E131F",
-  "foreground": "#1A2234",
+  "foreground": "#F8FAFC",
   "tableAccent": "#00D26A",
   "textClasses": {
     "callout": {
@@ -494,17 +494,22 @@
     "title": {
       "fontSize": 14,
       "fontFace": "Segoe UI Semibold",
-      "color": "#94A3B8"
+      "color": "#FFFFFF"
     },
     "header": {
       "fontSize": 12,
-      "fontFace": "Segoe UI",
-      "color": "#E2E8F0"
+      "fontFace": "Segoe UI Semibold",
+      "color": "#FFFFFF"
     },
     "label": {
       "fontSize": 10,
       "fontFace": "Segoe UI",
-      "color": "#64748B"
+      "color": "#E2E8F0"
+    },
+    "largeTitle": {
+      "fontSize": 18,
+      "fontFace": "Segoe UI Bold",
+      "color": "#FFFFFF"
     }
   },
   "visualStyles": {
@@ -543,6 +548,48 @@
             "position": "Outer",
             "preset": "BottomRight"
           }
+        ],
+        "visualTooltip": [
+          {
+            "type": "Default",
+            "titleFontColor": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "valueFontColor": {
+              "solid": {
+                "color": "#F8FAFC"
+              }
+            },
+            "background": {
+              "solid": {
+                "color": "#0F172A"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "tooltip": [
+          {
+            "type": "Default",
+            "titleFontColor": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "valueFontColor": {
+              "solid": {
+                "color": "#F8FAFC"
+              }
+            },
+            "background": {
+              "solid": {
+                "color": "#0F172A"
+              }
+            },
+            "transparency": 0
+          }
         ]
       }
     },
@@ -560,5 +607,12 @@
         ]
       }
     }
-  }
+  },
+  "foregroundNeutralDark": "#FFFFFF",
+  "foregroundNeutralSecondary": "#E2E8F0",
+  "foregroundNeutralTertiary": "#94A3B8",
+  "foregroundNeutralLight": "#CBD5E1",
+  "backgroundLight": "#1E293B",
+  "backgroundNeutral": "#0F172A",
+  "backgroundDark": "#070A11"
 }
