@@ -39,7 +39,7 @@ table _Measures
 		formatString: #,##0
 		lineageTag: 65368ab2-8fe1-4da7-b6b6-5328eb0b0d36
 
-	measure 'Ending Inventory Value' = 
+	measure 'Ending Inventory Value' =
 			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
 			RETURN
 			CALCULATE (
@@ -67,7 +67,7 @@ table _Measures
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure 'Critical Stockout SKUs' = 
+	measure 'Critical Stockout SKUs' =
 			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
 			RETURN
 			CALCULATE (
@@ -78,16 +78,16 @@ table _Measures
 		formatString: #,##0
 		lineageTag: f49e2410-67fe-4a85-9da0-293b21f63eae
 
-	measure 'Stockout Rate %' = 
+	measure 'Stockout Rate %' =
 			VAR MaxDateKey = MAX ( fact_inventory_snapshot[date_key] )
-			VAR Stockouts = 
-			    CALCULATE ( 
-			        COUNTROWS ( fact_inventory_snapshot ), 
+			VAR Stockouts =
+			    CALCULATE (
+			        COUNTROWS ( fact_inventory_snapshot ),
 			        fact_inventory_snapshot[is_stockout] = 1,
 			        fact_inventory_snapshot[date_key] = MaxDateKey
 			    )
-			VAR TotalRows = 
-			    CALCULATE ( 
+			VAR TotalRows =
+			    CALCULATE (
 			        COUNTROWS ( fact_inventory_snapshot ),
 			        fact_inventory_snapshot[date_key] = MaxDateKey
 			    )
@@ -100,8 +100,7 @@ table _Measures
 		formatString: 0.0%
 		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
 
-	measure 'Total Recommended Spend' = 
-			SUM ( fact_replenishment_recommendation[estimated_cost] )
+	measure 'Total Recommended Spend' = CALCULATE ( SUM ( fact_replenishment_recommendation[estimated_cost] ), fact_replenishment_recommendation[approval_status] = "PROPOSED" )
 		formatString: $#,##0;($#,##0);$#,##0
 		lineageTag: d75368ab-8fe1-4da7-b6b6-5328eb0b0d38
 
@@ -210,3 +209,4 @@ table _Measures
 				    #"Changed Type"
 
 	annotation PBI_ResultType = Table
+

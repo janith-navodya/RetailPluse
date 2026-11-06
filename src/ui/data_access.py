@@ -475,3 +475,16 @@ def get_quarantine_stats() -> Dict[str, Any]:
         "quarantined_records": 60,
         "quarantine_rate_pct": 0.0259,
     }
+
+
+def get_db_connection():
+    """Creates a direct pyodbc connection to SQL Server using configured DB_CONFIG."""
+    from src.ui.app import get_db_connection as _get_db_conn
+    return _get_db_conn()
+
+
+def approve_replenishment_order(recommendation_id: int | str) -> None:
+    """Updates the recommendation state in SQL Server for DirectQuery pickup."""
+    from src.ui.app import approve_replenishment_order as _approve_order
+    return _approve_order(recommendation_id)
+

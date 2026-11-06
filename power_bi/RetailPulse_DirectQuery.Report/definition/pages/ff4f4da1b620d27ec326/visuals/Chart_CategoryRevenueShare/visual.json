@@ -4,10 +4,10 @@
   "position": {
     "x": 1235,
     "y": 285,
-    "z": 2001,
-    "width": 630,
+    "z": 6000,
     "height": 320,
-    "tabOrder": 2001
+    "width": 630,
+    "tabOrder": 6000
   },
   "visual": {
     "visualType": "donutChart",
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_product.category",
-              "nativeQueryRef": "Category"
+              "nativeQueryRef": "Category",
+              "active": true
             }
           ]
         },
@@ -88,45 +89,6 @@
                   "expr": {
                     "Literal": {
                       "Value": "'#F8FAFC'"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "tooltip": [
-        {
-          "properties": {
-            "titleFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#FFFFFF'"
-                    }
-                  }
-                }
-              }
-            },
-            "valueFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F8FAFC'"
-                    }
-                  }
-                }
-              }
-            },
-            "background": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#0F172A'"
                     }
                   }
                 }

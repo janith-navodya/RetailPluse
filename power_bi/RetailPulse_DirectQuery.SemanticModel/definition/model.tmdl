@@ -9,7 +9,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBI_QueryOrder = ["dim_date","dim_product","dim_store","dim_supplier","etl_batch_log","fact_inventory_snapshot","fact_purchase_orders","fact_replenishment_recommendation","fact_sales_daily","quarantine_invalid_records","quarantine_records","vw_executive_kpis","vw_inventory_health","vw_inventory_health_summary","vw_product_sales_daily","vw_purchase_order_details","vw_store_inventory_turnover","vw_store_product_sales_daily","vw_supplier_performance"]
+annotation PBI_QueryOrder = ["dim_date","dim_product","dim_store","dim_supplier","etl_batch_log","fact_inventory_snapshot","fact_purchase_orders","fact_replenishment_recommendation","fact_sales_daily","quarantine_invalid_records","quarantine_records","vw_executive_kpis","vw_inventory_health","vw_inventory_health_summary","vw_product_sales_daily","vw_purchase_order_details","vw_store_inventory_turnover","vw_store_product_sales_daily","vw_supplier_performance","_Measures"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -32,7 +32,6 @@ ref table vw_purchase_order_details
 ref table vw_store_inventory_turnover
 ref table vw_store_product_sales_daily
 ref table vw_supplier_performance
-
 ref table _Measures
 
 ref cultureInfo en-US

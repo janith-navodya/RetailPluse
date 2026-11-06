@@ -4,10 +4,10 @@
   "position": {
     "x": 55,
     "y": 285,
-    "z": 2000,
-    "width": 1130,
+    "z": 5000,
     "height": 320,
-    "tabOrder": 2000
+    "width": 1130,
+    "tabOrder": 5000
   },
   "visual": {
     "visualType": "areaChart",
@@ -206,45 +206,6 @@
           },
           "selector": {
             "metadata": "_Measures.Total COGS"
-          }
-        }
-      ],
-      "tooltip": [
-        {
-          "properties": {
-            "titleFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#FFFFFF'"
-                    }
-                  }
-                }
-              }
-            },
-            "valueFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F8FAFC'"
-                    }
-                  }
-                }
-              }
-            },
-            "background": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#0F172A'"
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       ]

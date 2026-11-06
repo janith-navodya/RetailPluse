@@ -100,8 +100,7 @@ table _Measures
 		formatString: 0.0%
 		lineageTag: c48e2410-67fe-4a85-9da0-293b21f63ead
 
-	measure 'Total Recommended Spend' = 
-			SUM ( fact_replenishment_recommendation[estimated_cost] )
+	measure 'Total Recommended Spend' = CALCULATE ( SUM ( fact_replenishment_recommendation[estimated_cost] ), fact_replenishment_recommendation[approval_status] = "PROPOSED" )
 		formatString: $#,##0;($#,##0);$#,##0
 		lineageTag: d75368ab-8fe1-4da7-b6b6-5328eb0b0d38
 

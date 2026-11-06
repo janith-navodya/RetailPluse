@@ -4,10 +4,10 @@
   "position": {
     "x": 1385,
     "y": 30,
-    "z": 5000,
-    "width": 225,
+    "z": 9000,
     "height": 34,
-    "tabOrder": 5000
+    "width": 225,
+    "tabOrder": 9000
   },
   "visual": {
     "visualType": "slicer",
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_store.store_name",
-              "nativeQueryRef": "Store"
+              "nativeQueryRef": "Store",
+              "active": true
             }
           ]
         }
@@ -54,6 +55,42 @@
               "expr": {
                 "Literal": {
                   "Value": "'Dropdown'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "items": [
+        {
+          "properties": {
+            "background": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 1,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropdown": [
+        {
+          "properties": {
+            "borderColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
                 }
               }
             }

@@ -31,6 +31,15 @@ class Settings:
     DATABASE_URL: str = os.getenv("DATABASE_URL", MSSQL_DATABASE_URL)
     DB_PATH: Path = BASE_DIR / "data" / "retailpulse.db"
 
+    # Database configuration dict for direct ODBC/pyodbc connections
+    DB_CONFIG: dict = {
+        "driver": "ODBC Driver 18 for SQL Server",
+        "server": "localhost",
+        "database": DB_NAME,
+        "trusted_connection": "yes",
+        "trust_server_certificate": "yes",
+    }
+
     # Synthetic data generation parameters
     SIMULATION_DAYS: int = 730  # 2 full calendar years
     START_DATE: str = "2024-01-01"
@@ -56,3 +65,5 @@ class Settings:
 
 settings = Settings()
 settings.ensure_directories()
+DB_CONFIG = settings.DB_CONFIG
+

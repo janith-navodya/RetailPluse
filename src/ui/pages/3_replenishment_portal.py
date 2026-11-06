@@ -5,6 +5,7 @@ import numpy as np
 
 from src.ui.styles import apply_custom_styles, render_header, render_metric_card
 from src.ui.data_access import get_latest_inventory_health
+from src.ui.app import get_db_connection, approve_replenishment_order
 from src.decision.safety_stock import StochasticInventoryController, InventoryStatusResult
 from src.decision.optimizer import ConstrainedReplenishmentOptimizer, ReplenishmentOrderRecommendation
 from src.decision.persistence import ReplenishmentPersistenceEngine
@@ -314,3 +315,41 @@ if rec_options:
                 persistence.update_recommendation_status(target_rec_id, "APPROVED")
                 st.toast(f"✅ Approved {chosen_rec.product_id}")
                 st.success(f"Marked {target_rec_id} as APPROVED.")
+
+# ==============================================================================
+# Live DirectQuery Write-Back: Interactive Pending Approvals Grid
+# ==============================================================================
+st.markdown("---")
+st.subheader("📋 Pending Replenishment Approvals")
+st.caption(
+    "Interactive Human-in-the-Loop decision write-back. Approving an order immediately updates SQL Server "
+    "(`approval_status = 'APPROVED'`) and triggers live Power BI DirectQuery tile updates within seconds."
+)
+
+try:
+    conn = get_db_connection()
+    query = """
+        SELECT r.recommendation_id, p.name AS product_name, r.recommended_order_qty, 
+               r.total_cost, r.approval_status
+        FROM fact_replenishment_recommendation r
+        JOIN dim_product p ON r.product_id = p.product_id
+        WHERE r.approval_status = 'PROPOSED'
+    """
+    pending_df = pd.read_sql(query, conn)
+    conn.close()
+
+    if pending_df.empty:
+        st.success("All purchase recommendations have been processed.")
+    else:
+        for idx, row in pending_df.iterrows():
+            col1, col2, col3, col4 = st.columns([3, 2, 2, 2])
+            col1.write(f"**{row['product_name']}**")
+            col2.write(f"Qty: {row['recommended_order_qty']} units")
+            col3.write(f"Cost: ${row['total_cost']:,.2f}")
+            if col4.button("Approve PO", key=f"btn_{row['recommendation_id']}"):
+                approve_replenishment_order(row['recommendation_id'])
+                st.toast(f"PO #{row['recommendation_id']} approved successfully!")
+                st.rerun()
+except Exception as exc:
+    st.warning(f"Could not load live pending recommendations queue from SQL Server: {exc}")
+

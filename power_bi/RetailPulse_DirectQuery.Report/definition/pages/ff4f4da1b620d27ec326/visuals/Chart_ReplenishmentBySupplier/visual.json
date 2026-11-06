@@ -4,10 +4,10 @@
   "position": {
     "x": 1235,
     "y": 700,
-    "z": 3001,
-    "width": 630,
+    "z": 8000,
     "height": 340,
-    "tabOrder": 3001
+    "width": 630,
+    "tabOrder": 8000
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_supplier.supplier_name",
-              "nativeQueryRef": "Supplier"
+              "nativeQueryRef": "Supplier",
+              "active": true
             }
           ]
         },
@@ -145,69 +146,6 @@
                   "expr": {
                     "Literal": {
                       "Value": "'#F59E0B'"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "color": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F8FAFC'"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ],
-      "tooltip": [
-        {
-          "properties": {
-            "titleFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#FFFFFF'"
-                    }
-                  }
-                }
-              }
-            },
-            "valueFontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#F8FAFC'"
-                    }
-                  }
-                }
-              }
-            },
-            "background": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Literal": {
-                      "Value": "'#0F172A'"
                     }
                   }
                 }
