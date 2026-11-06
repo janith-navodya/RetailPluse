@@ -204,9 +204,9 @@ table _Measures
 		source =
 				let
 				  Source = Sql.Database("localhost", "RetailPulseDB", [EnableCrossDatabaseFolding = true]),
-				  #"Navigation" = Value.NativeQuery(Source, "SELECT CAST('1' AS VARCHAR(10)) AS [Column1]")
+				  #"Navigation 1" = Source{[Schema = "dbo", Item = "vw_measure_anchor"]}[Data]
 				in
-				  #"Navigation"
+				  #"Navigation 1"
 
 	annotation PBI_ResultType = Table
 
