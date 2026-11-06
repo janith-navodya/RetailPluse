@@ -3,8 +3,17 @@
 Main application entrypoint configuring multipage navigation, branding, and system status.
 Run with: streamlit run app.py
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is always first in sys.path regardless of execution context
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from src.ui.styles import apply_custom_styles
+
 
 st.set_page_config(
     page_title="RetailPulse Decision Intelligence Portal",
