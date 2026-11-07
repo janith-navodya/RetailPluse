@@ -8,3 +8,4 @@ echo Activating virtual environment and starting Streamlit...
 call "%~dp0.venv\Scripts\activate.bat"
 streamlit run app.py
 pause
+

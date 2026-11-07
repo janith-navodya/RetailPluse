@@ -44,3 +44,4 @@ def approve_replenishment_order(recommendation_id: Union[int, str]) -> None:
     cursor.close()
     conn.close()
     logger.info("Successfully approved replenishment order %s via DirectQuery write-back.", recommendation_id)
+

@@ -13,3 +13,4 @@ if (-not (Test-Path $VenvPython)) {
 
 Write-Host "Starting Streamlit web interface..." -ForegroundColor Yellow
 & $VenvPython -m streamlit run $AppPy
+

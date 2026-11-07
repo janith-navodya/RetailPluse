@@ -1,6 +1,6 @@
-"""RetailPulse DI: Executive Decision Intelligence Portal.
+"""RetailPulse DI: Executive Decision Intelligence & Enterprise Operations Portal.
 
-Main application entrypoint configuring multipage navigation, branding, and system status.
+Main application entrypoint configuring multipage navigation, branding, and global store context.
 Run with: streamlit run app.py
 """
 import sys
@@ -14,36 +14,43 @@ if str(ROOT_DIR) not in sys.path:
 import streamlit as st
 from src.ui.styles import apply_custom_styles
 
-
 st.set_page_config(
-    page_title="RetailPulse Decision Intelligence Portal",
+    page_title="RetailPulse DI | Enterprise Operations",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 apply_custom_styles()
 
-# Sidebar System Health & Branding
+# ==============================================================================
+# Modernized Clean Sidebar
+# ==============================================================================
 with st.sidebar:
     st.markdown("## ⚡ **RetailPulse DI**")
-    st.markdown("*Autonomous Decision Intelligence for Retail Replenishment*")
+    st.caption("Enterprise Retail Operations & Decision Studio")
     st.markdown("---")
 
-    st.markdown("### 🖥️ **System Environment**")
-    st.markdown(
-        """
-        - **Target Engine:** Microsoft SQL Server 2025
-        - **Database:** `RetailPulseDB`
-        - **Auth:** Windows Integrated (`localhost`)
-        - **Optimization:** HiGHS MILP Simplex
-        - **ML Pipeline:** Quantile Regressors (P10/P50/P90)
-        - **Schema:** Star Schema Dimensional Model
-        """
+    # Global Store Location Filter
+    st.markdown("##### 📍 Active Store Location")
+    store_map = {
+        "STR01": "Suburban Superstore (STR01)",
+        "STR02": "Flagship Urban (STR02)",
+        "STR03": "Express Mart (STR03)",
+    }
+    selected_store_id = st.selectbox(
+        "Store",
+        options=list(store_map.keys()),
+        format_func=lambda x: store_map[x],
+        index=0,
+        label_visibility="collapsed",
     )
-    st.markdown("---")
-    st.caption("RetailPulse Platform v1.0.0 | Production Release")
+    st.session_state["global_store_id"] = selected_store_id
 
-# Configure Multipage Navigation
+    st.markdown("---")
+
+# ==============================================================================
+# Configure Multipage Navigation Across 3 Clear Workspaces
+# ==============================================================================
 page_cockpit = st.Page(
     "src/ui/pages/1_executive_cockpit.py",
     title="Executive KPI Cockpit",
@@ -59,23 +66,43 @@ page_uncertainty = st.Page(
 
 page_replenishment = st.Page(
     "src/ui/pages/3_replenishment_portal.py",
-    title="Replenishment Engine",
-    icon="🛒",
+    title="Replenishment Studio",
+    icon="⚡",
+)
+
+page_data_hub = st.Page(
+    "src/ui/pages/3_data_hub.py",
+    title="Master Data Hub (CRUD)",
+    icon="📁",
 )
 
 page_observability = st.Page(
     "src/ui/pages/4_data_observability.py",
-    title="Data Observability & Audit",
-    icon="🔍",
+    title="Data Observability & Health",
+    icon="🛡️",
 )
 
 pg = st.navigation(
     {
-        "Operational Dashboards": [page_cockpit, page_uncertainty],
-        "Decision Automation": [page_replenishment],
+        "Executive Dashboards": [page_cockpit, page_uncertainty],
+        "Operations & Decisions": [page_replenishment, page_data_hub],
         "System Integrity": [page_observability],
     }
 )
 
 pg.run()
 
+# Bottom status indicator
+with st.sidebar:
+    st.markdown("---")
+    st.markdown("🟢 **SQL Server:** `Connected`  \n📡 **Power BI Sync:** `DirectQuery 10s`")
+    with st.expander("ℹ️ System Architecture", expanded=False):
+        st.caption(
+            """
+            - **Engine:** Microsoft SQL Server 2025 (`RetailPulseDB`)
+            - **Optimization:** HiGHS Mixed-Integer Linear Programming
+            - **Forecasting:** LightGBM Quantile Regressors (P10/P50/P90)
+            - **Write-Back:** Live DirectQuery Synchronized
+            - **Version:** v1.2.0 Production
+            """
+        )

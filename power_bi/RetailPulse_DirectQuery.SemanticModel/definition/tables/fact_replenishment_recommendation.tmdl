@@ -219,6 +219,39 @@ table fact_replenishment_recommendation
 
 		annotation SummarizationSetBy = Automatic
 
+	column approved_at
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 67d9a013-78a1-40f6-b4e6-3c57abf6b0c9
+		summarizeBy: none
+		sourceColumn: approved_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommended_order_qty
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 775bb849-bd6d-43c8-9300-8287d620be8c
+		summarizeBy: sum
+		sourceColumn: recommended_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_cost
+		dataType: double
+		isNullable: false
+		sourceProviderType: decimal(12, 2)
+		lineageTag: 973c8bad-084d-4916-a3ad-a2923234ca68
+		summarizeBy: sum
+		sourceColumn: total_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	partition fact_replenishment_recommendation = m
 		mode: directQuery
 		source =

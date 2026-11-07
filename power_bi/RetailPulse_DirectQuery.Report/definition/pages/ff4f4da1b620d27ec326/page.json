@@ -134,7 +134,7 @@
           "duration": {
             "expr": {
               "Literal": {
-                "Value": "'00:00:10'"
+                "Value": "'PT5S'"
               }
             }
           }

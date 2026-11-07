@@ -34,7 +34,10 @@ if df_health.empty:
 # Sidebar Optimization Controls
 st.sidebar.markdown("### ⚙️ Optimization Parameters")
 store_options = sorted(df_health["store_id"].unique().tolist())
-selected_store = st.sidebar.selectbox("Store Location", store_options, index=0)
+default_idx = 0
+if "global_store_id" in st.session_state and st.session_state["global_store_id"] in store_options:
+    default_idx = store_options.index(st.session_state["global_store_id"])
+selected_store = st.sidebar.selectbox("Store Location", store_options, index=default_idx)
 
 budget_input = st.sidebar.slider(
     "Working Capital Budget (Rs.)",

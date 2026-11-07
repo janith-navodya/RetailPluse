@@ -105,6 +105,10 @@ with filter_col4:
 
 # Filter dataframe
 filtered_df = df_health.copy()
+active_store = st.session_state.get("global_store_id")
+if active_store and "store_id" in filtered_df.columns:
+    filtered_df = filtered_df[filtered_df["store_id"] == active_store]
+
 if selected_category != "ALL":
     filtered_df = filtered_df[filtered_df["category"] == selected_category]
 if selected_supplier != "ALL":

@@ -107,6 +107,16 @@ table dim_product
 
 		annotation SummarizationSetBy = Automatic
 
+	column name
+		dataType: string
+		isNullable: false
+		sourceProviderType: varchar(100)
+		lineageTag: a5c20ac6-3178-4f3d-ba75-fc8d58768a7f
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
 	partition dim_product = m
 		mode: directQuery
 		source =

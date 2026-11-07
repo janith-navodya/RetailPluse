@@ -152,3 +152,11 @@ class TestStreamlitAppSmoke:
         at = AppTest.from_file(str(ROOT_DIR / "src/ui/pages/4_data_observability.py"))
         at.run(timeout=20)
         assert len(at.exception) == 0, f"Page 4 raised unhandled exceptions: {at.exception}"
+
+    @pytest.mark.database
+    def test_page_data_hub_smoke(self):
+        """Smoke test for Master Data Hub (CRUD & File Operations)."""
+        at = AppTest.from_file(str(ROOT_DIR / "src/ui/pages/3_data_hub.py"))
+        at.run(timeout=20)
+        assert len(at.exception) == 0, f"Data Hub raised unhandled exceptions: {at.exception}"
+
