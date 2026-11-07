@@ -7,11 +7,19 @@ demand volatility and supplier lead-time uncertainty using classical inventory t
     Reorder Point (ROP) = (mu_D * mu_L) + Safety Stock
 """
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Dict, Any, List, Optional
 import numpy as np
 import pandas as pd
 from scipy.stats import norm
 from config.logging_config import logger
+
+
+@lru_cache(maxsize=64)
+def get_z_score(service_level: float) -> float:
+    """Computes and memoizes normal distribution quantile for service levels."""
+    return float(norm.ppf(service_level))
+
 
 
 @dataclass
@@ -69,8 +77,8 @@ class StochasticInventoryController:
     ) -> InventoryStatusResult:
         """Evaluates inventory health and reorder requirements for a single SKU-store pair."""
         sl = service_level if service_level is not None else self.default_service_level
-        sl = max(0.50, min(0.999, sl))
-        z = float(norm.ppf(sl))
+        sl = max(0.50, min(0.999, round(float(sl), 4)))
+        z = get_z_score(sl)
 
         mu_d = max(0.01, float(mean_demand))
         sigma_d = max(0.01, float(std_demand))

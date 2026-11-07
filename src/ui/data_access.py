@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, date, timedelta
 import pandas as pd
 import numpy as np
+import streamlit as st
 from sqlalchemy import create_engine, text, Engine
 
 from config.settings import settings
@@ -19,15 +20,31 @@ _db_available: Optional[bool] = None
 
 
 def get_engine() -> Engine:
-    """Returns singleton SQLAlchemy Engine connected to local Microsoft SQL Server."""
+    """Returns singleton SQLAlchemy Engine connected to local Microsoft SQL Server with connection pooling."""
     global _engine
     if _engine is None:
-        _engine = create_engine(
-            settings.MSSQL_DATABASE_URL,
-            pool_pre_ping=True,
-            connect_args={"timeout": 1},
-        )
+        if "sqlite" in settings.DATABASE_URL:
+            _engine = create_engine(settings.DATABASE_URL)
+        else:
+            _engine = create_engine(
+                settings.MSSQL_DATABASE_URL,
+                pool_size=10,
+                max_overflow=20,
+                pool_timeout=10,
+                pool_recycle=1800,
+                pool_pre_ping=True,
+                connect_args={"timeout": 5},
+            )
     return _engine
+
+
+def invalidate_ui_cache() -> None:
+    """Clears Streamlit cached data so write-back changes (PO approval, CRUD, stock edits) are immediately visible."""
+    try:
+        st.cache_data.clear()
+    except Exception:
+        pass
+
 
 
 def is_database_available(force_check: bool = False) -> bool:
@@ -67,6 +84,7 @@ def execute_query(sql: str, params: Optional[Dict[str, Any]] = None) -> pd.DataF
         return pd.DataFrame()
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def get_executive_kpis() -> Dict[str, Any]:
     """Retrieves high-level executive KPIs from vw_executive_kpis and fact tables."""
     if is_database_available():
@@ -76,16 +94,20 @@ def get_executive_kpis() -> Dict[str, Any]:
             if not df.empty:
                 row = df.iloc[0]
                 excess_sql = """
+                    WITH avg_sales AS (
+                        SELECT 
+                            store_id, 
+                            product_id, 
+                            AVG(quantity_sold) * 45 AS threshold_qty
+                        FROM dbo.fact_sales_daily
+                        GROUP BY store_id, product_id
+                    )
                     SELECT 
                         ISNULL(SUM(inv.ending_inventory_value), 0.0) AS excess_working_capital
                     FROM dbo.fact_inventory_snapshot inv
-                    INNER JOIN dbo.dim_date d ON inv.date_key = d.date_key
+                    INNER JOIN avg_sales a ON inv.store_id = a.store_id AND inv.product_id = a.product_id
                     WHERE inv.date_key = (SELECT MAX(date_key) FROM dbo.fact_inventory_snapshot)
-                      AND inv.ending_on_hand_qty > (
-                          SELECT AVG(quantity_sold) * 45 
-                          FROM dbo.fact_sales_daily s 
-                          WHERE s.store_id = inv.store_id AND s.product_id = inv.product_id
-                      );
+                      AND inv.ending_on_hand_qty > a.threshold_qty;
                 """
                 df_excess = execute_query(excess_sql)
                 excess_val = float(df_excess.iloc[0]["excess_working_capital"]) if not df_excess.empty else 0.0
@@ -169,38 +191,74 @@ def _generate_synthetic_fleet() -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def get_latest_inventory_health() -> pd.DataFrame:
     """Retrieves closing inventory health snapshot with supplier metadata."""
     df = pd.DataFrame()
     if is_database_available():
         sql = """
+            DECLARE @MaxDateKey INT = (SELECT MAX(date_key) FROM dbo.fact_inventory_snapshot);
+
+            WITH ranked_sales AS (
+                SELECT 
+                    store_id, 
+                    product_id, 
+                    quantity_sold,
+                    ROW_NUMBER() OVER (PARTITION BY store_id, product_id ORDER BY date_key DESC) AS rn
+                FROM dbo.fact_sales_daily
+                WHERE date_key <= @MaxDateKey
+            ),
+            recent_sales AS (
+                SELECT 
+                    store_id, 
+                    product_id, 
+                    AVG(CAST(quantity_sold AS FLOAT)) AS rolling_30d_avg_daily_sales
+                FROM ranked_sales
+                WHERE rn <= 30
+                GROUP BY store_id, product_id
+            ),
+            stockout_stats AS (
+                SELECT 
+                    store_id,
+                    product_id,
+                    ROUND(AVG(CAST(is_stockout AS FLOAT)) * 100.0, 2) AS stockout_frequency_pct
+                FROM dbo.fact_inventory_snapshot
+                GROUP BY store_id, product_id
+            )
             SELECT 
-                h.store_id,
-                h.store_name,
-                h.product_id,
-                h.product_name,
-                h.category,
-                h.brand,
+                inv.store_id,
+                st.store_name,
+                inv.product_id,
+                p.product_name,
+                p.category,
+                p.brand,
                 p.supplier_id,
                 sup.supplier_name,
                 p.pack_size,
                 sup.min_order_qty,
                 p.unit_cost_price,
                 p.unit_retail_price,
-                h.closing_stock_on_hand,
-                h.ending_inventory_value,
-                h.is_stockout,
-                h.rolling_30d_avg_daily_sales,
-                h.days_of_supply,
-                h.stockout_frequency_pct,
+                inv.ending_on_hand_qty AS closing_stock_on_hand,
+                inv.ending_inventory_value,
+                inv.is_stockout,
+                ROUND(ISNULL(rs.rolling_30d_avg_daily_sales, 0.0), 2) AS rolling_30d_avg_daily_sales,
+                CASE 
+                    WHEN inv.ending_on_hand_qty = 0 THEN 0.0
+                    WHEN rs.rolling_30d_avg_daily_sales IS NULL OR rs.rolling_30d_avg_daily_sales = 0 THEN 999.0
+                    ELSE ROUND(CAST(inv.ending_on_hand_qty AS FLOAT) / rs.rolling_30d_avg_daily_sales, 1)
+                END AS days_of_supply,
+                ISNULL(ss.stockout_frequency_pct, 0.0) AS stockout_frequency_pct,
                 sup.mean_lead_time_days,
                 sup.lead_time_std_dev,
                 sup.service_level_target_pct
-            FROM dbo.vw_inventory_health h
-            INNER JOIN dbo.dim_product p ON h.product_id = p.product_id
+            FROM dbo.fact_inventory_snapshot inv
+            INNER JOIN dbo.dim_store st ON inv.store_id = st.store_id
+            INNER JOIN dbo.dim_product p ON inv.product_id = p.product_id
             INNER JOIN dbo.dim_supplier sup ON p.supplier_id = sup.supplier_id
-            WHERE h.date_key = (SELECT MAX(date_key) FROM dbo.vw_inventory_health)
-            ORDER BY h.is_stockout DESC, h.days_of_supply ASC;
+            LEFT JOIN recent_sales rs ON inv.store_id = rs.store_id AND inv.product_id = rs.product_id
+            LEFT JOIN stockout_stats ss ON inv.store_id = ss.store_id AND inv.product_id = ss.product_id
+            WHERE inv.date_key = @MaxDateKey
+            ORDER BY inv.is_stockout DESC, days_of_supply ASC;
         """
         df = execute_query(sql)
 
@@ -247,6 +305,7 @@ def get_latest_inventory_health() -> pd.DataFrame:
     return df
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def get_sku_demand_history(store_id: str, product_id: str, days: int = 120) -> pd.DataFrame:
     """Retrieves time-series sales, stock on hand, and uncensored demand for a SKU."""
     df = pd.DataFrame()
@@ -352,6 +411,7 @@ def generate_forecast_fan(
     })
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def get_model_benchmark_table() -> pd.DataFrame:
     """Returns comparative walk-forward evaluation metrics table."""
     return pd.DataFrame([
@@ -394,6 +454,7 @@ def get_model_benchmark_table() -> pd.DataFrame:
     ])
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def get_quarantine_feed(limit: int = 50) -> pd.DataFrame:
     """Retrieves recent dead-letter quarantine records."""
     df = pd.DataFrame()
@@ -445,6 +506,7 @@ def get_quarantine_feed(limit: int = 50) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def get_quarantine_stats() -> Dict[str, Any]:
     """Retrieves summary counts of total vs quarantined records."""
     if is_database_available():

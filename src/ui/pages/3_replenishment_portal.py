@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from src.ui.styles import apply_custom_styles, render_header, render_metric_card
-from src.ui.data_access import get_latest_inventory_health
+from src.ui.data_access import get_latest_inventory_health, invalidate_ui_cache
 from src.ui.app import get_db_connection, approve_replenishment_order
 from src.decision.safety_stock import StochasticInventoryController, InventoryStatusResult
 from src.decision.optimizer import ConstrainedReplenishmentOptimizer, ReplenishmentOrderRecommendation
@@ -239,6 +239,7 @@ with col_act1:
     st.markdown("##### 💾 Save Batch (PROPOSED)")
     if st.button("Save Fresh Recommendations Batch", type="secondary", width="stretch"):
         count = persistence.persist_recommendations(recs, run_date_key=active_date_key)
+        invalidate_ui_cache()
         st.toast(f"✅ Persisted {count} recommendations to database!")
         st.success(f"Successfully persisted {count} recommendations to SQL Server table dbo.fact_replenishment_recommendation.")
 
@@ -252,6 +253,7 @@ with col_act2:
                 rec_id = f"REC-{active_date_key}-{r.store_id}-{r.product_id}"
                 persistence.update_recommendation_status(rec_id, "APPROVED")
                 approved_count += 1
+        invalidate_ui_cache()
         st.toast(f"🎉 Approved {approved_count} purchase orders!")
         st.balloons()
         st.success(f"Approved {approved_count} purchase orders in SQL Server database.")
@@ -312,10 +314,12 @@ if rec_options:
         if btn_apply:
             if new_units != chosen_rec.recommended_units:
                 persistence.update_recommendation_status(target_rec_id, "MODIFIED", modified_units=new_units)
+                invalidate_ui_cache()
                 st.toast(f"📝 Modified {chosen_rec.product_id} to {new_units} units")
                 st.success(f"Updated {target_rec_id} to MODIFIED with {new_units} units.")
             else:
                 persistence.update_recommendation_status(target_rec_id, "APPROVED")
+                invalidate_ui_cache()
                 st.toast(f"✅ Approved {chosen_rec.product_id}")
                 st.success(f"Marked {target_rec_id} as APPROVED.")
 

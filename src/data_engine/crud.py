@@ -14,7 +14,7 @@ from sqlalchemy import text
 
 from config.settings import settings
 from config.logging_config import logger
-from src.ui.data_access import get_engine, execute_query
+from src.ui.data_access import get_engine, execute_query, invalidate_ui_cache
 
 
 # ==============================================================================
@@ -99,6 +99,7 @@ def create_product(
                 "shelf": int(shelf_life_days) if shelf_life_days else None,
             })
             logger.info("Created product %s (%s)", product_id, product_name)
+            invalidate_ui_cache()
             return True, f"Successfully created product {product_id} ({product_name})."
     except Exception as exc:
         logger.error("Failed to create product %s: %s", product_id, exc)
@@ -154,6 +155,7 @@ def update_product(
             if res.rowcount == 0:
                 return False, f"Product {product_id} not found."
             logger.info("Updated product %s", product_id)
+            invalidate_ui_cache()
             return True, f"Successfully updated product {product_id}."
     except Exception as exc:
         logger.error("Failed to update product %s: %s", product_id, exc)
@@ -192,6 +194,7 @@ def delete_product(product_id: str, force_cascade: bool = False) -> Tuple[bool, 
                 return False, f"Product '{product_id}' not found."
             
             logger.info("Deleted product %s (cascade=%s)", product_id, force_cascade)
+            invalidate_ui_cache()
             return True, f"Successfully removed product {product_id}."
     except Exception as exc:
         logger.error("Failed to delete product %s: %s", product_id, exc)
@@ -269,6 +272,7 @@ def create_supplier(
                 "csl": round(float(service_level_target_pct), 1),
             })
             logger.info("Created supplier %s (%s)", supplier_id, supplier_name)
+            invalidate_ui_cache()
             return True, f"Successfully created supplier {supplier_id} ({supplier_name})."
     except Exception as exc:
         logger.error("Failed to create supplier %s: %s", supplier_id, exc)
@@ -310,6 +314,7 @@ def update_supplier(
             if res.rowcount == 0:
                 return False, f"Supplier '{supplier_id}' not found."
             logger.info("Updated supplier %s", supplier_id)
+            invalidate_ui_cache()
             return True, f"Successfully updated supplier {supplier_id}."
     except Exception as exc:
         logger.error("Failed to update supplier %s: %s", supplier_id, exc)
@@ -330,6 +335,7 @@ def delete_supplier(supplier_id: str) -> Tuple[bool, str]:
             res = conn.execute(del_sql, {"sid": supplier_id})
             if res.rowcount == 0:
                 return False, f"Supplier '{supplier_id}' not found."
+            invalidate_ui_cache()
             return True, f"Successfully removed supplier {supplier_id}."
     except Exception as exc:
         return False, f"Database error: {exc}"
@@ -414,6 +420,7 @@ def adjust_inventory_stock(
                 })
 
             logger.info("Adjusted stock for %s at %s to %d units (%s)", product_id, store_id, new_on_hand_qty, reason)
+            invalidate_ui_cache()
             return True, f"Successfully adjusted {product_id} at {store_id} to {new_on_hand_qty} units (${new_value:,.2f})."
     except Exception as exc:
         logger.error("Failed to adjust inventory: %s", exc)

@@ -44,4 +44,9 @@ def approve_replenishment_order(recommendation_id: Union[int, str]) -> None:
     cursor.close()
     conn.close()
     logger.info("Successfully approved replenishment order %s via DirectQuery write-back.", recommendation_id)
+    try:
+        from src.ui.data_access import invalidate_ui_cache
+        invalidate_ui_cache()
+    except Exception:
+        pass
 
