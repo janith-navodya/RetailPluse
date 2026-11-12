@@ -61,6 +61,11 @@ with col_sel2:
 with col_sel3:
     history_days = st.selectbox("Historical Lookback Horizon", [30, 60, 90, 120, 180], index=2)
 
+# Fetch historical data
+df_history = get_sku_demand_history(selected_store, selected_sku, days=history_days)
+sku_matches = skus_for_store[skus_for_store["product_id"] == selected_sku]
+sku_info = sku_matches.iloc[0] if not sku_matches.empty else df_health.iloc[0]
+
 # What-If Simulation Controls in an expander
 with st.expander("⚡ Interactive What-If Scenario Simulator (Demand Surge & Lead-Time)", expanded=True):
     sim_col1, sim_col2 = st.columns(2)
@@ -77,10 +82,77 @@ with st.expander("⚡ Interactive What-If Scenario Simulator (Demand Surge & Lea
             help="Simulates sudden changes in market demand or promotional lifts to evaluate quantile uncertainty expansion.",
         )
 
-# Fetch historical data
-df_history = get_sku_demand_history(selected_store, selected_sku, days=history_days)
-sku_matches = skus_for_store[skus_for_store["product_id"] == selected_sku]
-sku_info = sku_matches.iloc[0] if not sku_matches.empty else df_health.iloc[0]
+    # Real-time What-If scenario calculations
+    if not df_history.empty and "uncensored_demand" in df_history.columns:
+        base_daily_demand = float(df_history["uncensored_demand"].tail(28).mean())
+    else:
+        base_daily_demand = float(sku_info.get("rolling_30d_avg_daily_sales", 15.0))
+    base_daily_demand = max(0.1, base_daily_demand)
+
+    shock_multiplier = 1.0 + (demand_surge_pct / 100.0)
+    shocked_daily_demand = max(0.1, base_daily_demand * shock_multiplier)
+    daily_demand_diff = shocked_daily_demand - base_daily_demand
+
+    closing_stock = int(sku_info.get("closing_stock_on_hand", 0))
+    base_days_of_supply = closing_stock / base_daily_demand
+    shocked_days_of_supply = closing_stock / shocked_daily_demand
+    runway_change_days = shocked_days_of_supply - base_days_of_supply
+
+    lead_time_horizon = int(lead_time_forecast)
+    total_lead_time_units = shocked_daily_demand * lead_time_horizon
+    is_stockout_risk = closing_stock < total_lead_time_units
+
+    st.markdown("##### ⚡ Live Scenario Impact Telemetry")
+    sc_c1, sc_c2, sc_c3, sc_c4 = st.columns(4)
+    with sc_c1:
+        render_metric_card(
+            label="Simulated Daily Demand",
+            value=f"{shocked_daily_demand:.1f} / day",
+            delta=f"{demand_surge_pct:+d}% vs base ({base_daily_demand:.1f}/d)" if demand_surge_pct != 0 else "Normal Baseline",
+            delta_type="danger" if demand_surge_pct > 0 else ("positive" if demand_surge_pct < 0 else "warning"),
+        )
+    with sc_c2:
+        render_metric_card(
+            label="Simulated Supply Runway",
+            value=f"{shocked_days_of_supply:.1f} days",
+            delta=f"{runway_change_days:+.1f} days shift" if demand_surge_pct != 0 else f"Base: {base_days_of_supply:.1f}d",
+            delta_type="danger" if runway_change_days < 0 else "positive",
+        )
+    with sc_c3:
+        render_metric_card(
+            label=f"Total {lead_time_horizon}D Lead Demand",
+            value=f"{total_lead_time_units:.0f} units",
+            delta=f"{shocked_daily_demand * lead_time_horizon - base_daily_demand * lead_time_horizon:+.0f} units vs base",
+            delta_type="warning" if demand_surge_pct != 0 else "positive",
+        )
+    with sc_c4:
+        if is_stockout_risk:
+            render_metric_card(
+                label="Stockout Exposure",
+                value="🚨 STOCKOUT EXPOSURE",
+                delta=f"Exhausts in {shocked_days_of_supply:.1f}d (< {lead_time_horizon}d lead time!)",
+                delta_type="danger",
+            )
+        else:
+            render_metric_card(
+                label="Stockout Exposure",
+                value="✅ RUNWAY ADEQUATE",
+                delta=f"Stock covers {lead_time_horizon}d lead time",
+                delta_type="positive",
+            )
+
+    # Scenario Action Bar
+    btn_c1, btn_c2 = st.columns([3, 1])
+    with btn_c1:
+        if demand_surge_pct != 0:
+            st.caption(f"⚡ Scenario active: **{demand_surge_pct:+d}%** demand surge across **{lead_time_forecast} days** horizon.")
+        else:
+            st.caption("ℹ️ Baseline normal operations (0% surge). Adjust the slider to stress-test your supply runway.")
+    with btn_c2:
+        if st.button("🚀 Push to PO Optimizer", type="primary", width="stretch"):
+            st.session_state["scenario_shock_pct"] = demand_surge_pct
+            st.session_state["scenario_sku"] = selected_sku
+            st.toast(f"✅ Applied {demand_surge_pct:+d}% shock to Replenishment Portal for {selected_sku}!")
 
 # Metrics row for selected SKU
 m1, m2, m3, m4 = st.columns(4)
@@ -92,11 +164,19 @@ with m1:
         delta_type="danger" if sku_info['inventory_status'] == "STOCKOUT_RISK" else "positive",
     )
 with m2:
-    render_metric_card(
-        label="30D Avg Daily Sales",
-        value=f"{sku_info['rolling_30d_avg_daily_sales']:.1f} / day",
-        delta=f"Days of Supply: {sku_info['days_of_supply']:.1f}d",
-    )
+    if demand_surge_pct != 0:
+        render_metric_card(
+            label="Simulated Daily Demand",
+            value=f"{shocked_daily_demand:.1f} / day",
+            delta=f"Surge: {demand_surge_pct:+d}% (Base: {base_daily_demand:.1f})",
+            delta_type="danger" if demand_surge_pct > 0 else "positive",
+        )
+    else:
+        render_metric_card(
+            label="30D Avg Daily Sales",
+            value=f"{base_daily_demand:.1f} / day",
+            delta=f"Days of Supply: {base_days_of_supply:.1f}d",
+        )
 with m3:
     render_metric_card(
         label="Supplier SLA & Lead Time",
@@ -114,13 +194,127 @@ with m4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Main Tabbed Analysis
-tab_vis, tab_eval = st.tabs([
-    "📈 Demand History & Quantile Fan Projections",
+# Main Tabbed Analysis (Future Forecast First)
+tab_vis, tab_hist, tab_eval = st.tabs([
+    "🔮 Future Quantile Projections & What-If Simulation",
+    "📜 Historical Sales & Latent Demand Reconstruction",
     "🔬 Model Architecture & Evaluation Benchmarks",
 ])
 
 with tab_vis:
+    st.markdown("##### Lead-Time Demand Uncertainty Fan Chart (P10 - P50 - P90)")
+    if demand_surge_pct != 0:
+        st.info(
+            f"⚡ **What-If Scenario Active:** Projected under **{demand_surge_pct:+d}%** simulated demand surge "
+            f"over a **{lead_time_forecast}-day** lead-time horizon. "
+            f"Daily demand shifted from **{base_daily_demand:.1f}** to **{shocked_daily_demand:.1f} units/day**."
+        )
+    else:
+        st.caption(
+            f"Quantile regression projections over a **{lead_time_forecast}-day** horizon under normal operating baseline. "
+            "P10 serves as conservative lower bound, P50 as median operational baseline, and P90 as risk-hedging safety buffer."
+        )
+
+    # Compute baseline fan (0% shock) and active shocked fan
+    df_fan_base = generate_forecast_fan(
+        df_history,
+        lead_time_days=lead_time_forecast,
+        demand_shock_pct=0.0,
+    )
+    df_fan = generate_forecast_fan(
+        df_history,
+        lead_time_days=lead_time_forecast,
+        demand_shock_pct=demand_surge_pct,
+    )
+
+    if not df_fan.empty:
+        fig_fan = go.Figure()
+
+        # If shocked, show the unshocked baseline as a dotted reference line
+        if demand_surge_pct != 0 and not df_fan_base.empty:
+            fig_fan.add_trace(go.Scatter(
+                x=df_fan_base["forecast_date"],
+                y=df_fan_base["p50_median"],
+                mode="lines",
+                name="Unshocked Baseline (0% Surge)",
+                line=dict(color="#94A3B8", width=2.5, dash="dash"),
+            ))
+
+        # P90 upper bound
+        fig_fan.add_trace(go.Scatter(
+            x=df_fan["forecast_date"],
+            y=df_fan["p90_risk_mitigating"],
+            mode="lines",
+            name="P90 Risk-Hedging Bound",
+            line=dict(width=0),
+            showlegend=False,
+        ))
+
+        # P10 lower bound with fill to P90
+        fig_fan.add_trace(go.Scatter(
+            x=df_fan["forecast_date"],
+            y=df_fan["p10_conservative"],
+            mode="lines",
+            name="80% Confidence Interval (P10 - P90)",
+            fill="tonexty",
+            fillcolor="rgba(0, 210, 106, 0.18)",
+            line=dict(width=0),
+        ))
+
+        # P50 median
+        p50_label = f"P50 Median Forecast ({demand_surge_pct:+d}%)" if demand_surge_pct != 0 else "P50 Median Forecast"
+        fig_fan.add_trace(go.Scatter(
+            x=df_fan["forecast_date"],
+            y=df_fan["p50_median"],
+            mode="lines+markers",
+            name=p50_label,
+            line=dict(color="#38BDF8", width=3),
+            marker=dict(size=6, color="#38BDF8"),
+        ))
+
+        fig_fan.update_layout(
+            xaxis_title="Forecast Date Horizon",
+            yaxis_title="Projected Daily Demand (Units)",
+            yaxis=dict(rangemode="tozero"),
+            hovermode="x unified",
+        )
+        chart_title = (
+            f"Quantile Projection Fan Chart &mdash; {selected_sku} ({demand_surge_pct:+d}% Surge Active)"
+            if demand_surge_pct != 0
+            else f"Quantile Projection Fan Chart &mdash; {selected_sku} (Baseline)"
+        )
+        apply_plotly_dark_theme(fig_fan, title=chart_title, height=380)
+        st.plotly_chart(fig_fan, width="stretch")
+
+        # Quantile Summary Metrics & Export
+        q_col1, q_col2, q_col3, q_col4 = st.columns(4)
+        total_p50 = df_fan["p50_median"].sum()
+        total_p90 = df_fan["p90_risk_mitigating"].sum()
+        total_base_p50 = df_fan_base["p50_median"].sum() if not df_fan_base.empty else total_p50
+        safety_gap = total_p90 - total_p50
+        shock_extra_units = total_p50 - total_base_p50
+
+        with q_col1:
+            st.metric(
+                "Expected Lead-Time Demand (P50)",
+                f"{total_p50:.1f} units",
+                delta=f"{shock_extra_units:+.1f} units vs baseline" if demand_surge_pct != 0 else None,
+            )
+        with q_col2:
+            st.metric("Risk-Hedging Demand (P90)", f"{total_p90:.1f} units")
+        with q_col3:
+            st.metric("Safety Buffer Required", f"+{safety_gap:.1f} units")
+        with q_col4:
+            csv_forecast = df_fan.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Export Quantile Projections (CSV)",
+                data=csv_forecast,
+                file_name=f"Quantile_Forecast_{selected_sku}_{lead_time_forecast}D.csv",
+                mime="text/csv",
+                width="stretch",
+            )
+
+with tab_hist:
     # Chart 1: Raw Sales vs Uncensored Latent Demand Overlay
     st.markdown("##### Historical Observed Sales vs Uncensored Latent Demand")
     st.caption(
@@ -170,84 +364,6 @@ with tab_vis:
         st.plotly_chart(fig_hist, width="stretch")
     else:
         st.info("No historical sales records found for this SKU.")
-
-    # Chart 2: Quantile Forecast Uncertainty Fan Chart
-    st.markdown("##### Lead-Time Demand Uncertainty Fan Chart (P10 - P50 - P90)")
-    st.caption(
-        f"Quantile regression projections over a **{lead_time_forecast}-day** horizon under "
-        f"**{demand_surge_pct:+d}%** simulated demand surge. "
-        "P10 serves as conservative lower bound, P50 as median operational baseline, and P90 as risk-hedging safety buffer."
-    )
-
-    df_fan = generate_forecast_fan(
-        df_history,
-        lead_time_days=lead_time_forecast,
-        demand_shock_pct=demand_surge_pct,
-    )
-
-    if not df_fan.empty:
-        fig_fan = go.Figure()
-
-        # P90 upper bound
-        fig_fan.add_trace(go.Scatter(
-            x=df_fan["forecast_date"],
-            y=df_fan["p90_risk_mitigating"],
-            mode="lines",
-            name="P90 Risk-Hedging Bound",
-            line=dict(width=0),
-            showlegend=False,
-        ))
-
-        # P10 lower bound with fill to P90
-        fig_fan.add_trace(go.Scatter(
-            x=df_fan["forecast_date"],
-            y=df_fan["p10_conservative"],
-            mode="lines",
-            name="80% Confidence Interval (P10 - P90)",
-            fill="tonexty",
-            fillcolor="rgba(0, 210, 106, 0.18)",
-            line=dict(width=0),
-        ))
-
-        # P50 median
-        fig_fan.add_trace(go.Scatter(
-            x=df_fan["forecast_date"],
-            y=df_fan["p50_median"],
-            mode="lines+markers",
-            name="P50 Median Forecast",
-            line=dict(color="#38BDF8", width=3),
-            marker=dict(size=6, color="#38BDF8"),
-        ))
-
-        fig_fan.update_layout(
-            xaxis_title="Forecast Date Horizon",
-            yaxis_title="Projected Daily Demand (Units)",
-            hovermode="x unified",
-        )
-        apply_plotly_dark_theme(fig_fan, title=f"Quantile Projection Fan Chart ({selected_sku})", height=360)
-        st.plotly_chart(fig_fan, width="stretch")
-
-        # Quantile Summary Metrics & Export
-        q_col1, q_col2, q_col3 = st.columns([1, 1, 1])
-        total_p50 = df_fan["p50_median"].sum()
-        total_p90 = df_fan["p90_risk_mitigating"].sum()
-        safety_gap = total_p90 - total_p50
-
-        with q_col1:
-            st.metric("Expected Lead-Time Demand (P50)", f"{total_p50:.1f} units")
-        with q_col2:
-            st.metric("Risk-Hedging Demand (P90)", f"{total_p90:.1f} units")
-        with q_col3:
-            st.metric("Recommended Safety Buffer", f"+{safety_gap:.1f} units")
-
-        # Forecast CSV Download Button
-        csv_forecast = df_fan.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label="📥 Download Daily Quantile Projections (CSV)",
-            data=csv_forecast,
-            file_name=f"Quantile_Forecast_{selected_sku}_{lead_time_forecast}D.csv",
-            mime="text/csv",
-        )
 
 with tab_eval:
     st.markdown("##### Walk-Forward Model Evaluation Suite")

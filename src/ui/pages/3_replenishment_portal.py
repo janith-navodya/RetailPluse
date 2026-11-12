@@ -31,6 +31,22 @@ if df_health.empty:
     st.error("No inventory data found in database.")
     st.stop()
 
+# Active Scenario Banner if pushed from Forecast Visualizer
+active_shock_pct = st.session_state.get("scenario_shock_pct", 0)
+active_shock_sku = st.session_state.get("scenario_sku", "")
+if active_shock_pct != 0:
+    sc_c1, sc_c2 = st.columns([4, 1])
+    with sc_c1:
+        st.info(
+            f"⚡ **Active What-If Scenario Applied from Forecaster:** Product **{active_shock_sku}** demand is surged by **{active_shock_pct:+d}%**. "
+            "Replenishment recommendations have been re-optimized accordingly."
+        )
+    with sc_c2:
+        if st.button("❌ Clear Surge", width="stretch"):
+            st.session_state["scenario_shock_pct"] = 0
+            st.session_state["scenario_sku"] = ""
+            st.rerun()
+
 # Sidebar Optimization Controls
 st.sidebar.markdown("### ⚙️ Optimization Parameters")
 store_options = sorted(df_health["store_id"].unique().tolist())
@@ -72,6 +88,8 @@ candidates = []
 
 for _, r in store_skus.iterrows():
     mu_d = float(r["rolling_30d_avg_daily_sales"]) if pd.notna(r["rolling_30d_avg_daily_sales"]) else 5.0
+    if active_shock_pct != 0 and (str(r["product_id"]) == active_shock_sku or active_shock_sku == ""):
+        mu_d = max(0.1, mu_d * (1.0 + (active_shock_pct / 100.0)))
     sig_d = max(1.0, mu_d * 0.35)
     cand = controller.calculate_sku_inventory_status(
         store_id=str(r["store_id"]),
@@ -93,8 +111,9 @@ for _, r in store_skus.iterrows():
     )
     candidates.append(cand)
 
-# Session state management for recommendations
-if "current_recommendations" not in st.session_state or run_button:
+# Session state management with automatic re-solve on parameter change
+param_sig = f"{selected_store}_{budget_input}_{service_level_input}_{apply_storage_cap}_{max_storage_val}_{active_shock_pct}_{active_shock_sku}"
+if ("current_recommendations" not in st.session_state) or run_button or (st.session_state.get("last_opt_sig") != param_sig):
     with st.spinner("Solving multi-item integer linear programming model..."):
         optimizer = ConstrainedReplenishmentOptimizer()
         recs, summary = optimizer.optimize_orders(
@@ -105,6 +124,7 @@ if "current_recommendations" not in st.session_state or run_button:
         st.session_state["current_recommendations"] = recs
         st.session_state["optimization_summary"] = summary
         st.session_state["active_date_key"] = 20251231
+        st.session_state["last_opt_sig"] = param_sig
 
 recs = st.session_state.get("current_recommendations", [])
 summary = st.session_state.get("optimization_summary", {})
@@ -347,6 +367,14 @@ try:
 
     if pending_df.empty:
         st.success("All purchase recommendations have been processed.")
+        if st.button("🔄 Generate Fresh Demo Proposals Queue", type="secondary"):
+            fresh_recs = [r for r in recs if r.recommended_units > 0][:5]
+            if not fresh_recs:
+                fresh_recs = recs[:5]
+            persistence.persist_recommendations(fresh_recs, run_date_key=active_date_key)
+            invalidate_ui_cache()
+            st.toast("✅ Generated 5 fresh demo purchase proposals in PROPOSED status!")
+            st.rerun()
     else:
         for idx, row in pending_df.iterrows():
             col1, col2, col3, col4 = st.columns([3, 2, 2, 2])
@@ -357,6 +385,15 @@ try:
                 approve_replenishment_order(row['recommendation_id'])
                 st.toast(f"PO #{row['recommendation_id']} approved successfully!")
                 st.rerun()
+
+        if st.button("🔄 Add More Demo Proposals to Queue", type="secondary"):
+            fresh_recs = [r for r in recs if r.recommended_units > 0][:5]
+            if not fresh_recs:
+                fresh_recs = recs[:5]
+            persistence.persist_recommendations(fresh_recs, run_date_key=active_date_key)
+            invalidate_ui_cache()
+            st.toast("✅ Generated additional demo purchase proposals in PROPOSED status!")
+            st.rerun()
 except Exception as exc:
     st.warning(f"Could not load live pending recommendations queue from SQL Server: {exc}")
 
