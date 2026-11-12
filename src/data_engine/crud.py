@@ -43,6 +43,30 @@ def get_all_products() -> pd.DataFrame:
     return execute_query(sql)
 
 
+def get_all_stores() -> pd.DataFrame:
+    """Retrieves all active retail stores from dim_store."""
+    sql = """
+        SELECT 
+            store_id,
+            store_name,
+            store_format,
+            city,
+            state,
+            square_footage,
+            storage_capacity_units
+        FROM dbo.dim_store
+        ORDER BY store_id;
+    """
+    df = execute_query(sql)
+    if df.empty:
+        return pd.DataFrame([
+            {"store_id": "STR01", "store_name": "Downtown Metro Flagship", "store_format": "Flagship Urban", "city": "Metropolis", "state": "NY"},
+            {"store_id": "STR02", "store_name": "Suburban Mega Center", "store_format": "Suburban Superstore", "city": "Highland", "state": "NJ"},
+            {"store_id": "STR03", "store_name": "Westside QuickMart", "store_format": "Express", "city": "Riverdale", "state": "NY"},
+        ])
+    return df
+
+
 def create_product(
     product_id: str,
     product_name: str,
@@ -80,10 +104,10 @@ def create_product(
             insert_sql = text("""
                 INSERT INTO dbo.dim_product (
                     product_id, product_name, category, sub_category, brand,
-                    supplier_id, unit_cost_price, unit_retail_price, pack_size, shelf_life_days
+                    supplier_id, unit_cost_price, unit_retail_price, pack_size, shelf_life_days, name
                 ) VALUES (
                     :pid, :pname, :cat, :subcat, :brand,
-                    :supid, :cost, :retail, :pack, :shelf
+                    :supid, :cost, :retail, :pack, :shelf, :pname
                 );
             """)
             conn.execute(insert_sql, {
@@ -98,6 +122,27 @@ def create_product(
                 "pack": int(pack_size),
                 "shelf": int(shelf_life_days) if shelf_life_days else None,
             })
+
+            # Seed initial zero-stock snapshot records across all stores for immediate operational availability
+            init_inv_sql = text("""
+                DECLARE @MaxD INT = (SELECT MAX(date_key) FROM dbo.fact_inventory_snapshot);
+                IF @MaxD IS NOT NULL
+                BEGIN
+                    INSERT INTO dbo.fact_inventory_snapshot (
+                        date_key, store_id, product_id, beginning_on_hand_qty, received_qty, sold_qty,
+                        ending_on_hand_qty, ending_inventory_value, is_stockout, batch_id, ingested_at
+                    )
+                    SELECT 
+                        @MaxD, s.store_id, :pid, 0, 0, 0, 0, 0.0, 1, 'INIT-NEW', GETUTCDATE()
+                    FROM dbo.dim_store s
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM dbo.fact_inventory_snapshot inv 
+                        WHERE inv.date_key = @MaxD AND inv.store_id = s.store_id AND inv.product_id = :pid
+                    );
+                END
+            """)
+            conn.execute(init_inv_sql, {"pid": product_id})
+
             logger.info("Created product %s (%s)", product_id, product_name)
             invalidate_ui_cache()
             return True, f"Successfully created product {product_id} ({product_name})."
@@ -130,6 +175,7 @@ def update_product(
             update_sql = text("""
                 UPDATE dbo.dim_product
                 SET product_name = :pname,
+                    name = :pname,
                     category = :cat,
                     sub_category = :subcat,
                     brand = :brand,

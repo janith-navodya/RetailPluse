@@ -1,6 +1,7 @@
 """Page: Enterprise Data Hub & Master File Operations (Input, Edit, Delete, Bulk Upload)."""
 from __future__ import annotations
 
+import io
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import pandas as pd
 from src.ui.styles import apply_custom_styles, render_header, render_metric_card
 from src.data_engine.crud import (
     get_all_products,
+    get_all_stores,
     create_product,
     update_product,
     delete_product,
@@ -121,27 +123,68 @@ with tab_products:
         with col_act2:
             with st.expander("🗑️ **Delete / Archive Product**", expanded=False):
                 st.caption("Safely remove obsolete SKUs from the master catalog.")
-                del_pid = st.selectbox("Select Product to Delete", options=df_prods["product_id"].tolist(), format_func=lambda x: f"{x} - {df_prods.loc[df_prods['product_id']==x, 'product_name'].iloc[0]}")
-                force_del = st.checkbox("Cascade Delete (removes linked historical records)", value=False)
-                if st.button("🚨 Confirm Product Deletion", type="secondary", width='stretch'):
-                    ok, msg = delete_product(del_pid, force_cascade=force_del)
-                    if ok:
-                        st.toast(f"🗑️ {msg}")
-                        st.success(msg)
-                        st.rerun()
-                    else:
-                        st.error(msg)
+                del_cat_filter = st.selectbox(
+                    "Filter by Category (Optional)",
+                    options=["All Categories"] + sorted(df_prods["category"].dropna().unique().tolist()),
+                    key="del_cat_filter_opt",
+                )
+                df_del_pool = df_prods if del_cat_filter == "All Categories" else df_prods[df_prods["category"] == del_cat_filter]
+                if df_del_pool.empty:
+                    st.info("No products match the selected category.")
+                else:
+                    del_pid = st.selectbox(
+                        "Select Product to Delete",
+                        options=df_del_pool["product_id"].tolist(),
+                        format_func=lambda x: f"{x} — {df_del_pool.loc[df_del_pool['product_id']==x, 'product_name'].iloc[0]}",
+                        key="del_pid_select",
+                    )
+                    force_del = st.checkbox("Cascade Delete (removes linked historical records)", value=False)
+                    if st.button("🚨 Confirm Product Deletion", type="secondary", width='stretch'):
+                        ok, msg = delete_product(del_pid, force_cascade=force_del)
+                        if ok:
+                            st.toast(f"🗑️ {msg}")
+                            st.success(msg)
+                            st.rerun()
+                        else:
+                            st.error(msg)
 
         # Interactive Data Editor (Edit)
         st.markdown("#### ✏️ Interactive Catalog Editor (Double-Click Any Cell to Edit)")
         st.caption("Modify product details directly in the grid. Click 'Save Inline Edits' below to persist changes to SQL Server.")
 
+        # Search and Category Filter Toolbar
+        f_c1, f_c2 = st.columns([2, 1])
+        with f_c1:
+            prod_search = st.text_input(
+                "🔍 Search Products (SKU, Name, or Brand)",
+                placeholder="e.g. PRD60, Pen, Dairy, Produce...",
+                key="prod_catalog_search",
+            )
+        with f_c2:
+            cat_list = ["All Categories"] + sorted(df_prods["category"].dropna().unique().tolist())
+            prod_cat_filter = st.selectbox("Filter Catalog by Category", options=cat_list, key="prod_catalog_cat")
+
+        view_prods = df_prods.copy()
+        if prod_cat_filter != "All Categories":
+            view_prods = view_prods[view_prods["category"] == prod_cat_filter]
+        if prod_search.strip():
+            s = prod_search.strip().lower()
+            view_prods = view_prods[
+                view_prods["product_id"].astype(str).str.lower().str.contains(s)
+                | view_prods["product_name"].astype(str).str.lower().str.contains(s)
+                | view_prods["brand"].astype(str).str.lower().str.contains(s)
+            ]
+
+        st.caption(f"Displaying **{len(view_prods)}** of **{len(df_prods)}** catalog items.")
+
         edited_df = st.data_editor(
-            df_prods,
+            view_prods,
             column_config={
                 "product_id": st.column_config.TextColumn("SKU ID", disabled=True),
                 "product_name": st.column_config.TextColumn("Product Name", required=True),
                 "category": st.column_config.TextColumn("Category"),
+                "sub_category": st.column_config.TextColumn("Sub-Category"),
+                "brand": st.column_config.TextColumn("Brand"),
                 "supplier_id": st.column_config.TextColumn("Supplier ID"),
                 "unit_cost_price": st.column_config.NumberColumn("Cost Price ($)", format="$%.2f", min_value=0.01),
                 "unit_retail_price": st.column_config.NumberColumn("Retail Price ($)", format="$%.2f", min_value=0.01),
@@ -256,70 +299,255 @@ with tab_suppliers:
 with tab_stock:
     st.markdown("### 📦 Live Inventory Stock Adjustments")
     st.caption(
-        "Execute physical count adjustments, write-offs, or audit reconciliations. "
+        "Execute physical count adjustments, initial stock loads, or audit reconciliations. "
         "Immediately updates `fact_inventory_snapshot` and recalculates inventory valuation in SQL Server."
     )
 
+    df_all_prods = get_all_products()
+    df_stores = get_all_stores()
     df_inv = get_latest_inventory_health()
-    if df_inv.empty:
-        st.warning("No active inventory records found.")
+
+    if df_all_prods.empty:
+        st.warning("No products found in the catalog. Please add products in the Products Manager tab first.")
     else:
-        adj_col1, adj_col2 = st.columns([1, 1])
+        # 1. Location & SKU Filtering Bar
+        f_loc1, f_loc2, f_loc3 = st.columns([1.2, 1, 1.5])
+
+        with f_loc1:
+            store_opts = df_stores["store_id"].tolist() if not df_stores.empty else ["STR01", "STR02", "STR03"]
+            store_labels = {
+                r["store_id"]: f"{r['store_id']} — {r['store_name']}"
+                for _, r in df_stores.iterrows()
+            } if not df_stores.empty else {}
+            adj_store = st.selectbox(
+                "🏢 Store Location",
+                options=store_opts,
+                format_func=lambda s: store_labels.get(s, s),
+                key="adj_store_select",
+            )
+
+        with f_loc2:
+            cat_opts = ["All Categories"] + sorted(df_all_prods["category"].dropna().unique().tolist())
+            adj_cat = st.selectbox("📂 Filter Category", options=cat_opts, key="adj_cat_filter")
+
+        with f_loc3:
+            adj_search = st.text_input(
+                "🔍 Quick Search SKU / Name",
+                placeholder="e.g. PRD60, Pen, Produce, Milk...",
+                key="adj_search_box",
+            )
+
+        # Filter products list based on category & search text
+        eligible_prods = df_all_prods.copy()
+        if adj_cat != "All Categories":
+            eligible_prods = eligible_prods[eligible_prods["category"] == adj_cat]
+        if adj_search.strip():
+            s_q = adj_search.strip().lower()
+            eligible_prods = eligible_prods[
+                eligible_prods["product_id"].astype(str).str.lower().str.contains(s_q)
+                | eligible_prods["product_name"].astype(str).str.lower().str.contains(s_q)
+                | eligible_prods["brand"].astype(str).str.lower().str.contains(s_q)
+            ]
+
+        if eligible_prods.empty:
+            st.info(f"No products found matching '{adj_search}'. Showing all available catalog products.")
+            eligible_prods = df_all_prods.copy()
+
+        # Map current store stock levels from inventory health snapshot
+        store_snapshots = df_inv[df_inv["store_id"] == adj_store] if not df_inv.empty else pd.DataFrame()
+        stock_lookup = {}
+        dos_lookup = {}
+        vel_lookup = {}
+        if not store_snapshots.empty:
+            for _, r in store_snapshots.iterrows():
+                stock_lookup[str(r["product_id"])] = int(r["closing_stock_on_hand"])
+                dos_lookup[str(r["product_id"])] = float(r["days_of_supply"])
+                vel_lookup[str(r["product_id"])] = float(r["rolling_30d_avg_daily_sales"])
+
+        # Format product choices with instant on-hand stock visibility
+        def format_product_option(pid: str) -> str:
+            p_name = eligible_prods.loc[eligible_prods["product_id"] == pid, "product_name"].iloc[0]
+            qty = stock_lookup.get(pid, 0)
+            tag = "🔴 OUT OF STOCK (0 units)" if qty == 0 else f"✅ {qty:,} units on hand"
+            return f"{pid} — {p_name} [{tag}]"
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        adj_col1, adj_col2 = st.columns([1.1, 1])
 
         with adj_col1:
-            st.markdown("##### 🔍 Select SKU & Location")
-            store_opts = sorted(df_inv["store_id"].unique().tolist())
-            adj_store = st.selectbox("Store Location", options=store_opts, key="adj_store_select")
+            st.markdown("##### 📦 Select Target Product")
+            adj_prod = st.selectbox(
+                f"Choose from {len(eligible_prods)} Filtered Products",
+                options=eligible_prods["product_id"].tolist(),
+                format_func=format_product_option,
+                key="adj_prod_select",
+            )
 
-            store_items = df_inv[df_inv["store_id"] == adj_store]
-            prod_map = {
-                r["product_id"]: f"{r['product_id']} — {r['product_name']} (Current: {r['closing_stock_on_hand']:,} units)"
-                for _, r in store_items.iterrows()
-            }
-            adj_prod = st.selectbox("Select Product to Adjust", options=list(prod_map.keys()), format_func=lambda x: prod_map[x], key="adj_prod_select")
+            # Metadata details for selected product
+            sel_row = eligible_prods[eligible_prods["product_id"] == adj_prod].iloc[0]
+            curr_stock = stock_lookup.get(adj_prod, 0)
+            cost_val = float(sel_row["unit_cost_price"])
+            retail_val = float(sel_row["unit_retail_price"])
+            curr_val = curr_stock * cost_val
+            curr_dos = dos_lookup.get(adj_prod, 0.0)
+            curr_vel = vel_lookup.get(adj_prod, 0.0)
 
-            current_row = store_items[store_items["product_id"] == adj_prod].iloc[0]
-            curr_stock = int(current_row["closing_stock_on_hand"])
-            cost_val = float(current_row["unit_cost_price"])
+            # Informative Product Card
+            st.markdown(
+                f"""
+                <div style="background-color: #0F172A; border: 1px solid #1E293B; border-radius: 8px; padding: 14px 18px; margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <span style="font-weight: 700; font-size: 1.15rem; color: #F8FAFC;">{sel_row['product_id']}: {sel_row['product_name']}</span>
+                        <span style="font-size: 0.8rem; background: {'#EF4444' if curr_stock == 0 else '#10B981'}; color: #FFFFFF; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+                            {'OUT OF STOCK' if curr_stock == 0 else f'{curr_stock:,} UNITS'}
+                        </span>
+                    </div>
+                    <div style="color: #94A3B8; font-size: 0.85rem; margin-top: 4px;">
+                        Category: <strong style="color: #E2E8F0;">{sel_row['category']}</strong> | 
+                        Brand: <strong style="color: #E2E8F0;">{sel_row['brand']}</strong> | 
+                        Pack Size: <strong style="color: #E2E8F0;">{sel_row['pack_size']} units</strong>
+                    </div>
+                    <div style="border-top: 1px solid #1E293B; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span>Unit Cost: <strong style="color: #38BDF8;">${cost_val:.2f}</strong></span>
+                        <span>Unit Retail: <strong style="color: #38BDF8;">${retail_val:.2f}</strong></span>
+                        <span>Current Value: <strong style="color: #F8FAFC;">${curr_val:,.2f}</strong></span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         with adj_col2:
             st.markdown("##### ✏️ Adjustment Parameters")
             new_stock = st.number_input(
-                "New Physical Stock Count (Units)",
+                "New Verified Physical Stock Count (Units)*",
                 min_value=0,
-                max_value=50000,
+                max_value=100000,
                 value=curr_stock,
                 step=1,
+                key="adj_new_stock_input",
+                help="Enter physical audit count or initial receiving volume.",
             )
+
             adj_reason = st.selectbox(
-                "Reason for Adjustment",
+                "Reason for Stock Adjustment*",
                 options=[
                     "Physical Audit Discrepancy",
+                    "Initial Stock Load (New Product)",
                     "Damaged / Expired Stock Write-off",
                     "Received Unrecorded Delivery",
                     "Customer Return to Stock",
                     "Theft / Shrinkage Correction",
+                    "Warehouse Transfer Correction",
                 ],
+                key="adj_reason_select",
             )
 
             delta_units = new_stock - curr_stock
             delta_val = delta_units * cost_val
+            new_total_val = new_stock * cost_val
 
-            st.write(f"**Stock Change:** `{delta_units:+d} units` | **Valuation Impact:** `${delta_val:+,.2f}`")
+            st.markdown(
+                f"""
+                <div style="background: #1E293B; border-radius: 6px; padding: 12px 14px; margin: 12px 0;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 0.9rem; color: #94A3B8;">Physical Stock Delta:</span>
+                        <strong style="color: {'#10B981' if delta_units > 0 else ('#EF4444' if delta_units < 0 else '#94A3B8')};">
+                            {delta_units:+d} units ({'+' if delta_val > 0 else ''}${delta_val:,.2f})
+                        </strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                        <span style="font-size: 0.9rem; color: #94A3B8;">New Total Inventory Value:</span>
+                        <strong style="color: #38BDF8;">${new_total_val:,.2f}</strong>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-            if st.button("🚀 Apply Stock Adjustment to Database", type="primary", width='stretch'):
-                ok, msg = adjust_inventory_stock(
-                    store_id=adj_store,
-                    product_id=adj_prod,
-                    new_on_hand_qty=new_stock,
-                    reason=adj_reason,
-                )
-                if ok:
-                    st.toast(f"✅ {msg}")
-                    st.success(msg)
-                    st.rerun()
+            if st.button("🚀 Apply Stock Adjustment to Database", type="primary", width='stretch', key="btn_apply_stock_adj"):
+                if delta_units == 0 and curr_stock > 0:
+                    st.info("Stock quantity is unchanged. No adjustments were written.")
                 else:
-                    st.error(msg)
+                    with st.spinner("Persisting physical adjustment to SQL Server snapshot..."):
+                        ok, msg = adjust_inventory_stock(
+                            store_id=adj_store,
+                            product_id=adj_prod,
+                            new_on_hand_qty=new_stock,
+                            reason=adj_reason,
+                        )
+                        if ok:
+                            st.toast(f"✅ {msg}")
+                            st.success(msg)
+                            st.rerun()
+                        else:
+                            st.error(msg)
+
+        # 3. Live Store Inventory Position Ledger
+        st.markdown("---")
+        st.markdown(f"#### 📋 Current Inventory Position Ledger — Store `{adj_store}`")
+        st.caption("Real-time on-hand inventory levels and stockout status across all catalog items for the selected store.")
+
+        ledger_records = []
+        for _, p in df_all_prods.iterrows():
+            pid_str = str(p["product_id"])
+            on_hand = stock_lookup.get(pid_str, 0)
+            u_cost = float(p["unit_cost_price"])
+            inv_val = on_hand * u_cost
+            dos = dos_lookup.get(pid_str, 0.0)
+            vel = vel_lookup.get(pid_str, 0.0)
+            
+            if on_hand == 0:
+                pos_status = "🔴 STOCKOUT"
+            elif dos < 7 and vel > 0:
+                pos_status = "🟡 LOW STOCK"
+            else:
+                pos_status = "🟢 HEALTHY"
+
+            ledger_records.append({
+                "SKU ID": pid_str,
+                "Product Name": p["product_name"],
+                "Category": p["category"],
+                "Brand": p["brand"],
+                "Stock On-Hand": on_hand,
+                "Unit Cost": u_cost,
+                "Inventory Value": inv_val,
+                "Days of Supply": dos if on_hand > 0 else 0.0,
+                "Status": pos_status,
+            })
+
+        df_ledger = pd.DataFrame(ledger_records)
+
+        col_l1, col_l2 = st.columns([2, 1])
+        with col_l1:
+            ledger_search = st.text_input("🔍 Filter Ledger by SKU, Name, or Brand", placeholder="Type to filter...", key="ledger_filter_query")
+        with col_l2:
+            ledger_stat_filter = st.selectbox("Status Filter", options=["All Positions", "🔴 STOCKOUT", "🟡 LOW STOCK", "🟢 HEALTHY"], key="ledger_status_select")
+
+        view_ledger = df_ledger.copy()
+        if ledger_stat_filter != "All Positions":
+            view_ledger = view_ledger[view_ledger["Status"] == ledger_stat_filter]
+        if ledger_search.strip():
+            l_term = ledger_search.strip().lower()
+            view_ledger = view_ledger[
+                view_ledger["SKU ID"].str.lower().str.contains(l_term)
+                | view_ledger["Product Name"].str.lower().str.contains(l_term)
+                | view_ledger["Category"].str.lower().str.contains(l_term)
+                | view_ledger["Brand"].str.lower().str.contains(l_term)
+            ]
+
+        st.caption(f"Showing **{len(view_ledger)}** of **{len(df_ledger)}** inventory records.")
+        st.dataframe(
+            view_ledger.style.format({
+                "Stock On-Hand": "{:,}",
+                "Unit Cost": "${:.2f}",
+                "Inventory Value": "${:,.2f}",
+                "Days of Supply": "{:.1f} days",
+            }),
+            width='stretch',
+            height=300,
+            hide_index=True,
+        )
 
 # ==============================================================================
 # TAB 4: Bulk CSV / Excel File Importer
