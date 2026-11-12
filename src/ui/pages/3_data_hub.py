@@ -3,12 +3,21 @@ from __future__ import annotations
 
 import io
 import sys
+import importlib
 from pathlib import Path
 
 # Ensure project root is in sys.path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
+
+# Ensure in-memory modules are kept in sync with disk for hot-reloading Streamlit sessions
+for _mod in ("src.data_engine.crud", "src.ui.data_access"):
+    if _mod in sys.modules:
+        try:
+            importlib.reload(sys.modules[_mod])
+        except Exception:
+            pass
 
 import streamlit as st
 import pandas as pd

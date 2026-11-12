@@ -11,6 +11,14 @@ ROOT_DIR = Path(__file__).resolve().parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+import importlib
+for _mod in ("src.data_engine.crud", "src.ui.data_access"):
+    if _mod in sys.modules:
+        try:
+            importlib.reload(sys.modules[_mod])
+        except Exception:
+            pass
+
 import streamlit as st
 from src.ui.styles import apply_custom_styles
 
