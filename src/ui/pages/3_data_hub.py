@@ -16,7 +16,6 @@ import pandas as pd
 from src.ui.styles import apply_custom_styles, render_header, render_metric_card
 from src.data_engine.crud import (
     get_all_products,
-    get_all_stores,
     create_product,
     update_product,
     delete_product,
@@ -304,25 +303,35 @@ with tab_stock:
     )
 
     df_all_prods = get_all_products()
-    df_stores = get_all_stores()
     df_inv = get_latest_inventory_health()
 
     if df_all_prods.empty:
         st.warning("No products found in the catalog. Please add products in the Products Manager tab first.")
     else:
+        # Build store metadata directly from inventory health or standard locations
+        fallback_stores = {
+            "STR01": "Downtown Metro Flagship",
+            "STR02": "Suburban Mega Center",
+            "STR03": "Westside QuickMart",
+        }
+        if not df_inv.empty and "store_id" in df_inv.columns:
+            store_opts = sorted(df_inv["store_id"].unique().tolist())
+            if "store_name" in df_inv.columns:
+                store_labels = dict(zip(df_inv["store_id"], df_inv["store_name"]))
+            else:
+                store_labels = fallback_stores
+        else:
+            store_opts = list(fallback_stores.keys())
+            store_labels = fallback_stores
+
         # 1. Location & SKU Filtering Bar
         f_loc1, f_loc2, f_loc3 = st.columns([1.2, 1, 1.5])
 
         with f_loc1:
-            store_opts = df_stores["store_id"].tolist() if not df_stores.empty else ["STR01", "STR02", "STR03"]
-            store_labels = {
-                r["store_id"]: f"{r['store_id']} — {r['store_name']}"
-                for _, r in df_stores.iterrows()
-            } if not df_stores.empty else {}
             adj_store = st.selectbox(
                 "🏢 Store Location",
                 options=store_opts,
-                format_func=lambda s: store_labels.get(s, s),
+                format_func=lambda s: f"{s} — {store_labels.get(s, s)}",
                 key="adj_store_select",
             )
 
