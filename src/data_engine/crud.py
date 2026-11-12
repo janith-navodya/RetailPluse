@@ -104,10 +104,10 @@ def create_product(
             insert_sql = text("""
                 INSERT INTO dbo.dim_product (
                     product_id, product_name, category, sub_category, brand,
-                    supplier_id, unit_cost_price, unit_retail_price, pack_size, shelf_life_days, name
+                    supplier_id, unit_cost_price, unit_retail_price, pack_size, shelf_life_days
                 ) VALUES (
                     :pid, :pname, :cat, :subcat, :brand,
-                    :supid, :cost, :retail, :pack, :shelf, :pname
+                    :supid, :cost, :retail, :pack, :shelf
                 );
             """)
             conn.execute(insert_sql, {
@@ -175,7 +175,6 @@ def update_product(
             update_sql = text("""
                 UPDATE dbo.dim_product
                 SET product_name = :pname,
-                    name = :pname,
                     category = :cat,
                     sub_category = :subcat,
                     brand = :brand,
