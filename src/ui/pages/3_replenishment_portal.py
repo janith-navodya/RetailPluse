@@ -87,7 +87,8 @@ controller = StochasticInventoryController(default_service_level=service_level_i
 candidates = []
 
 for _, r in store_skus.iterrows():
-    mu_d = float(r["rolling_30d_avg_daily_sales"]) if pd.notna(r["rolling_30d_avg_daily_sales"]) else 5.0
+    raw_mu = float(r["rolling_30d_avg_daily_sales"]) if pd.notna(r["rolling_30d_avg_daily_sales"]) else 5.0
+    mu_d = raw_mu if raw_mu > 0.0 else 5.0  # Resilient cold-start baseline for new catalog SKUs
     if active_shock_pct != 0 and (str(r["product_id"]) == active_shock_sku or active_shock_sku == ""):
         mu_d = max(0.1, mu_d * (1.0 + (active_shock_pct / 100.0)))
     sig_d = max(1.0, mu_d * 0.35)
@@ -123,7 +124,8 @@ if ("current_recommendations" not in st.session_state) or run_button or (st.sess
         )
         st.session_state["current_recommendations"] = recs
         st.session_state["optimization_summary"] = summary
-        st.session_state["active_date_key"] = 20251231
+        db_date_key = int(df_health["date_key"].dropna().iloc[0]) if "date_key" in df_health.columns and not df_health.empty else 20251231
+        st.session_state["active_date_key"] = db_date_key
         st.session_state["last_opt_sig"] = param_sig
 
 recs = st.session_state.get("current_recommendations", [])
@@ -188,13 +190,15 @@ if not recs:
     st.stop()
 
 # Table filter controls
-t_col1, t_col2 = st.columns([2, 1])
+t_col1, t_col2 = st.columns([1.5, 1])
 with t_col1:
     filter_order_view = st.radio(
         "Order Filter Mode",
         options=["Orders Recommended (>0 Units)", "All Evaluated SKUs", "Stockout Risks Only"],
         horizontal=True,
     )
+with t_col2:
+    sku_search = st.text_input("🔍 Search SKU or Product Name", placeholder="e.g. PRD60, Pen, Dairy...", key="rec_table_search")
 
 # Convert recs to DataFrame
 table_data = []
@@ -232,6 +236,29 @@ elif filter_order_view == "Stockout Risks Only":
     display_table = df_table[df_table["Status"] == "STOCKOUT_RISK"]
 else:
     display_table = df_table
+
+# Apply search filter if entered
+if sku_search.strip():
+    s_q = sku_search.strip().lower()
+    search_matches = display_table[
+        display_table["SKU"].astype(str).str.lower().str.contains(s_q)
+        | display_table["Product Name"].astype(str).str.lower().str.contains(s_q)
+        | display_table["Category"].astype(str).str.lower().str.contains(s_q)
+    ]
+    if search_matches.empty:
+        # Check across all evaluated SKUs if item exists but was filtered out by order view
+        full_matches = df_table[
+            df_table["SKU"].astype(str).str.lower().str.contains(s_q)
+            | df_table["Product Name"].astype(str).str.lower().str.contains(s_q)
+            | df_table["Category"].astype(str).str.lower().str.contains(s_q)
+        ]
+        if not full_matches.empty:
+            st.info(f"💡 Showing match from **All Evaluated SKUs** (current stock covers demand, so 0 additional units are required):")
+            display_table = full_matches
+        else:
+            display_table = search_matches
+    else:
+        display_table = search_matches
 
 st.dataframe(
     display_table.style.format({
@@ -291,13 +318,9 @@ with col_act3:
 
 # Single Item Modification / Review
 st.markdown("##### ✏️ Single Recommendation Review & Quantity Override")
-rec_ordered = [r for r in recs if r.recommended_units > 0]
-if not rec_ordered:
-    rec_ordered = recs[:5]
-
 rec_options = {
-    f"REC-{active_date_key}-{r.store_id}-{r.product_id}": f"{r.product_id} — {r.product_name} (Rec: {r.recommended_units} units)"
-    for r in rec_ordered
+    f"REC-{active_date_key}-{r.store_id}-{r.product_id}": f"{r.product_id} — {r.product_name} (Rec: {r.recommended_units} units | Status: {r.inventory_status})"
+    for r in recs
 }
 
 if rec_options:
@@ -356,8 +379,11 @@ st.caption(
 try:
     conn = get_db_connection()
     query = """
-        SELECT r.recommendation_id, p.name AS product_name, r.recommended_order_qty, 
-               r.total_cost, r.approval_status
+        SELECT r.recommendation_id, 
+               ISNULL(p.product_name, p.name) AS product_name, 
+               r.recommended_order_qty, 
+               r.total_cost, 
+               r.approval_status
         FROM fact_replenishment_recommendation r
         JOIN dim_product p ON r.product_id = p.product_id
         WHERE r.approval_status = 'PROPOSED'

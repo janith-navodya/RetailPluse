@@ -160,6 +160,7 @@ def _generate_synthetic_fleet() -> pd.DataFrame:
         ("PRD08", "Clogard Natural Clove Toothpaste 120g", "Personal Care", "Clogard", "SUP05", "Hemas Manufacturing", 12, 48, 190.0, 230.0, 14.0, 280, 20.0, 0),
         ("PRD09", "Keells Chicken Sausages 500g", "Frozen Food", "Keells Food", "SUP06", "Keells Distribution", 10, 40, 550.0, 650.0, 16.0, 4, 0.25, 0),
         ("PRD10", "Araliya Keeri Samba Rice 5kg", "Grains & Staples", "Araliya", "SUP07", "Rajarata Millers", 5, 20, 1250.0, 1450.0, 25.0, 550, 22.0, 0),
+        ("PRD60", "SanDisk Ultra 64GB Pen Drive", "Electronics", "SanDisk", "SUP01", "Apex Global Logistics", 6, 24, 15.0, 25.0, 5.0, 0, 0.0, 1),
     ]
 
     records = []
@@ -193,7 +194,7 @@ def _generate_synthetic_fleet() -> pd.DataFrame:
 
 @st.cache_data(ttl=60, show_spinner=False)
 def get_latest_inventory_health() -> pd.DataFrame:
-    """Retrieves closing inventory health snapshot with supplier metadata."""
+    """Retrieves closing inventory health snapshot with supplier metadata across all active catalog products."""
     df = pd.DataFrame()
     if is_database_available():
         sql = """
@@ -224,41 +225,58 @@ def get_latest_inventory_health() -> pd.DataFrame:
                     ROUND(AVG(CAST(is_stockout AS FLOAT)) * 100.0, 2) AS stockout_frequency_pct
                 FROM dbo.fact_inventory_snapshot
                 GROUP BY store_id, product_id
+            ),
+            all_store_products AS (
+                SELECT 
+                    s.store_id,
+                    s.store_name,
+                    p.product_id,
+                    p.product_name,
+                    p.category,
+                    p.brand,
+                    p.supplier_id,
+                    p.pack_size,
+                    p.unit_cost_price,
+                    p.unit_retail_price
+                FROM dbo.dim_store s
+                CROSS JOIN dbo.dim_product p
             )
             SELECT 
-                inv.store_id,
-                st.store_name,
-                inv.product_id,
-                p.product_name,
-                p.category,
-                p.brand,
-                p.supplier_id,
-                sup.supplier_name,
-                p.pack_size,
-                sup.min_order_qty,
-                p.unit_cost_price,
-                p.unit_retail_price,
-                inv.ending_on_hand_qty AS closing_stock_on_hand,
-                inv.ending_inventory_value,
-                inv.is_stockout,
-                ROUND(ISNULL(rs.rolling_30d_avg_daily_sales, 0.0), 2) AS rolling_30d_avg_daily_sales,
+                ISNULL(inv.date_key, @MaxDateKey) AS date_key,
+                asp.store_id,
+                asp.store_name,
+                asp.product_id,
+                asp.product_name,
+                asp.category,
+                asp.brand,
+                asp.supplier_id,
+                ISNULL(sup.supplier_name, 'Standard Procurement Partner') AS supplier_name,
+                ISNULL(asp.pack_size, 6) AS pack_size,
+                ISNULL(sup.min_order_qty, 24) AS min_order_qty,
+                asp.unit_cost_price,
+                asp.unit_retail_price,
+                ISNULL(inv.ending_on_hand_qty, 0) AS closing_stock_on_hand,
+                ISNULL(inv.ending_inventory_value, 0.0) AS ending_inventory_value,
+                ISNULL(inv.is_stockout, CASE WHEN ISNULL(inv.ending_on_hand_qty, 0) = 0 THEN 1 ELSE 0 END) AS is_stockout,
+                ROUND(CASE WHEN rs.rolling_30d_avg_daily_sales IS NULL OR rs.rolling_30d_avg_daily_sales <= 0 THEN 5.0 ELSE rs.rolling_30d_avg_daily_sales END, 2) AS rolling_30d_avg_daily_sales,
                 CASE 
-                    WHEN inv.ending_on_hand_qty = 0 THEN 0.0
+                    WHEN ISNULL(inv.ending_on_hand_qty, 0) = 0 THEN 0.0
                     WHEN rs.rolling_30d_avg_daily_sales IS NULL OR rs.rolling_30d_avg_daily_sales = 0 THEN 999.0
-                    ELSE ROUND(CAST(inv.ending_on_hand_qty AS FLOAT) / rs.rolling_30d_avg_daily_sales, 1)
+                    ELSE ROUND(CAST(ISNULL(inv.ending_on_hand_qty, 0) AS FLOAT) / rs.rolling_30d_avg_daily_sales, 1)
                 END AS days_of_supply,
                 ISNULL(ss.stockout_frequency_pct, 0.0) AS stockout_frequency_pct,
-                sup.mean_lead_time_days,
-                sup.lead_time_std_dev,
-                sup.service_level_target_pct
-            FROM dbo.fact_inventory_snapshot inv
-            INNER JOIN dbo.dim_store st ON inv.store_id = st.store_id
-            INNER JOIN dbo.dim_product p ON inv.product_id = p.product_id
-            INNER JOIN dbo.dim_supplier sup ON p.supplier_id = sup.supplier_id
-            LEFT JOIN recent_sales rs ON inv.store_id = rs.store_id AND inv.product_id = rs.product_id
-            LEFT JOIN stockout_stats ss ON inv.store_id = ss.store_id AND inv.product_id = ss.product_id
-            WHERE inv.date_key = @MaxDateKey
-            ORDER BY inv.is_stockout DESC, days_of_supply ASC;
+                ISNULL(sup.mean_lead_time_days, 3.0) AS mean_lead_time_days,
+                ISNULL(sup.lead_time_std_dev, 0.5) AS lead_time_std_dev,
+                ISNULL(sup.service_level_target_pct, 95.0) AS service_level_target_pct
+            FROM all_store_products asp
+            LEFT JOIN dbo.fact_inventory_snapshot inv 
+                ON asp.store_id = inv.store_id 
+               AND asp.product_id = inv.product_id 
+               AND inv.date_key = @MaxDateKey
+            LEFT JOIN dbo.dim_supplier sup ON asp.supplier_id = sup.supplier_id
+            LEFT JOIN recent_sales rs ON asp.store_id = rs.store_id AND asp.product_id = rs.product_id
+            LEFT JOIN stockout_stats ss ON asp.store_id = ss.store_id AND asp.product_id = ss.product_id
+            ORDER BY is_stockout DESC, days_of_supply ASC;
         """
         df = execute_query(sql)
 
@@ -273,7 +291,8 @@ def get_latest_inventory_health() -> pd.DataFrame:
     deficits = []
 
     for _, row in df.iterrows():
-        mean_d = float(row["rolling_30d_avg_daily_sales"]) if pd.notna(row["rolling_30d_avg_daily_sales"]) else 5.0
+        raw_d = float(row["rolling_30d_avg_daily_sales"]) if pd.notna(row["rolling_30d_avg_daily_sales"]) else 5.0
+        mean_d = raw_d if raw_d > 0.0 else 5.0  # Cold-start baseline for new SKUs
         std_d = max(1.0, mean_d * 0.35)
         res = controller.calculate_sku_inventory_status(
             store_id=str(row["store_id"]),
@@ -328,10 +347,9 @@ def get_sku_demand_history(store_id: str, product_id: str, days: int = 120) -> p
             ORDER BY s.date_key ASC;
         """
         df = execute_query(sql, params={"store_id": store_id, "product_id": product_id})
-        if df.empty:
-            return pd.DataFrame()
-    else:
-        # Generate synthetic history only when database is unavailable
+
+    if df.empty:
+        # Generate synthetic history for new SKUs or when database is offline
         end_d = date.today()
         dates = [end_d - timedelta(days=i) for i in reversed(range(days))]
         np.random.seed(42)
